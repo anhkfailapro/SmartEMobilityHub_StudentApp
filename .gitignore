@@ -1,0 +1,91 @@
+# ===== Visual Studio / .NET build output =====
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Dd]ebugPublic/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Ll]og/
+[Ll]ogs/
+publish/
+artifacts/
+
+# ===== Visual Studio cache and per-user files =====
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.rsuser
+*.vspscc
+*.vssscc
+*.pidb
+*.svclog
+*.tmp
+*.tmp_proj
+*.cache
+*.ilk
+*.pdb
+*.ipdb
+*.iobj
+*.pch
+*.sbr
+*.tlog
+*.lastbuildstate
+*_i.c
+*_p.c
+*_h.h
+*.meta
+*.obj
+*.idb
+*.log
+
+# WPF / XAML designer temp files
+*.g.cs
+*.g.i.cs
+*.baml
+*_wpftmp.csproj
+
+# ===== NuGet =====
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+
+# ===== Test results =====
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.coverage
+*.coveragexml
+coverage*.json
+
+# ===== Other editors =====
+.vscode/
+.idea/
+*.swp
+*~
+
+# ===== OS files =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+~$*
+
+# ===== Local secrets / personal settings (never commit) =====
+.env
+*.env
+appsettings.*.local.json
+.claude/settings.local.json
+
+# ==== .md files (except README.md) ====
+*.md
+!README.md
