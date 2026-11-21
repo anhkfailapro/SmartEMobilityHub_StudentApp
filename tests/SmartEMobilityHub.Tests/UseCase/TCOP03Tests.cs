@@ -29,6 +29,25 @@ public static class TCOP03Tests
             Assert.Equal(DeviceStatus.UnderCheck, world.Store.FindVehicle("XE-112")!.Status, "Xe phải sang UNDER_CHECK");
             Assert.True(world.Incidents.GetIncidentQueue().Any(i => i.IncidentId == record.IncidentId), "Sự cố mới phải có trong hàng đợi");
             Assert.True(world.Notification.UserMessages.Any(m => m.UserId == "SV-2414064"), "Người báo phải nhận phản hồi");
+
+            // Mất mạng thông báo không được làm hỏng việc tiếp nhận sự cố.
+            var offlineWorld = TestWorld.Create();
+            offlineWorld.Notification.NetworkDown = true;
+            var beforeOffline = offlineWorld.Store.Incidents.Count;
+            var offlineRecord = offlineWorld.Incidents.ReceiveStudentReport(
+                "SV-2414066",
+                IncidentObjectType.Vehicle,
+                "XE-114",
+                "Đèn pha chập chờn",
+                "Đèn pha lúc sáng lúc tắt.",
+                0);
+
+            Assert.True(
+                offlineWorld.Store.Incidents.Count == beforeOffline + 1 &&
+                offlineRecord.Status == IncidentStatus.New &&
+                offlineWorld.Store.FindVehicle("XE-114")!.Status == DeviceStatus.UnderCheck &&
+                offlineWorld.Logger.Contains("WARN", "không gửi được thông báo"),
+                "Mất mạng thông báo: vẫn tạo sự cố, xe sang UNDER_CHECK và chỉ ghi WARN");
         });
 
         runner.Add("TCOP03-02", "Báo cáo trùng được gộp vào sự cố đang mở", () =>
