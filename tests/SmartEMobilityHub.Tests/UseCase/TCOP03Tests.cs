@@ -31,10 +31,9 @@ public static class TCOP03Tests
             Assert.True(world.Notification.UserMessages.Any(m => m.UserId == "SV-2414064"), "Người báo phải nhận phản hồi");
 
             // Mất mạng thông báo không được làm hỏng việc tiếp nhận sự cố.
-            var offlineWorld = TestWorld.Create();
-            offlineWorld.Notification.NetworkDown = true;
-            var beforeOffline = offlineWorld.Store.Incidents.Count;
-            var offlineRecord = offlineWorld.Incidents.ReceiveStudentReport(
+            var offline = TestWorld.CreateOffline();
+            var beforeOffline = offline.Store.Incidents.Count;
+            var offlineRecord = offline.Incidents.ReceiveStudentReport(
                 "SV-2414066",
                 IncidentObjectType.Vehicle,
                 "XE-114",
@@ -42,12 +41,10 @@ public static class TCOP03Tests
                 "Đèn pha lúc sáng lúc tắt.",
                 0);
 
-            Assert.True(
-                offlineWorld.Store.Incidents.Count == beforeOffline + 1 &&
-                offlineRecord.Status == IncidentStatus.New &&
-                offlineWorld.Store.FindVehicle("XE-114")!.Status == DeviceStatus.UnderCheck &&
-                offlineWorld.Logger.Contains("WARN", "không gửi được thông báo"),
-                "Mất mạng thông báo: vẫn tạo sự cố, xe sang UNDER_CHECK và chỉ ghi WARN");
+            Assert.Equal(beforeOffline + 1, offline.Store.Incidents.Count, "Mất mạng vẫn phải tạo sự cố");
+            Assert.Equal(IncidentStatus.New, offlineRecord.Status);
+            Assert.Equal(DeviceStatus.UnderCheck, offline.Store.FindVehicle("XE-114")!.Status, "Xe vẫn phải sang UNDER_CHECK");
+            Assert.Equal(1, offline.Notification.FailedDeliveries, "Phải thử gửi và thất bại đúng một lần");
         });
 
         runner.Add("TCOP03-02", "Báo cáo trùng được gộp vào sự cố đang mở", () =>
@@ -113,15 +110,12 @@ public static class TCOP03Tests
             Assert.True(world.Notification.Broadcasts.Any(b => b.HubId == "HUB-08"), "Phải phát thông báo cho người bị ảnh hưởng");
 
             // Mất mạng broadcast không được làm sai kết quả tạm dừng Hub.
-            var offlineWorld = TestWorld.Create();
-            offlineWorld.Notification.NetworkDown = true;
-            var offlineCancelled = offlineWorld.Incidents.SuspendHub("HUB-08", "OP-01");
+            var offline = TestWorld.CreateOffline();
+            var offlineCancelled = offline.Incidents.SuspendHub("HUB-08", "OP-01");
 
-            Assert.True(
-                offlineCancelled == 5 &&
-                offlineWorld.Store.Reservations.Count(r => r.HubId == "HUB-08" && r.Status == ReservationStatus.Cancelled) == 5 &&
-                offlineWorld.Logger.Contains("WARN", "không gửi được thông báo hàng loạt"),
-                "Mất mạng broadcast: vẫn huỷ đủ 5 đơn, trả về 5 và chỉ ghi WARN");
+            Assert.Equal(5, offlineCancelled, "Vẫn phải trả về 5 đơn đã huỷ");
+            Assert.Equal(5, offline.Store.Reservations.Count(r => r.HubId == "HUB-08" && r.Status == ReservationStatus.Cancelled), "Cả 5 đơn phải ở trạng thái CANCELLED");
+            Assert.Equal(1, offline.Notification.FailedDeliveries, "Broadcast phải thất bại đúng một lần");
 
             Assert.Throws<HubNotFoundException>(
                 () => world.Incidents.SuspendHub("HUB-99", "OP-01"),

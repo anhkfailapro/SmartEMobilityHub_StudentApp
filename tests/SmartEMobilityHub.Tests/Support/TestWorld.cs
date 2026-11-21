@@ -49,6 +49,14 @@ public sealed class TestWorld
 
     public static TestWorld Create() => new();
 
+    /// <summary>World có đường thông báo đang lỗi (NetworkDown = true).</summary>
+    public static TestWorld CreateOffline()
+    {
+        var world = new TestWorld();
+        world.Notification.NetworkDown = true;
+        return world;
+    }
+
     public static ChargingRequest AddRequest(
         TestWorld world,
         string id,

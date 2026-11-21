@@ -23,15 +23,12 @@ public static class TCSYS04Tests
                 "Người dùng phải nhận thông báo huỷ");
 
             // Mất mạng thông báo không được làm sai kết quả huỷ đơn.
-            var offlineWorld = TestWorld.Create();
-            offlineWorld.Notification.NetworkDown = true;
-            var offlineCancelled = offlineWorld.AutoCancel.AutoCancelExpiredReservations();
+            var offline = TestWorld.CreateOffline();
+            var offlineCancelled = offline.AutoCancel.AutoCancelExpiredReservations();
 
-            Assert.True(
-                offlineCancelled == 1 &&
-                offlineWorld.Store.Reservations.First(r => r.Id == "R-101").Status == ReservationStatus.Cancelled &&
-                offlineWorld.Logger.Contains("WARN", "không gửi được thông báo"),
-                "Mất mạng thông báo: đơn vẫn bị huỷ, số đơn huỷ vẫn đúng và chỉ ghi WARN");
+            Assert.Equal(1, offlineCancelled, "Vẫn phải trả về đúng 1 đơn đã huỷ");
+            Assert.Equal(ReservationStatus.Cancelled, offline.Store.Reservations.First(r => r.Id == "R-101").Status);
+            Assert.Equal(1, offline.Notification.FailedDeliveries, "Phải thử gửi và thất bại đúng một lần");
         });
 
         runner.Add("TCSYS04-02", "Đặt chỗ 14 phút chưa bị huỷ (biên 15 phút)", () =>
