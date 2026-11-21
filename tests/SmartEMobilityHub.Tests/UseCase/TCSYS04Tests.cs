@@ -21,6 +21,17 @@ public static class TCSYS04Tests
             Assert.True(
                 world.Notification.UserMessages.Any(m => m.UserId == "SV-2414064"),
                 "Người dùng phải nhận thông báo huỷ");
+
+            // Mất mạng thông báo không được làm sai kết quả huỷ đơn.
+            var offlineWorld = TestWorld.Create();
+            offlineWorld.Notification.NetworkDown = true;
+            var offlineCancelled = offlineWorld.AutoCancel.AutoCancelExpiredReservations();
+
+            Assert.True(
+                offlineCancelled == 1 &&
+                offlineWorld.Store.Reservations.First(r => r.Id == "R-101").Status == ReservationStatus.Cancelled &&
+                offlineWorld.Logger.Contains("WARN", "không gửi được thông báo"),
+                "Mất mạng thông báo: đơn vẫn bị huỷ, số đơn huỷ vẫn đúng và chỉ ghi WARN");
         });
 
         runner.Add("TCSYS04-02", "Đặt chỗ 14 phút chưa bị huỷ (biên 15 phút)", () =>
