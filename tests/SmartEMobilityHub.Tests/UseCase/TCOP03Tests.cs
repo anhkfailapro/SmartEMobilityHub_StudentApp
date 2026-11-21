@@ -93,6 +93,17 @@ public static class TCOP03Tests
             Assert.Equal(5, world.Store.Reservations.Count(r => r.HubId == "HUB-08" && r.Status == ReservationStatus.Cancelled));
             Assert.True(world.Notification.Broadcasts.Any(b => b.HubId == "HUB-08"), "Phải phát thông báo cho người bị ảnh hưởng");
 
+            // Mất mạng broadcast không được làm sai kết quả tạm dừng Hub.
+            var offlineWorld = TestWorld.Create();
+            offlineWorld.Notification.NetworkDown = true;
+            var offlineCancelled = offlineWorld.Incidents.SuspendHub("HUB-08", "OP-01");
+
+            Assert.True(
+                offlineCancelled == 5 &&
+                offlineWorld.Store.Reservations.Count(r => r.HubId == "HUB-08" && r.Status == ReservationStatus.Cancelled) == 5 &&
+                offlineWorld.Logger.Contains("WARN", "không gửi được thông báo hàng loạt"),
+                "Mất mạng broadcast: vẫn huỷ đủ 5 đơn, trả về 5 và chỉ ghi WARN");
+
             Assert.Throws<HubNotFoundException>(
                 () => world.Incidents.SuspendHub("HUB-99", "OP-01"),
                 "Hub không tồn tại phải báo lỗi");
