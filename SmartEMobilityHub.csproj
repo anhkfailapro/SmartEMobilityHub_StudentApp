@@ -9,4 +9,14 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
+  <!-- Hai project con nằm trong repo nên phải loại khỏi glob mặc định của app WPF. -->
+  <ItemGroup>
+    <Compile Remove="src/**" />
+    <Compile Remove="tests/**" />
+    <Page Remove="src/**" />
+    <Page Remove="tests/**" />
+    <ApplicationDefinition Remove="src/**" />
+    <ApplicationDefinition Remove="tests/**" />
+  </ItemGroup>
+
 </Project>

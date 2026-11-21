@@ -1,0 +1,188 @@
+{
+  "runAt": "2026-11-21T23:15:38.2235309+07:00",
+  "total": 30,
+  "passed": 30,
+  "failed": 0,
+  "results": [
+    {
+      "Code": "SMOKE-01",
+      "Name": "Seed đủ 12 Hub",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "SMOKE-02",
+      "Name": "HUB-08 đúng 54/60 và 8 cổng theo Figma",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "SMOKE-03",
+      "Name": "Seed đúng 24 sự cố (12 mới / 7 kiểm tra / 5 sửa chữa)",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "SMOKE-04",
+      "Name": "Đủ 7 mã sự cố hero",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "SMOKE-05",
+      "Name": "Hero vehicle/technician/reservation",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "SMOKE-06",
+      "Name": "Snapshot là bản sao sâu, không ghi ngược store",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "SMOKE-07",
+      "Name": "FakeClock tua thời gian được",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS02-01",
+      "Name": "Đồng bộ trạng thái Hub theo chu kỳ 30 giây",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS02-02",
+      "Name": "Mất kết nối cổng CS-08-04 không chặn Hub khác",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS02-03",
+      "Name": "Dữ liệu cũ quá 10 phút mới cảnh báo",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS03-01",
+      "Name": "Hub 54/60 (90%) sinh cảnh báo quá tải",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS03-02",
+      "Name": "Hub 53/60 (88,3%) không sinh cảnh báo",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS03-03",
+      "Name": "Gửi cảnh báo lỗi mạng được xếp hàng và gửi lại sau 30 giây",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS04-01",
+      "Name": "Đặt chỗ quá 15 phút bị huỷ và trả tài nguyên",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS04-02",
+      "Name": "Đặt chỗ 14 phút chưa bị huỷ (biên 15 phút)",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS04-03",
+      "Name": "Người dùng đang quét QR được gia hạn, không bị huỷ",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS01-01",
+      "Name": "Xếp hạng ưu tiên sạc theo pin, thời gian cần và cao điểm",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS01-02",
+      "Name": "Đổi trọng số: tổng khác 1 bị từ chối, cấu hình cũ giữ nguyên",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS01-03",
+      "Name": "Kế hoạch vượt công suất bị phát hiện và không cấp quá tải",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCSYS01-04",
+      "Name": "Cổng lỗi: chuyển xe sang cổng trống, hết cổng thì đưa lên đầu hàng chờ",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCOP03-01",
+      "Name": "Tiếp nhận báo cáo sự cố từ sinh viên",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCOP03-02",
+      "Name": "Báo cáo trùng được gộp vào sự cố đang mở",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCOP03-03",
+      "Name": "Khoá thiết bị, tạo phiếu bảo trì và gán kỹ thuật viên",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCOP03-04",
+      "Name": "Tạm dừng Hub huỷ đúng các đặt chỗ sắp tới",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "TCOP03-05",
+      "Name": "Mở khoá quá 30 giây không xác nhận",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "UNIT-01",
+      "Name": "Ngưỡng quá tải: 90% tính là quá tải, dưới 90% thì không",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "UNIT-02",
+      "Name": "Ngưỡng cấu hình phải trong (0, 1]",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "UNIT-03",
+      "Name": "Dữ liệu cũ: đúng 10 phút chưa cảnh báo, quá 1 giây thì cảnh báo",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "UNIT-04",
+      "Name": "Điểm ưu tiên: pin 0% + cần ngay = 92,5; pin 100% + còn xa = 7,5",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "UNIT-05",
+      "Name": "SLA: đúng hạn chưa vi phạm, quá 1 giây thì vi phạm; đã xong thì không tính",
+      "Passed": true,
+      "Detail": ""
+    }
+  ]
+}

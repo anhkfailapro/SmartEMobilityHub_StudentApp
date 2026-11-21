@@ -6,4 +6,7 @@
   <Project Path="SmartEMobilityHub.csproj">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
+  <Project Path="src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />
+  <Project Path="src/SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj" />
+  <Project Path="tests/SmartEMobilityHub.Tests/SmartEMobilityHub.Tests.csproj" />
 </Solution>

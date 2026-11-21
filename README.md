@@ -89,3 +89,56 @@ SmartEMobilityHub/
 
 Architecture: **Screen (UI) → Service → in-memory data**, matching the spec's traceability table (§8).
 Screens are built in C# with the shared `UiKit`, so every screen uses the same Figma style.
+
+---
+
+## 7. Phần của Vỹ — dịch vụ lõi & Trung tâm điều hành
+
+Ngoài app sinh viên, repo có thêm ba project (vẫn **không dùng NuGet**, cùng .NET 10):
+
+| Project | Vai trò |
+|---|---|
+| `src/SmartEMobilityHub.Core` | Lõi nghiệp vụ dùng chung: UC-SYS-01…04 (lập lịch sạc, đồng bộ trạng thái, ngưỡng quá tải, huỷ đặt chỗ quá hạn), UC-OP-03 (quản lý sự cố) và UC-OP-04 (giới hạn công suất). Không phụ thuộc WPF. |
+| `src/SmartEMobilityHub.Operator` | **Trung tâm điều hành** (WPF): danh sách 24 sự cố, chi tiết + nhật ký, khoá thiết bị, tạo phiếu bảo trì, gán kỹ thuật viên, tạm dừng Hub; cột phải có KPI, hàng chờ sạc và panel demo. |
+| `tests/SmartEMobilityHub.Tests` | Console runner: **18 test case bắt buộc** (Bảng 62–67) + 5 test biên + 7 smoke seed. Tự sinh `tests/report/results.md` và `results.json`. |
+
+### Chạy
+
+```bat
+cd SmartEMobilityHub_StudentApp
+
+rem Dashboard điều hành
+dotnet run --project src\SmartEMobilityHub.Operator\SmartEMobilityHub.Operator.csproj
+
+rem Kiểm thử (exit code 0 = tất cả đạt)
+dotnet run --project tests\SmartEMobilityHub.Tests\SmartEMobilityHub.Tests.csproj
+```
+
+Máy chưa có .NET 10 SDK thì dùng SDK cục bộ mà Vỹ đã cài (thư mục ngoài repo): thay `dotnet` bằng `..\.dotnet\dotnet`.
+
+### Tài liệu bàn giao
+
+- `docs/GD2_GD4_SERVICES.md` — kiến trúc service, API, sáu bước timer, cách tích hợp.
+- `docs/GD5_TESTS.md` — bảng 18 case + kết quả 30/30, ghi chú dữ liệu test.
+- `docs/GD6_OPERATOR_UI.md` — mô tả màn hình và kịch bản demo 10 bước.
+- `docs/DESIGN_CHANGES.md` — mọi sai lệch so với Submission #3 (DC-01…DC-34).
+- `docs/AI_USAGE_LOG.md` — khai báo sử dụng AI theo từng giai đoạn.
+- `docs/GD0_REVIEW.md`, `docs/GD1_CORE_CSHARP.md` — rà soát đặc tả và bàn giao GĐ1.
+
+### Lưu ý tích hợp
+
+- Dashboard dùng seed riêng của Core (`NetworkSeed`), **không sửa** `MockDataStore` của app sinh viên: seed app cố ý cho KTX Khu A đầy 100% để demo UC-07, trong khi KPI của dashboard cần HUB-08 = 90%.
+- App sinh viên chỉ bị sửa `SmartEMobilityHub.csproj` (loại `src/**`, `tests/**` khỏi glob) và `SmartEMobilityHub.slnx` (thêm project); không đổi XAML hay logic màn hình sinh viên.
+- Khi tích hợp thật, thêm `ProjectReference` sang Core và map enum `DeviceStatus` (PascalCase) ↔ `VehicleStatus`/`PointStatus` của app tại biên.
+
+```
+SmartEMobilityHub_StudentApp/
+├─ SmartEMobilityHub.csproj          WPF app sinh viên (UC-01…UC-11)
+├─ src/
+│  ├─ SmartEMobilityHub.Core/        lõi nghiệp vụ + adapter + seed
+│  └─ SmartEMobilityHub.Operator/    dashboard Quản lý sự cố & Bảo trì
+├─ tests/
+│  ├─ SmartEMobilityHub.Tests/       runner + 18 case + unit biên
+│  └─ report/                        results.md / results.json (tự sinh)
+└─ docs/                             đặc tả, quyết định, bàn giao, khai báo AI
+```
