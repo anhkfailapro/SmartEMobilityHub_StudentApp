@@ -96,7 +96,6 @@ public sealed class IncidentRow
     public string PriorityText { get; }
     public Brush PriorityBrush { get; }
     public IncidentStatus StatusRaw { get; }
-    public IncidentObjectType ObjectTypeRaw { get; }
     public List<IncidentLogRow> Logs { get; }
 
     public IncidentRow(IncidentRecord incident, NetworkStore store, DateTime now)
@@ -119,7 +118,6 @@ public sealed class IncidentRow
         PriorityText = Texts.Priority(incident.Priority);
         PriorityBrush = Texts.PriorityBrush(incident.Priority);
         StatusRaw = incident.Status;
-        ObjectTypeRaw = incident.ObjectType;
 
         Logs = incident.Logs
             .OrderBy(l => l.At)
@@ -136,7 +134,6 @@ public sealed class IncidentRow
 public sealed class MaintenanceRow
 {
     public string TaskId { get; }
-    public string IncidentId { get; }
     public string StatusText { get; }
     public string TechText { get; }
     public string SlaText { get; }
@@ -145,7 +142,6 @@ public sealed class MaintenanceRow
     public MaintenanceRow(MaintenanceTask task, DateTime now)
     {
         TaskId = task.TaskId;
-        IncidentId = task.IncidentId;
         StatusText = task.Status switch
         {
             MaintenanceStatus.Assigned => "Đã phân công",
@@ -183,7 +179,6 @@ public sealed class MaintenanceRow
 
 public sealed class TechnicianRow
 {
-    public string TechId { get; }
     public string Name { get; }
     public string Team { get; }
     public string DistanceText { get; }
@@ -192,7 +187,6 @@ public sealed class TechnicianRow
 
     public TechnicianRow(Technician technician, MobilityHub? hub)
     {
-        TechId = technician.TechId;
         Name = technician.Name;
         Team = technician.Team;
         DistanceText = hub is null ? "" : $"{technician.DistanceToHub(hub):0.0} km";

@@ -7,8 +7,9 @@
 ## 1. Cách tổ chức
 
 - Console runner tự viết (`TestRunner` + `Assert`), **không NuGet** theo ràng buộc của nhóm.
-- Mỗi test dựng một `TestWorld` mới: `FakeClock` cố định `2026-11-21 09:41`, seed sạch, đủ service, `MockIoTSensorGateway` tắt drift pin, `ManualScheduler` để không chờ 30 giây thật.
+- Mỗi test dựng một `TestWorld` mới: `FakeClock` cố định `2026-11-21 09:41`, seed sạch, đủ service, `MockIoTSensorGateway` tắt drift pin; không gọi `Start()` nên không có timer nền.
 - Test gọi `TickNow()` hoặc service trực tiếp; thời gian tua bằng `FakeClock` nên kết quả tất định.
+- TCSYS01-01 còn kiểm tra `ManualReorder`: yêu cầu bị ghim phải giữ vị trí sau khi `RunSchedule` tính lại điểm.
 - Test fail in rõ `Mã · Tên` + exception; runner trả exit code 1 nếu có case fail (không bỏ qua).
 
 ## 2. 18 test case bắt buộc

@@ -88,7 +88,7 @@
 | Nhóm file | Nội dung |
 |---|---|
 | `Core/Ports/` | `IAlertSink`, `ISmartSchedulingService`, `PortTelemetry.LastUpdatedAt` |
-| `Core/Adapters/` | `MockIoTSensorGateway` (fault injection), `InAppNotificationService`, `InMemoryReservationAdapter`, `ConsoleSystemLogger`, `ThreadPoolScheduler` |
+| `Core/Adapters/` | `MockIoTSensorGateway` (fault injection), `InAppNotificationService`, `InMemoryReservationAdapter`, `ThreadPoolScheduler` |
 | `Core/Services/` | `HubStatusSyncService`, `ThresholdMonitor`, `AlertRetryQueue`, `AutoCancelService`, `StatusUpdaterTimer` (6 bước), `SmartChargingScheduler`, `IncidentManager` |
 | `Core/Domain/` | `MobilityHub.PowerLimitKw` cho phép chỉnh; `MaintenanceTask.Assign(tech, now, sla)`; hằng `SupportHotline` |
 | `docs/` | `GD2_GD4_SERVICES.md`, cập nhật `DESIGN_CHANGES.md` (DC-27…DC-33) |
@@ -97,7 +97,7 @@
 
 **Vỹ cần tự kiểm tra**
 
-1. Đọc `StatusUpdaterTimer.OnTick` và chỉ ra chỗ mỗi bước được bọc try/catch — thử bật `StepFailureInjector` cho bước 2 để thấy bước 3–6 vẫn chạy.
+1. Đọc `StatusUpdaterTimer.OnTick` và chỉ ra chỗ mỗi bước được bọc try/catch — tạm thêm `throw` vào một bước rồi bỏ ra để thấy bước sau vẫn chạy.
 2. Tự tính điểm ưu tiên của CR-A (pin 10%, cần sau 30 phút, peak 0,5) = 83,125; giải thích vì sao urgency bị kẹp trong [0,1].
 3. Giải thích vì sao `AlertRetryQueue` phải nhận `IClock` thay vì `DateTime.Now`, và vì sao alert chỉ bị loại sau 5 lần.
 4. So lại `SuspendHub` với Bảng 41: vì sao chỉ huỷ reservation `PendingPickup` có `StartsAt > now`?
@@ -115,7 +115,7 @@
 
 | File | Nội dung |
 |---|---|
-| `tests/.../Support/TestWorld.cs` | Dựng seed + đủ service trên `FakeClock`, `ManualScheduler` |
+| `tests/.../Support/TestWorld.cs` | Dựng seed + đủ service trên `FakeClock`, không chạy timer nền |
 | `tests/.../UseCase/TCSYS02Tests.cs` … `TCOP03Tests.cs` | 18 test theo Bảng 62–67 |
 | `tests/.../Unit/BoundaryTests.cs` | 5 test biên (ngưỡng, dữ liệu cũ, điểm ưu tiên, SLA) |
 | `tests/.../ReportWriter.cs` | Sinh `tests/report/results.md` + `results.json` |
@@ -161,3 +161,30 @@
 **Giả định đã dùng:** như trên + DC-33 (UI riêng, tick do UI điều khiển).
 
 **Mức đóng góp của AI:** ~95% mã UI do AI sinh; phần đánh giá thẩm mỹ và kịch bản bảo vệ là của Vỹ.
+
+---
+
+## 2026-11-21 — GĐ7: rà soát lại toàn bộ 82 file
+
+**Bối cảnh:** Vỹ yêu cầu xem lại bằng con mắt mới, cắt code thừa/sửa tài liệu sai, giữ build sạch và 30 test xanh.
+
+**AI đã sửa/cắt**
+
+| Nhóm | Thay đổi |
+|---|---|
+| API chết | Bỏ `NetworkStore.Changed/NotifyChanged/Update/AllChargingPoints`, `ConsoleSystemLogger`, `StatusUpdaterTimer.StepFailureInjector`, `ManualScheduler` của test, các helper domain không dùng (`Vehicle.IsAvailable/IsStale/EstimatedRangeKm`, `ChargingPoint.Label`, `MobilityHub.AvailableChargingPorts/DistanceKmTo`), 3 field row không bind |
+| Lỗi logic | `ManualReorder` bị `RunSchedule` ghi đè → chèn lại vị trí ghim sau khi xếp điểm; `NextIncidentId` quét từ 1000 → lấy max mã hiện có; `LockDevice`/`AssignTechnician` chấp nhận sự cố đã đóng → chặn; `ReceiveUnlockTimeout` ghi trực tiếp reservation → dùng `IReservationPort`; `ReceiveSensorAlert` thêm "IOT" vào danh sách người báo → chỉ ghi log |
+| Lỗi khi mất mạng thông báo | `AutoCancelService` không tăng số đơn đã huỷ và báo lỗi sai; `SuspendHub`, `ReceiveStudentReport`, `ReceiveUnlockTimeout` ném lỗi sau khi đã ghi dữ liệu → thông báo lỗi chỉ ghi log, nghiệp vụ vẫn thành công |
+| UI | `Advance()` cập nhật lại danh sách (không chỉ header); chọn sự cố khác cập nhật lại khoảng cách KTV |
+| Tài liệu | `GD1`, `GD2`, `GD5`, `DESIGN_CHANGES` (DC-17, DC-27, thêm DC-35/DC-36), `AI_USAGE_LOG` |
+
+**Kiểm chứng:** build 0 warning/0 error; **30/30 test PASS** (TCSYS01-01 bổ sung kiểm tra thứ tự ghim); chạy lại app WPF thấy cửa sổ mở bình thường.
+
+**Vỹ cần tự kiểm tra**
+
+1. Đọc DC-35 và xác nhận không cần giữ `NetworkStore.Changed` cho kế hoạch What-if của Đức (nếu cần, thêm lại event và **dùng thật** ở UI).
+2. Tự chạy lại 30 test và thử `ManualReorder` trên UI/console để thấy thứ tự ghim không bị điểm ghi đè.
+3. Bấm thử nhánh "Mạng cảnh báo lỗi" rồi huỷ đặt chỗ (tua 16 phút) — số đơn huỷ phải vẫn đúng dù không gửi được thông báo.
+4. So lại các dòng tài liệu vừa sửa với code hiện tại (đặc biệt bảng Store trong GD1).
+
+**Mức đóng góp của AI:** toàn bộ phần rà soát/sửa do AI thực hiện trên code do chính AI sinh; Vỹ cần đọc lại diff trước khi bảo vệ.

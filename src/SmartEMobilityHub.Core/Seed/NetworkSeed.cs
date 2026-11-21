@@ -19,8 +19,6 @@ public static class NetworkSeed
         ReservationSeed.Apply(store, now);
         IncidentSeed.Apply(store, now);
         TechnicianSeed.Apply(store);
-
-        store.NotifyChanged();
     }
 
     /// <summary>Tạo store mới đã seed — tiện cho demo và test.</summary>

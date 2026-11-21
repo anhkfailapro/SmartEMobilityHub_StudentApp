@@ -25,8 +25,6 @@ public sealed class MobilityHub
 
     public int FreeParkingSlots => Math.Max(0, ParkingCapacity - OccupiedParkingSlots);
 
-    public int AvailableChargingPorts => ChargingPoints.Count(p => p.Status == DeviceStatus.Available);
-
     /// <summary>Cổng còn dùng được (loại OFFLINE khỏi mẫu số khi tính utilization).</summary>
     public int UsableChargingPorts => ChargingPoints.Count(p => p.Status != DeviceStatus.Offline);
 
@@ -40,8 +38,6 @@ public sealed class MobilityHub
 
     /// <summary>UC-SYS-03: max(tỷ lệ đỗ xe, tỷ lệ sạc) — Bảng 31.</summary>
     public double MaxUtilization => Math.Max(ParkingUtilization, ChargingUtilization);
-
-    public double DistanceKmTo(GeoPoint point) => Location.DistanceKmTo(point);
 
     public MobilityHub Clone()
     {

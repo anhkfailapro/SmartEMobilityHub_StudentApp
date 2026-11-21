@@ -112,6 +112,7 @@ public sealed class MainViewModel : ObservableObject
             OnPropertyChanged(nameof(DetailVisibility));
             OnPropertyChanged(nameof(EmptyVisibility));
             RefreshSelectedTasks();
+            RefreshTechnicians();
             RefreshActionFlags();
         }
     }
@@ -163,7 +164,7 @@ public sealed class MainViewModel : ObservableObject
     {
         _demo.Advance(minutes);
         Note($"Đã tua +{minutes} phút. Bấm “Quét ngay” để áp dụng chu kỳ.");
-        UpdateHeader();
+        Refresh();
     }
 
     public void Refresh()

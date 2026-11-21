@@ -10,8 +10,8 @@ namespace SmartEMobilityHub.Core.Services;
 /// </summary>
 public sealed class AlertRetryQueue : IAlertSink
 {
-    public const int RetryDelayMs = 30_000;
-    public const int MaxRetry = 5;
+    public const int RetryDelayMs = ServiceConstants.RetryDelayMs;
+    public const int MaxRetry = ServiceConstants.MaxRetry;
 
     private readonly INotificationService _notification;
     private readonly IClock _clock;

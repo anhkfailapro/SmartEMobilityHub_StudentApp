@@ -12,7 +12,7 @@ App của nhóm là **C#/WPF (.NET 10)**, nên phần TypeScript trong kế ho�
 |---|---|
 | `src/core` thuần, không phụ thuộc UI | `src/SmartEMobilityHub.Core` — class library `net10.0`, **không** tham chiếu WPF |
 | Clock inject được, cấm `Date.now()` | `IClock` + `SystemClock` + `FakeClock` + `ScaledClock`; `DateTime.Now` chỉ nằm trong `SystemClock` |
-| `NetworkStore` observable + `snapshot()` deep clone | `NetworkStore` (event `Changed`, `Snapshot()` clone sâu) |
+| `NetworkStore` + `snapshot()` deep clone | `NetworkStore` (`Snapshot()` clone sâu; UI tự gọi lại sau mỗi hành động, không dùng event) |
 | Ports & Adapters | 5 interface trong `Ports/`; adapter giả lập ở GĐ2 |
 | Seed hero + deterministic | `Seed/` — 12 Hub, 24 sự cố, 5 kỹ thuật viên |
 | 18 test case + báo cáo | `tests/SmartEMobilityHub.Tests` — console runner (nhóm cấm NuGet nên không dùng xUnit) |
@@ -66,11 +66,9 @@ C# dùng PascalCase theo quy ước của nhóm; ánh xạ 1–1 với UPPER_SNA
 | Thành viên | Ý nghĩa |
 |---|---|
 | `Hubs`, `Vehicles`, `Reservations`, `Incidents`, `Technicians`, `MaintenanceTasks`, `Alerts`, `ChargingRequests`, `Operators` | Danh sách sống (service ghi trực tiếp, giống `MockDataStore` của nhóm) |
-| `Changed` event | UI đăng ký để vẽ lại |
 | `Snapshot()` | Clone sâu toàn bộ — Đức dùng cho What-if, sửa snapshot không ảnh hưởng store |
-| `Update(Action)` | Mutate + phát `Changed` |
 | `FindHub/GetHub/FindVehicle/FindChargingPoint/FindIncident` | Truy vấn |
-| `NextAlertId/NextTaskId/NextIncidentId` | ID tuần tự, không dùng thời gian |
+| `NextAlertId/NextTaskId/NextIncidentId` | ID tuần tự, không dùng thời gian; `NextIncidentId` đi sau mã lớn nhất đang có |
 
 ### Ports (GĐ2 sẽ có adapter giả lập)
 

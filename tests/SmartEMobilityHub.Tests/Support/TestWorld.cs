@@ -24,7 +24,6 @@ public sealed class TestWorld
     public AutoCancelService AutoCancel { get; }
     public SmartChargingScheduler Charging { get; }
     public IncidentManager Incidents { get; }
-    public ManualScheduler Ticker { get; }
     public StatusUpdaterTimer Timer { get; }
 
     private TestWorld()
@@ -43,8 +42,9 @@ public sealed class TestWorld
         AutoCancel = new AutoCancelService(Reservations, Notification, Clock, Logger);
         Charging = new SmartChargingScheduler(Store, Gateway, Clock, Queue, Logger);
         Incidents = new IncidentManager(Store, Notification, Reservations, Clock, Logger);
-        Ticker = new ManualScheduler();
-        Timer = new StatusUpdaterTimer(Store, Clock, Sync, Threshold, Queue, AutoCancel, Charging, Logger, Ticker);
+
+        // Không truyền scheduler: test chỉ gọi TickNow(), không chạy timer nền.
+        Timer = new StatusUpdaterTimer(Store, Clock, Sync, Threshold, Queue, AutoCancel, Charging, Logger);
     }
 
     public static TestWorld Create() => new();

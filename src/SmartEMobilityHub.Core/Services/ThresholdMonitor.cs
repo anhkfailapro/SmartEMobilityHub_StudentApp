@@ -11,7 +11,7 @@ namespace SmartEMobilityHub.Core.Services;
 /// </summary>
 public sealed class ThresholdMonitor
 {
-    public const double DefaultThreshold = 0.90;
+    public const double DefaultThreshold = ServiceConstants.OverloadThreshold;
 
     private readonly NetworkStore _store;
     private readonly IClock _clock;

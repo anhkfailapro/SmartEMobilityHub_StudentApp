@@ -90,7 +90,7 @@ public sealed class OperatorDemo
     public int RestoreAlertChannel()
     {
         Notification.NetworkDown = false;
-        Clock.AdvanceSeconds(RetryQueueDelaySeconds + 1);
+        Clock.AdvanceSeconds(AlertRetryQueue.RetryDelayMs / 1000 + 1);
         return RetryQueue.ProcessQueue(Clock.Now);
     }
 
@@ -108,8 +108,6 @@ public sealed class OperatorDemo
         var plan = Charging.RunSchedule(Store.GetHub("HUB-08"));
         return plan.OrderedRequests.Count(r => r.AssignedPortId is not null);
     }
-
-    private const int RetryQueueDelaySeconds = 30;
 
     private void AddRequest(string id, string vehicle, int battery, int neededInMinutes)
     {

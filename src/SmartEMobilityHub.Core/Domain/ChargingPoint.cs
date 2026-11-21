@@ -14,8 +14,6 @@ public sealed class ChargingPoint
     public DateTime LastUpdatedAt { get; set; }
     public string? AssignedVehicleCode { get; set; }
 
-    public string Label => $"Cổng {Number:00}";
-
     public ChargingPoint Clone() => new()
     {
         Id = Id,

@@ -48,15 +48,26 @@ public sealed class AutoCancelService
                 }
 
                 _reservations.CancelReservation(reservation.Id, "Quá 15 phút giữ chỗ");
-                _notification.NotifyUser(
-                    reservation.UserId,
-                    $"Đặt chỗ {reservation.Id} tại {reservation.HubId} đã bị huỷ sau {ServiceConstants.ReservationHoldMinutes} phút giữ chỗ. Xe {reservation.VehicleCode} đã trở lại trạng thái sẵn sàng.");
-                cancelled++;
-                _logger.Info($"Đã huỷ {reservation.Id} quá hạn giữ chỗ.", "UC-SYS-04");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Không xử lý được {reservation.Id}: {ex.Message}", "UC-SYS-04");
+                _logger.Error($"Không huỷ được {reservation.Id}: {ex.Message}", "UC-SYS-04");
+                continue;
+            }
+
+            cancelled++;
+            _logger.Info($"Đã huỷ {reservation.Id} quá hạn giữ chỗ.", "UC-SYS-04");
+
+            // Mất mạng thông báo không được làm sai kết quả huỷ đơn.
+            try
+            {
+                _notification.NotifyUser(
+                    reservation.UserId,
+                    $"Đặt chỗ {reservation.Id} tại {reservation.HubId} đã bị huỷ sau {ServiceConstants.ReservationHoldMinutes} phút giữ chỗ. Xe {reservation.VehicleCode} đã trở lại trạng thái sẵn sàng.");
+            }
+            catch (NotificationDeliveryException ex)
+            {
+                _logger.Warn($"Đã huỷ {reservation.Id} nhưng không gửi được thông báo: {ex.Message}", "UC-SYS-04");
             }
         }
 

@@ -3,7 +3,7 @@
 **Quy tắc:** mọi điểm khác Sub 3 (thêm method/field/enum, đổi kiểu, đổi visibility) phải ghi ở đây **trước khi** áp dụng vào code. Không sửa âm thầm.
 **Trạng thái:** `Đề xuất` = chờ Vỹ xác nhận · `Đã áp dụng` = có trong code · `Từ chối` = không làm.
 
-Cập nhật lần cuối: 21/11/2026 (GĐ6).
+Cập nhật lần cuối: 21/11/2026 (GĐ7 — rà soát 82 file).
 
 | ID | Loại | Nội dung | Lý do | Ảnh hưởng | Trạng thái |
 |---|---|---|---|---|---|
@@ -23,7 +23,7 @@ Cập nhật lần cuối: 21/11/2026 (GĐ6).
 | DC-14 | Bổ sung tham số | `ThresholdMonitor.checkAllHubs(hubs = null)` — bỏ trống thì lấy từ store | Bảng 31 yêu cầu tham số `hubs`, PLAN lại gọi `checkAllHubs()` từ Timer | Timer, test | Đã áp dụng |
 | DC-15 | Chốt kiểu trả về | `evaluateHub(hub): Alert?` | Bảng 31 ghi `Alert` nhưng mô tả "ngược lại null" | ThresholdMonitor, test | Đã áp dụng |
 | DC-16 | Thêm tham số optional | `IncidentManager.getIncidentQueue(hubId = null, status = null)` | Bảng 41 ghi 2 tham số nhưng UI cần "tất cả" và lọc theo tab | UI queue, test | Đã áp dụng |
-| DC-17 | Thêm thành phần | `NetworkStore` (observable, `snapshot()` deep clone), `Clock`, `ports/*` | Không có trong Sub 3 (Sub 3 là thiết kế lớp nghiệp vụ); cần cho yêu cầu contract với nhóm và NFR 2.2.6, và để test không phụ thuộc UI | Toàn bộ GĐ1 | Đề xuất (PLAN đã dự kiến) |
+| DC-17 | Thêm thành phần | `NetworkStore` (`snapshot()` deep clone), `Clock`, `ports/*` | Không có trong Sub 3 (Sub 3 là thiết kế lớp nghiệp vụ); cần cho yêu cầu contract với nhóm và NFR 2.2.6, và để test không phụ thuộc UI | Toàn bộ GĐ1 | Đề xuất (PLAN đã dự kiến) |
 | DC-18 | Tách lớp | `AutoCancelService` là lớp riêng, Timer gọi qua nó | Sub 3 chỉ có method `#autoCancelExpiredReservations()` trong Timer; Development View lại có `AutoCancelService` trong package Reservation (C9/PLAN §5.5) | Timer, test TCSYS04 | Đã áp dụng |
 | DC-19 | Quy ước lỗi | Giữ nguyên **tên** exception như Sub 3 dưới dạng class kế thừa `Error`: `IllegalArgumentException`, `IllegalStateException`, `FileTooLargeException`, `HubNotFoundException`, `IncidentNotFoundException` | Bảo toàn tên trong bảng 41/45; TypeScript không có exception kiểu Java | Toàn bộ service, test | Đề xuất |
 
@@ -49,6 +49,7 @@ Cập nhật lần cuối: 21/11/2026 (GĐ6).
 
 **Đã áp dụng ở GĐ1:** DC-01, DC-02, DC-04, DC-05, DC-09, DC-10, DC-13, DC-17, DC-19, DC-20…DC-26.
 **Đã áp dụng ở GĐ2–GĐ6:** DC-03, DC-06, DC-07, DC-08, DC-11, DC-12, DC-14, DC-15, DC-16, DC-18, DC-27…DC-34.
+**Áp dụng ở GĐ7 (rà soát):** DC-35, DC-36.
 
 ---
 
@@ -56,7 +57,7 @@ Cập nhật lần cuối: 21/11/2026 (GĐ6).
 
 | ID | Loại | Nội dung | Lý do | Trạng thái |
 |---|---|---|---|---|
-| DC-27 | Thêm field + hook | `PortTelemetry.LastUpdatedAt` (mốc dữ liệu từng cổng); `StatusUpdaterTimer.StepFailureInjector` (chỉ test) | Cần giữ mốc cũ khi cổng mất kết nối để UI báo "dữ liệu cũ"; cần chứng minh lỗi một bước không chặn bước khác (NFR 2.2.2) | Đã áp dụng |
+| DC-27 | Thêm field | `PortTelemetry.LastUpdatedAt` (mốc dữ liệu từng cổng) | Cần giữ mốc cũ khi cổng mất kết nối để UI báo "dữ liệu cũ" thay vì làm mới giả tạo | Đã áp dụng |
 | DC-28 | Chốt hành vi | `SmartChargingScheduler`: `HandleFaultyChargingPoint` trả `bool`; `UpdatePriorityRules` từ chối nếu mỗi trọng số ngoài [0,1] hoặc tổng ≠ 1; `AllocatePower` chỉ cấp cổng `Available` trong ngân sách còn lại, cổng lỗi thì thử cổng kế tiếp | Bảng 37 không nói rõ kiểu trả về và cách xử lý cổng lỗi; test TCSYS01-02/04 cần hành vi xác định | Đã áp dụng |
 | DC-29 | Mở rộng điều kiện | `ThresholdMonitor.CheckAllHubs` bỏ qua Hub `SUSPENDED` **và** `OFFLINE`; so sánh dùng `>=` | Bảng 31 chỉ nói bỏ Hub OFFLINE; Hub tạm dừng cũng không nên sinh cảnh báo quá tải; biên 90% phải tính là quá tải (TCSYS03-01) | Đã áp dụng |
 | DC-30 | Thêm port | `IAlertSink` + `AlertRetryQueue` là lớp riêng, gửi lại sau 30 giây, tối đa 5 lần | Bảng 32/33 mô tả hàng đợi nhưng không có lớp; cần inject vào Timer và các service khác | Đã áp dụng |
@@ -64,3 +65,5 @@ Cập nhật lần cuối: 21/11/2026 (GĐ6).
 | DC-32 | Đổi chữ ký | `MaintenanceTask.Assign(tech, now, sla)` — nhận hạn SLA thay vì tự suy từ priority | Bảng 45 không nói ai tính SLA; `IncidentManager` biết priority của sự cố | Đã áp dụng |
 | DC-33 | Thêm project UI | `src/SmartEMobilityHub.Operator` (WPF) là dashboard vận hành riêng; app sinh viên không bị sửa logic/XAML | Sub 2 §6 tách màn hình vận hành; tránh xung đột seed KTX A đầy 100% của app sinh viên | Đã áp dụng |
 | DC-34 | Dữ liệu test | TCOP03-01 dùng XE-112 thay XE-204 (XE-204 đã có SC-1023 mở → sẽ gộp); TCSYS02-02 bơm lỗi thêm CS-01-02 để kiểm tra log chuyển Offline | Seed cố định của Sub 2 §6.2 mâu thuẫn với kịch bản test nếu dùng XE-204; log chỉ nên phát khi trạng thái **đổi** | Đã áp dụng |
+| DC-35 | Cắt API chết | Bỏ `NetworkStore.Changed/NotifyChanged/Update/AllChargingPoints`, `ConsoleSystemLogger`, `StatusUpdaterTimer.StepFailureInjector`, các helper domain không dùng (`Vehicle.IsAvailable/IsStale/EstimatedRangeKm`, `ChargingPoint.Label`, `MobilityHub.AvailableChargingPorts/DistanceKmTo`), scheduler test thừa | Không nơi nào dùng; event không có subscriber, hook không có test. Giữ lại chỉ làm tài liệu và bề mặt API sai so với thực tế | Đã áp dụng |
+| DC-36 | Sửa hành vi | `ManualReorder` được áp dụng lại sau khi `RunSchedule` xếp theo điểm; `NextIncidentId` lấy max mã hiện có thay vì quét từ 1000; thông báo lỗi không làm hỏng kết quả huỷ đơn/tạm dừng Hub/báo cáo sự cố | Trước đó ghim thủ công bị điểm ghi đè; ID phụ thuộc bộ đếm khởi tạo; mất mạng thông báo làm `AutoCancelService` báo sai số đơn và `SuspendHub` ném lỗi sau khi đã đổi dữ liệu | Đã áp dụng |

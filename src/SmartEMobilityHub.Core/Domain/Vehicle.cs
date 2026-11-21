@@ -18,14 +18,6 @@ public sealed class Vehicle
     /// <summary>Cổng sạc đang gán (nếu đang CHARGING) — Bảng 37 allocatePower.</summary>
     public string? AssignedPortId { get; set; }
 
-    public double EstimatedRangeKm =>
-        Math.Round(BatteryLevel * (Type == VehicleType.EBike ? 0.46 : 0.78), 1);
-
-    public bool IsAvailable => Status == DeviceStatus.Available && Connection == ConnectionStatus.Online;
-
-    /// <summary>Dữ liệu cũ khi quá 10 phút (NFR 2.2.3) — biên dùng so sánh nghiêm ngặt.</summary>
-    public bool IsStale(DateTime now) => (now - LastUpdatedAt).TotalMinutes > 10;
-
     public Vehicle Clone() => new()
     {
         Code = Code,

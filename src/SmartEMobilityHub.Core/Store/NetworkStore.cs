@@ -26,19 +26,6 @@ public sealed class NetworkStore
     public List<ChargingRequest> ChargingRequests { get; } = new();
     public List<Operator> Operators { get; } = new();
 
-    /// <summary>UI đăng ký để vẽ lại sau mỗi lần dữ liệu đổi (thay cho binding).</summary>
-    public event Action? Changed;
-
-    public void NotifyChanged() => Changed?.Invoke();
-
-    /// <summary>Áp dụng một thay đổi rồi phát sự kiện — dùng cho service và seed.</summary>
-    public void Update(Action mutate)
-    {
-        ArgumentNullException.ThrowIfNull(mutate);
-        mutate();
-        NotifyChanged();
-    }
-
     /// <summary>Bản sao sâu, chỉ đọc — không thể ghi ngược vào store.</summary>
     public NetworkSnapshot Snapshot() => new(
         _clock.Now,
@@ -85,20 +72,31 @@ public sealed class NetworkStore
     public IncidentRecord GetIncident(string incidentId) =>
         FindIncident(incidentId) ?? throw new IncidentNotFoundException($"Không tìm thấy sự cố {incidentId}.");
 
-    public IEnumerable<ChargingPoint> AllChargingPoints => Hubs.SelectMany(h => h.ChargingPoints);
-
     public string NextAlertId() => $"AL-{++_alertSeq:0000}";
 
     public string NextTaskId() => $"MT-{++_taskSeq:0000}";
 
+    /// <summary>
+    /// ID kế tiếp đi sau mã lớn nhất đang có (seed dùng SC-1011…SC-1034),
+    /// không phụ thuộc bộ đếm khởi tạo.
+    /// </summary>
     public string NextIncidentId()
     {
+        var max = _incidentSeq;
+
+        foreach (var incident in Incidents)
+        {
+            if (!incident.IncidentId.StartsWith("SC-", StringComparison.Ordinal)) continue;
+            if (int.TryParse(incident.IncidentId.AsSpan(3), out var number) && number > max) max = number;
+        }
+
         string id;
         do
         {
-            id = $"SC-{++_incidentSeq}";
+            id = $"SC-{++max}";
         } while (Incidents.Any(i => i.IncidentId == id));
 
+        _incidentSeq = max;
         return id;
     }
 }

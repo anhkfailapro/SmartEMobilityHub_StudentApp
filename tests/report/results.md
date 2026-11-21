@@ -1,6 +1,6 @@
 # Kết quả kiểm thử — Smart E-Mobility Hub (Core)
 
-- Thời điểm chạy: 2026-11-21 23:15:38
+- Thời điểm chạy: 2026-11-21 23:29:27
 - Tổng số: **30** · Đạt: **30** · Không đạt: **0**
 - Nguồn: `tests/SmartEMobilityHub.Tests` (console runner, không dùng NuGet)
 

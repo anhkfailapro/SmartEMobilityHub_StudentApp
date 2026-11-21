@@ -20,7 +20,7 @@ Ports                    IClock, IIoTSensorGateway, INotificationService, IReser
                          ISystemLogger, IScheduler, IAlertSink, ISmartSchedulingService
         ▲
 Adapters                 MockIoTSensorGateway, InAppNotificationService, InMemoryReservationAdapter,
-                         ConsoleSystemLogger, ThreadPoolScheduler, UiLogger/NoopScheduler (Operator)
+                         ThreadPoolScheduler, UiLogger/NoopScheduler (Operator)
         │
         ▼
 NetworkStore             dữ liệu trong bộ nhớ + Snapshot() clone sâu
@@ -47,7 +47,6 @@ Quy tắc đã giữ:
 - `Start()` idempotent; `Stop()` giải phóng subscription; `IsRunning`, `LastTickAt`.
 - `TickNow()` chạy đúng một chu kỳ (DC-06), dùng cho demo và test.
 - `GetNextTickInSeconds()`, `GetSecondsSinceLastTick()` phục vụ header “Chu kỳ quét 30s · Cập nhật N giây trước”.
-- `StepFailureInjector` là hook **chỉ dùng cho test** để chứng minh cô lập lỗi (DC-27).
 
 ## 3. API công khai
 
@@ -105,6 +104,7 @@ Quy tắc đã giữ:
 
 - Điểm = `100 × (0.50 × (1 − pin/100) + 0.35 × urgency + 0.15 × peak)`, `urgency = clamp(1 − phútCònLại/240, 0, 1)`.
 - Sắp xếp giảm dần theo điểm, cùng điểm thì `NeededAt` sớm hơn trước, cuối cùng theo `RequestId`.
+- Yêu cầu bị `ManualReorder` (`Pinned`) được **chèn lại** đúng `QueuePosition` sau khi xếp theo điểm, nên lần lập lịch kế tiếp không ghi đè thứ tự thủ công.
 - Cấp cổng chỉ trong ngân sách `PowerLimitKw − công suất cổng đang Charging`; cổng lỗi bị đánh `Faulty`, phát alert và thử cổng kế tiếp.
 - Cổng đang sạc bị lỗi: chuyển xe sang cổng trống; hết cổng thì xe `NeedsCharge`, yêu cầu lên đầu hàng chờ.
 - Vượt công suất: vẫn trả kế hoạch đầy đủ nhưng phát alert “vượt giới hạn” và chỉ cấp trong ngân sách.
@@ -138,7 +138,6 @@ Quy tắc đã giữ:
 | `MockIoTSensorGateway` | `IIoTSensorGateway` | `FailNext(deviceId, FaultKind)`, `SetStale`, `SetNetworkDown`; lỗi cổng → Offline/Faulty, lỗi Hub → exception |
 | `InAppNotificationService` | `INotificationService` | `NetworkDown` để giả lập mất mạng; lưu `OperatorAlerts`, `UserMessages`, `Broadcasts` |
 | `InMemoryReservationAdapter` | `IReservationPort` | tìm đơn quá hạn/sắp tới, huỷ, gia hạn, đánh dấu đã nhận |
-| `ConsoleSystemLogger` | `ISystemLogger` | log ra console |
 | `ThreadPoolScheduler` | `IScheduler` | `System.Threading.Timer`, dùng ở app thật |
 | `UiLogger`, `NoopScheduler` | — | bản dành cho dashboard WPF (log hiển thị, tick do UI điều khiển) |
 
@@ -155,7 +154,7 @@ Quy tắc đã giữ:
 
 ## 6. Sai lệch & giả định
 
-Xem `DESIGN_CHANGES.md` (DC-07, DC-08, DC-11, DC-14…DC-18, DC-27…DC-33) và `GD0_REVIEW.md` (A1–A14). Các điểm đáng chú ý:
+Xem `DESIGN_CHANGES.md` (DC-07, DC-08, DC-11, DC-14…DC-18, DC-27…DC-36) và `GD0_REVIEW.md` (A1–A14). Các điểm đáng chú ý:
 
 - `HandleFaultyChargingPoint` trả `bool` thay vì `void` (cần biết còn cổng hay không).
 - `Assign` của `MaintenanceTask` nhận thêm `sla` để tính hạn theo priority.

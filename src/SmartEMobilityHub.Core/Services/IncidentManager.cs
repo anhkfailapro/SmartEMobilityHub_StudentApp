@@ -62,12 +62,14 @@ public sealed class IncidentManager
             throw new IllegalArgumentException("Mã đối tượng không được để trống.");
 
         objectCode = objectCode.Trim();
+        EnsureObjectExists(objectType, objectCode);
+
         var open = FindOpenIncident(objectCode);
         if (open is not null)
         {
             open.AddReport(userId, description);
             AddLog(open, $"Gộp báo cáo trùng từ {userId}: {description}", "Sinh viên");
-            _notification.NotifyUser(userId, $"Sự cố {open.IncidentId} đã được ghi nhận trước đó. Báo cáo của bạn đã được gộp.");
+            NotifyUserSafely(userId, $"Sự cố {open.IncidentId} đã được ghi nhận trước đó. Báo cáo của bạn đã được gộp.");
             return open;
         }
 
@@ -90,7 +92,7 @@ public sealed class IncidentManager
         _store.Incidents.Add(incident);
 
         SetDeviceStatus(incident, DeviceStatus.UnderCheck);
-        _notification.NotifyUser(userId, $"Đã tiếp nhận báo cáo {incident.IncidentId} cho {objectCode}. Người vận hành đang xử lý.");
+        NotifyUserSafely(userId, $"Đã tiếp nhận báo cáo {incident.IncidentId} cho {objectCode}. Người vận hành đang xử lý.");
 
         return incident;
     }
@@ -110,7 +112,6 @@ public sealed class IncidentManager
         var open = FindOpenIncident(objectCode);
         if (open is not null)
         {
-            open.AddReport("IOT", $"Cảnh báo bổ sung: {alertType}.");
             if (priority > open.Priority) open.Priority = priority;
             AddLog(open, $"Cảnh báo bổ sung từ cảm biến: {alertType}.", "Cảm biến IoT");
             return open;
@@ -138,18 +139,13 @@ public sealed class IncidentManager
     /// <summary>Bảng 41 + UC-S-06: không xác nhận mở khoá sau 30 giây.</summary>
     public IncidentRecord ReceiveUnlockTimeout(string vehicleId, string reservationId)
     {
+        var reservation = _store.Reservations.FirstOrDefault(r => r.Id == reservationId);
+        if (reservation is not null)
+            _reservations.CancelReservation(reservation.Id, $"Không xác nhận mở khoá sau {ServiceConstants.UnlockTimeoutSeconds} giây.");
+
         var vehicle = _store.FindVehicle(vehicleId);
         if (vehicle is not null && vehicle.Status != DeviceStatus.InUse)
             vehicle.Status = DeviceStatus.Reserved;
-
-        var reservation = _store.Reservations.FirstOrDefault(r => r.Id == reservationId);
-        if (reservation is not null)
-        {
-            reservation.Status = ReservationStatus.Cancelled;
-            reservation.ClosedAt = _clock.Now;
-            reservation.CancelReason = $"Không xác nhận mở khoá sau {ServiceConstants.UnlockTimeoutSeconds} giây.";
-            reservation.IsPickingUp = false;
-        }
 
         var incident = new IncidentRecord
         {
@@ -170,7 +166,7 @@ public sealed class IncidentManager
         _store.Incidents.Add(incident);
 
         if (reservation is not null)
-            _notification.NotifyUser(reservation.UserId, $"Không mở được khoá xe {vehicleId}. Liên hệ {ServiceConstants.SupportHotline}.");
+            NotifyUserSafely(reservation.UserId, $"Không mở được khoá xe {vehicleId}. Liên hệ {ServiceConstants.SupportHotline}.");
 
         return incident;
     }
@@ -183,6 +179,8 @@ public sealed class IncidentManager
     public bool LockDevice(string incidentId)
     {
         var incident = _store.GetIncident(incidentId);
+        if (!incident.IsOpen())
+            throw new IllegalStateException($"Sự cố {incidentId} đã đóng, không thể khoá thiết bị.");
 
         if (ReadDeviceStatus(incident) == DeviceStatus.Locked) return true;
 
@@ -225,6 +223,8 @@ public sealed class IncidentManager
         if (technician is null || !technician.IsAvailable()) return false;
 
         var incident = _store.FindIncident(task.IncidentId);
+        if (incident is not null && !incident.IsOpen()) return false;
+
         task.Assign(technician, _clock.Now, ServiceConstants.SlaFor(incident?.Priority ?? PriorityLevel.Medium));
 
         if (incident is not null)
@@ -276,9 +276,17 @@ public sealed class IncidentManager
         }
 
         _logger.Warn($"{operatorId} tạm dừng {hub.ShortName} — huỷ {cancelled} đặt chỗ.", "UC-OP-03");
-        _notification.BroadcastToHubAffectedUsers(
-            hubId,
-            $"{hub.ShortName} tạm dừng hoạt động. {cancelled} đặt chỗ sắp tới đã được huỷ và hoàn tài nguyên.");
+
+        try
+        {
+            _notification.BroadcastToHubAffectedUsers(
+                hubId,
+                $"{hub.ShortName} tạm dừng hoạt động. {cancelled} đặt chỗ sắp tới đã được huỷ và hoàn tài nguyên.");
+        }
+        catch (NotificationDeliveryException ex)
+        {
+            _logger.Warn($"Đã tạm dừng {hubId} nhưng không gửi được thông báo hàng loạt: {ex.Message}", "UC-OP-03");
+        }
 
         return cancelled;
     }
@@ -310,6 +318,30 @@ public sealed class IncidentManager
 
         incident.Status = next;
         AddLog(incident, $"Chuyển trạng thái sang {next}.", "Người vận hành");
+    }
+
+    private void NotifyUserSafely(string userId, string message)
+    {
+        try
+        {
+            _notification.NotifyUser(userId, message);
+        }
+        catch (NotificationDeliveryException ex)
+        {
+            _logger.Warn($"Không gửi được thông báo tới {userId}: {ex.Message}", "IncidentManager");
+        }
+    }
+
+    private void EnsureObjectExists(IncidentObjectType objectType, string objectCode)
+    {
+        var exists = objectType switch
+        {
+            IncidentObjectType.Vehicle => _store.FindVehicle(objectCode) is not null,
+            IncidentObjectType.ChargingPoint => _store.FindChargingPoint(objectCode) is not null,
+            _ => _store.FindHub(objectCode) is not null
+        };
+
+        if (!exists) throw new IllegalArgumentException($"Không tìm thấy {objectCode} trong mạng lưới.");
     }
 
     private string ResolveHubId(IncidentObjectType objectType, string objectCode)

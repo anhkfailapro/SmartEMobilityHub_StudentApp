@@ -36,6 +36,17 @@ public static class TCSYS01Tests
             Assert.True(a.AssignedPortId is not null, "CR-A phải được cấp cổng");
             Assert.True(c.AssignedPortId is not null, "CR-C phải được cấp cổng");
             Assert.True(b.AssignedPortId is null, "CR-B phải chờ vì hết cổng");
+
+            // Ghim thủ công phải thắng điểm số ở lần lập lịch kế tiếp.
+            var reorderWorld = TestWorld.Create();
+            var reorderHub = reorderWorld.Store.GetHub("HUB-05");
+            TestWorld.AddRequest(reorderWorld, "CR-R1", "XE-115", reorderHub.Id, 10, 30);
+            TestWorld.AddRequest(reorderWorld, "CR-R2", "XE-116", reorderHub.Id, 20, 60);
+            TestWorld.AddRequest(reorderWorld, "CR-R3", "XE-112", reorderHub.Id, 90, 120);
+
+            Assert.True(reorderWorld.Charging.ManualReorder("CR-R3", 0), "Phải ghim được CR-R3 lên đầu");
+            var reordered = reorderWorld.Charging.RunSchedule(reorderHub);
+            Assert.Equal("CR-R3", reordered.OrderedRequests[0].RequestId, "Thứ tự ghim không được bị điểm ghi đè");
         });
 
         runner.Add("TCSYS01-02", "Đổi trọng số: tổng khác 1 bị từ chối, cấu hình cũ giữ nguyên", () =>

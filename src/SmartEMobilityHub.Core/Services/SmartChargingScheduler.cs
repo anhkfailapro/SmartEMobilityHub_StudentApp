@@ -66,6 +66,13 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
             .ThenBy(r => r.RequestId, StringComparer.Ordinal)
             .ToList();
 
+        // Ghim thủ công phải thắng điểm số: chèn lại đúng vị trí sau khi xếp hạng.
+        foreach (var pinned in queue.Where(r => r.Pinned).OrderBy(r => r.QueuePosition))
+        {
+            ordered.Remove(pinned);
+            ordered.Insert(Math.Clamp(pinned.QueuePosition, 0, ordered.Count), pinned);
+        }
+
         var plan = new ChargingPlan
         {
             HubId = hub.Id,
@@ -285,7 +292,6 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
     private void MarkPortFaulty(ChargingPoint point, string reason)
     {
         point.Status = DeviceStatus.Faulty;
-        point.TemperatureC = Math.Max(point.TemperatureC, 70);
         point.AssignedVehicleCode = null;
 
         _logger.Error($"Cổng {point.Id} lỗi: {reason}", "UC-SYS-01");

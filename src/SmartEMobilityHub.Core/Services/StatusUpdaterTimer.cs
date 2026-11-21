@@ -85,9 +85,6 @@ public sealed class StatusUpdaterTimer
 
     public int GetNextTickInSeconds() => Math.Max(0, ScanIntervalMs / 1000 - GetSecondsSinceLastTick());
 
-    /// <summary>Bơm lỗi vào một bước để chứng minh cô lập lỗi (test NFR 2.2.2).</summary>
-    public Action<string>? StepFailureInjector { get; set; }
-
     /// <summary>6 bước tuần tự — mỗi bước bọc try/catch riêng.</summary>
     private void OnTick()
     {
@@ -170,7 +167,6 @@ public sealed class StatusUpdaterTimer
     {
         try
         {
-            StepFailureInjector?.Invoke(step);
             action();
         }
         catch (Exception ex)
