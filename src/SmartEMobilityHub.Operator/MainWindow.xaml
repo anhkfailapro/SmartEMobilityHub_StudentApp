@@ -501,6 +501,7 @@
 
                                 <ListBox ItemsSource="{Binding DispatchOrders}"
                                         SelectedItem="{Binding SelectedDispatchOrder, Mode=TwoWay}"
+                                        HorizontalContentAlignment="Stretch"
                                         BorderThickness="0" Background="Transparent" MaxHeight="140">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
@@ -508,10 +509,15 @@
                                                     BorderThickness="1" CornerRadius="6" Padding="7" Margin="0,0,0,4">
                                                 <StackPanel>
                                                     <Grid>
-                                                        <TextBlock Text="{Binding OrderId}" FontSize="11" FontWeight="SemiBold" />
-                                                        <TextBlock Text="{Binding RouteText}" FontSize="11.5" FontWeight="SemiBold"
-                                                                Margin="8,0,0,0" />
-                                                        <TextBlock Text="{Binding StatusText}" FontSize="10.5" FontWeight="SemiBold"
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding OrderId}" FontSize="11" FontWeight="SemiBold" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding RouteText}" FontSize="11.5" FontWeight="SemiBold"
+                                                                Margin="8,0,8,0" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding StatusText}" FontSize="10.5" FontWeight="SemiBold"
                                                                 Foreground="{Binding StatusBrush}" HorizontalAlignment="Right" />
                                                     </Grid>
                                                     <TextBlock Text="{Binding VehiclesText}" Style="{StaticResource Caption}" Margin="0,2,0,0" />
