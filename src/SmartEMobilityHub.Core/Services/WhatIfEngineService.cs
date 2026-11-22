@@ -67,7 +67,7 @@ public sealed class WhatIfEngineService
         {
             var progress = (double)step / stepCount;
             ApplyScenarioStep(preset.Type, target, beforeTarget, afterHubs, afterVehicles,
-                originalRequests, afterRequests, parameters, progress);
+                originalRequests, afterRequests, snapshot, parameters, progress);
             var at = parameters.StartTime.AddMinutes(Math.Min(
                 (parameters.EndTime - parameters.StartTime).TotalMinutes,
                 step * parameters.TimeStepMinutes));
@@ -273,7 +273,7 @@ public sealed class WhatIfEngineService
     private static void ApplyScenarioStep(ScenarioType type, MobilityHub target, MobilityHub original,
         List<MobilityHub> hubs, List<Vehicle> vehicles,
         List<ChargingRequest> originalRequests, List<ChargingRequest> requests,
-        SimulationParameters parameters, double progress)
+        NetworkSnapshot baseline, SimulationParameters parameters, double progress)
     {
         var percentage = parameters.DemandSurgePercent / 100d;
         switch (type)
@@ -328,20 +328,33 @@ public sealed class WhatIfEngineService
                 }
                 break;
             case ScenarioType.VehicleConcentration:
-                if (progress < 1) break;
-                var source = vehicles.Where(v => v.HubId != target.Id && v.Status == DeviceStatus.Available &&
+                var source = baseline.Vehicles.Where(v => v.HubId != target.Id && v.Status == DeviceStatus.Available &&
                         v.Connection == ConnectionStatus.Online)
                     .GroupBy(v => v.HubId).OrderByDescending(g => g.Count()).FirstOrDefault();
                 if (source is not null)
                 {
-                    var count = (int)Math.Ceiling(source.Count() * Math.Max(0, percentage) * progress);
+                    if (source.Key is not { } sourceHubId) break;
+                    var sourceVehicles = source.OrderBy(v => v.Code).ToList();
+                    var requested = (int)Math.Ceiling(sourceVehicles.Count * Math.Max(0, percentage) * progress);
                     var free = Math.Max(0, target.ParkingCapacity - original.OccupiedParkingSlots);
-                    var moved = source.Take(Math.Min(count, free)).ToList();
-                    foreach (var vehicle in moved) vehicle.HubId = target.Id;
-                    target.OccupiedParkingSlots = original.OccupiedParkingSlots + moved.Count;
-                    var sourceHub = hubs.FirstOrDefault(h => h.Id == source.Key);
+                    var movedCount = Math.Min(requested, Math.Min(sourceVehicles.Count, free));
+                    var movedCodes = sourceVehicles.Take(movedCount).Select(v => v.Code)
+                        .ToHashSet(StringComparer.Ordinal);
+                    foreach (var baselineVehicle in sourceVehicles)
+                    {
+                        var simulatedVehicle = vehicles.FirstOrDefault(v => v.Code == baselineVehicle.Code);
+                        if (simulatedVehicle is not null)
+                        simulatedVehicle.HubId = movedCodes.Contains(baselineVehicle.Code)
+                                ? target.Id : sourceHubId;
+                    }
+                    target.OccupiedParkingSlots = original.OccupiedParkingSlots + movedCount;
+                    var sourceHub = hubs.FirstOrDefault(h => h.Id == sourceHubId);
                     if (sourceHub is not null)
-                        sourceHub.OccupiedParkingSlots = Math.Max(0, sourceHub.OccupiedParkingSlots - moved.Count);
+                    {
+                        var baselineSource = baseline.FindHub(sourceHubId);
+                        sourceHub.OccupiedParkingSlots = Math.Max(0,
+                            (baselineSource?.OccupiedParkingSlots ?? sourceHub.OccupiedParkingSlots) - movedCount);
+                    }
                 }
                 break;
         }

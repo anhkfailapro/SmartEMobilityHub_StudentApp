@@ -18,6 +18,7 @@ public sealed class WhatIfViewModel : ObservableObject
     private SimulationSession? _selectedHistorySession;
     private SimulationResult? _result;
     private string _demandSurgeText = "50";
+    private double _demandSurgeValue = 50;
     private string _startTimeText = "14:00";
     private string _endTimeText = "19:00";
     private string _timeStepText = "30";
@@ -86,7 +87,31 @@ public sealed class WhatIfViewModel : ObservableObject
         }
     }
 
-    public string DemandSurgeText { get => _demandSurgeText; set => SetProperty(ref _demandSurgeText, value); }
+    public string DemandSurgeText
+    {
+        get => _demandSurgeText;
+        set
+        {
+            if (!SetProperty(ref _demandSurgeText, value)) return;
+            OnPropertyChanged(nameof(DemandSurgeValue));
+            if (double.TryParse(value, NumberStyles.Float, CultureInfo.CurrentCulture, out var parsed) &&
+                parsed is >= -50 and <= 200 && _demandSurgeValue != parsed)
+            {
+                _demandSurgeValue = parsed;
+                OnPropertyChanged(nameof(DemandSurgeValue));
+            }
+        }
+    }
+    public double DemandSurgeValue
+    {
+        get => _demandSurgeValue;
+        set
+        {
+            var rounded = Math.Clamp(Math.Round(value), -50, 200);
+            if (!SetProperty(ref _demandSurgeValue, rounded)) return;
+            DemandSurgeText = rounded.ToString("0", CultureInfo.CurrentCulture);
+        }
+    }
     public string StartTimeText { get => _startTimeText; set => SetProperty(ref _startTimeText, value); }
     public string EndTimeText { get => _endTimeText; set => SetProperty(ref _endTimeText, value); }
     public string TimeStepText { get => _timeStepText; set => SetProperty(ref _timeStepText, value); }
@@ -107,6 +132,12 @@ public sealed class WhatIfViewModel : ObservableObject
     }
     public bool CanRun => !IsBusy;
     public bool HasResult { get => _hasResult; private set => SetProperty(ref _hasResult, value); }
+    public double ForecastScale { get; private set; } = 2;
+    public string ForecastAxisTop => ForecastScale.ToString("P0", CultureInfo.CurrentCulture);
+    public string ForecastAxisUpper => (ForecastScale * 0.75).ToString("P0", CultureInfo.CurrentCulture);
+    public string ForecastAxisMiddle => (ForecastScale * 0.5).ToString("P0", CultureInfo.CurrentCulture);
+    public string ForecastAxisLower => (ForecastScale * 0.25).ToString("P0", CultureInfo.CurrentCulture);
+    public string ForecastAxisBottom => "0%";
 
     public string Summary => _result?.Impact.Summary ?? "Chưa có kết quả mô phỏng.";
     public int AffectedHubCount => _result?.Impact.AffectedHubCount ?? 0;
@@ -280,6 +311,15 @@ public sealed class WhatIfViewModel : ObservableObject
                          h.AvailableVehiclesAfter != h.AvailableVehiclesBefore))
                 Impacts.Add(impact);
         }
+        var maximumForecast = Forecast.SelectMany(point => new[]
+            { point.ParkingUtilization, point.ChargingUtilization }).DefaultIfEmpty(1).Max();
+        ForecastScale = Math.Max(2, Math.Ceiling(maximumForecast * 2) / 2);
+        OnPropertyChanged(nameof(ForecastScale));
+        OnPropertyChanged(nameof(ForecastAxisTop));
+        OnPropertyChanged(nameof(ForecastAxisUpper));
+        OnPropertyChanged(nameof(ForecastAxisMiddle));
+        OnPropertyChanged(nameof(ForecastAxisLower));
+        OnPropertyChanged(nameof(ForecastAxisBottom));
         OnPropertyChanged(nameof(Summary));
         OnPropertyChanged(nameof(AffectedHubCount));
         OnPropertyChanged(nameof(OverloadedHubCount));
