@@ -83,4 +83,32 @@ public partial class MainWindow : Window
 
         if (confirm == MessageBoxResult.Yes) ResetDemo();
     }
+
+    private void SuggestDispatch_Click(object sender, RoutedEventArgs e)
+    {
+        var err = _viewModel.SuggestAndCreateDispatch();
+        if (err is not null)
+            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
+    private void CreateDispatch_Click(object sender, RoutedEventArgs e)
+    {
+        var err = _viewModel.CreateDispatchOrder();
+        if (err is not null)
+            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
+    private void ExecuteDispatch_Click(object sender, RoutedEventArgs e)
+    {
+        var err = _viewModel.ExecuteSelectedDispatch();
+        if (err is not null)
+            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
+    private void CompleteDispatch_Click(object sender, RoutedEventArgs e)
+    {
+        var err = _viewModel.CompleteSelectedDispatch();
+        if (err is not null)
+            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
 }

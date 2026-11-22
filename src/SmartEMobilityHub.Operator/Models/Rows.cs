@@ -250,3 +250,72 @@ public sealed class FilterOption
 
     public bool Matches(IncidentStatus status) => Statuses.Count == 0 || Statuses.Contains(status);
 }
+public sealed class HubRow
+{
+    public string HubId { get; }
+    public string Name { get; }
+    public string StatusText { get; }
+    public Brush StatusBrush { get; }
+    public string LoadText { get; }
+    public string UtilizationText { get; }
+    public Brush UtilizationBrush { get; }
+    public string FreeSlotsText { get; }
+    public string FreeChargersText { get; }
+    public string ImbalanceTag { get; }
+
+    public HubRow(MobilityHub hub)
+    {
+        HubId = hub.Id;
+        Name = string.IsNullOrWhiteSpace(hub.ShortName) ? hub.Name : $"{hub.Id} · {hub.ShortName}";
+
+        var isOnline = hub.Status == HubStatus.Online && hub.Connection == ConnectionStatus.Online;
+        StatusText = hub.Status == HubStatus.Suspended
+            ? "Tạm dừng"
+            : isOnline ? "Hoạt động" : "Mất kết nối / Offline";
+        StatusBrush = Texts.Brush(hub.Status == HubStatus.Suspended ? "#DC2626" : isOnline ? "#10B981" : "#F59E0B");
+
+        LoadText = $"{hub.OccupiedParkingSlots}/{hub.ParkingCapacity} chỗ";
+        var utilPct = hub.MaxUtilization * 100.0;
+        UtilizationText = $"{utilPct:0}%";
+        UtilizationBrush = Texts.Brush(utilPct >= 90 ? "#DC2626" : utilPct >= 80 ? "#EA580C" : "#0284C7");
+
+        FreeSlotsText = $"Trống {hub.FreeParkingSlots} chỗ";
+        var freeChargers = hub.ChargingPoints.Count(p => p.Status == DeviceStatus.Available);
+        FreeChargersText = $"{freeChargers}/{hub.UsableChargingPorts} sạc trống";
+
+        ImbalanceTag = hub.ParkingUtilization >= 0.85
+            ? "Dư xe / Cao"
+            : hub.ParkingUtilization <= 0.35
+                ? "Thiếu xe"
+                : "Cân bằng";
+    }
+}
+
+public sealed class DispatchOrderRow
+{
+    public string OrderId { get; }
+    public string RouteText { get; }
+    public string VehiclesText { get; }
+    public string MetaText { get; }
+    public string StatusText { get; }
+    public Brush StatusBrush { get; }
+    public DispatchOrderStatus StatusRaw { get; }
+
+    public DispatchOrderRow(DispatchOrder order)
+    {
+        OrderId = order.OrderId;
+        RouteText = $"{order.SourceHubId} → {order.TargetHubId}";
+        VehiclesText = $"{order.VehicleIds.Count} xe ({string.Join(", ", order.VehicleIds.Take(3))}{(order.VehicleIds.Count > 3 ? "…" : "")})";
+        MetaText = $"{order.EstimatedDistanceKm:0.0} km · ~{order.EstimatedDurationMinutes:0} phút · {order.StaffId}";
+        StatusRaw = order.Status;
+
+        (StatusText, var hex) = order.Status switch
+        {
+            DispatchOrderStatus.Pending => ("Chờ xuất phát", "#F59E0B"),
+            DispatchOrderStatus.InProgress => ("Đang điều phối", "#2563EB"),
+            DispatchOrderStatus.Completed => ("Hoàn tất", "#10B981"),
+            _ => ("Đã huỷ", "#64748B")
+        };
+        StatusBrush = Texts.Brush(hex);
+    }
+}
