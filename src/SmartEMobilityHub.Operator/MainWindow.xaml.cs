@@ -36,6 +36,14 @@ public partial class MainWindow : Window
 
     // ---------- Header ----------
     private void Scan_Click(object sender, RoutedEventArgs e) => _viewModel.ScanNow();
+    private void WhatIf_Click(object sender, RoutedEventArgs e)
+    {
+        var window = new WhatIfWindow(_demo.WhatIf, _demo.Store, () => _demo.Clock.Now)
+        {
+            Owner = this
+        };
+        window.ShowDialog();
+    }
 
     // ---------- UC-OP-03 ----------
     private void Lock_Click(object sender, RoutedEventArgs e) => Run(_viewModel.LockSelected);
