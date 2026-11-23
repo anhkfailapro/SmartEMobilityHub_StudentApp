@@ -28,6 +28,9 @@ public sealed class StatusUpdaterTimer
 
     private IDisposable? _subscription;
 
+    /// <summary>Hub đã được báo STALE_DATA trong đợt dữ liệu cũ hiện tại.</summary>
+    private readonly HashSet<string> _staleAlertedHubs = new();
+
     public StatusUpdaterTimer(
         NetworkStore store,
         IClock clock,
@@ -127,7 +130,8 @@ public sealed class StatusUpdaterTimer
     }
 
     /// <summary>
-    /// Kiểm tra dữ liệu cũ của một Hub (Bảng 29). Trả true nếu quá 10 phút và đã phát cảnh báo.
+    /// Kiểm tra dữ liệu cũ của một Hub (Bảng 29). Trả true nếu dữ liệu quá 10 phút.
+    /// Cảnh báo chỉ phát ở lần đầu phát hiện trong một đợt; dữ liệu mới lại thì đợt kết thúc.
     /// Đúng biên: 10 phút chưa tính là cũ.
     /// </summary>
     public bool CheckStaleData(MobilityHub hub)
@@ -135,7 +139,13 @@ public sealed class StatusUpdaterTimer
         if (hub is null) throw new IllegalArgumentException("Hub không hợp lệ.");
 
         var stale = (_clock.Now - hub.LastUpdatedAt).TotalMinutes > StaleThresholdMin;
-        if (!stale) return false;
+        if (!stale)
+        {
+            _staleAlertedHubs.Remove(hub.Id);
+            return false;
+        }
+
+        if (!_staleAlertedHubs.Add(hub.Id)) return true;
 
         var alert = new Alert
         {

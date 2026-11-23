@@ -10,6 +10,8 @@ TCSYS04Tests.Register(runner);
 TCSYS01Tests.Register(runner);
 TCOP03Tests.Register(runner);
 BoundaryTests.Register(runner);
+RegressionTests.Register(runner);
+DispatchTests.Register(runner);
 
 Console.WriteLine("Smart E-Mobility Hub — Core test runner");
 Console.WriteLine(new string('-', 60));

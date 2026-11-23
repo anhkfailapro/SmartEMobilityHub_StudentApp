@@ -186,7 +186,9 @@
                                         Click="Close_Click" IsEnabled="{Binding CanClose}" Margin="0,0,8,8" />
                                 <Button Content="Tạm dừng Hub" Style="{StaticResource GhostButton}"
                                         Foreground="{StaticResource Danger}" Click="Suspend_Click"
-                                        IsEnabled="{Binding CanSuspend}" Margin="0,0,0,8" />
+                                        IsEnabled="{Binding CanSuspend}" Margin="0,0,8,8" />
+                                <Button Content="Mở lại Hub" Style="{StaticResource GhostButton}"
+                                        Click="Resume_Click" IsEnabled="{Binding CanResume}" Margin="0,0,0,8" />
                             </WrapPanel>
 
                             <TextBlock Text="Phiếu bảo trì" Style="{StaticResource H2}" Margin="0,12,0,6" />

@@ -17,6 +17,9 @@ public sealed class ThresholdMonitor
     private readonly IClock _clock;
     private readonly ISystemLogger _logger;
 
+    /// <summary>Hub đang trong một đợt quá tải đã được báo — tránh báo lại mỗi 30 giây.</summary>
+    private readonly HashSet<string> _overloadedHubs = new();
+
     public ThresholdMonitor(NetworkStore store, IClock clock, ISystemLogger logger)
     {
         _store = store;
@@ -26,7 +29,10 @@ public sealed class ThresholdMonitor
 
     public double Threshold { get; private set; } = DefaultThreshold;
 
-    /// <summary>null nếu chưa chạm ngưỡng (Bảng 31).</summary>
+    /// <summary>
+    /// null nếu chưa chạm ngưỡng (Bảng 31), hoặc nếu Hub vẫn đang trong đợt quá tải đã báo.
+    /// Khi mức sử dụng xuống dưới ngưỡng, đợt quá tải kết thúc và lần chạm ngưỡng sau sẽ báo lại.
+    /// </summary>
     public Alert? EvaluateHub(MobilityHub hub)
     {
         if (hub.UsableChargingPorts <= 0 && hub.ParkingCapacity <= 0)
@@ -36,7 +42,13 @@ public sealed class ThresholdMonitor
         }
 
         var utilization = hub.MaxUtilization;
-        if (utilization < Threshold) return null;
+        if (utilization < Threshold)
+        {
+            _overloadedHubs.Remove(hub.Id);
+            return null;
+        }
+
+        if (!_overloadedHubs.Add(hub.Id)) return null;
 
         return new Alert
         {

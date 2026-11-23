@@ -23,6 +23,27 @@ public static class ServiceConstants
     /// <summary>Giả định A1 — số lần gửi lại tối đa.</summary>
     public const int MaxRetry = 5;
 
+    /// <summary>
+    /// Giả định A10 (GĐ8) — số lần gia hạn tối đa khi người dùng đang quét QR (UC-SYS-04 5a).
+    /// Sub 3 không giới hạn, nhưng nếu không chặn thì đơn có thể giữ xe mãi mãi.
+    /// </summary>
+    public const int MaxPickupExtensions = 5;
+
+    /// <summary>Điều phối xe — Hub có tỷ lệ đỗ từ mức này trở lên là dư xe (giả định của nhánh điều phối).</summary>
+    public const double DispatchHighLoadRatio = 0.85;
+
+    /// <summary>Điều phối xe — Hub có tỷ lệ đỗ từ mức này trở xuống là thiếu xe.</summary>
+    public const double DispatchLowLoadRatio = 0.35;
+
+    /// <summary>Điều phối xe — tỷ lệ đỗ mục tiêu sau khi cân bằng.</summary>
+    public const double DispatchTargetLoadRatio = 0.65;
+
+    /// <summary>Điều phối xe — tốc độ di chuyển trung bình của xe điều phối (km/h).</summary>
+    public const double DispatchAverageSpeedKmh = 25.0;
+
+    /// <summary>Điều phối xe — thời gian di chuyển tối thiểu (phút), kể cả hai Hub sát nhau.</summary>
+    public const double DispatchMinDurationMinutes = 3.0;
+
     /// <summary>UC-S-06 — chờ xác nhận mở khoá 30 giây.</summary>
     public const int UnlockTimeoutSeconds = 30;
 

@@ -57,6 +57,7 @@ public sealed class InMemoryReservationAdapter : IReservationPort
                           ?? throw new IllegalArgumentException($"Không tìm thấy đặt chỗ {reservationId}.");
 
         reservation.HoldUntil = _clock.Now.AddMinutes(extraMinutes);
+        reservation.ExtensionCount++;
     }
 
     public void MarkPickedUp(string reservationId)
