@@ -1,7 +1,7 @@
 # Kết quả kiểm thử — Smart E-Mobility Hub (Core)
 
-- Thời điểm chạy: 2026-11-21 23:43:12
-- Tổng số: **30** · Đạt: **30** · Không đạt: **0**
+- Thời điểm chạy: 2026-11-23 01:50:20
+- Tổng số: **38** · Đạt: **32** · Không đạt: **6**
 - Nguồn: `tests/SmartEMobilityHub.Tests` (console runner, không dùng NuGet)
 
 | Mã | Tên kịch bản | Kết quả | Chi tiết lỗi |
@@ -36,3 +36,13 @@
 | UNIT-03 | Dữ liệu cũ: đúng 10 phút chưa cảnh báo, quá 1 giây thì cảnh báo | PASS | — |
 | UNIT-04 | Điểm ưu tiên: pin 0% + cần ngay = 92,5; pin 100% + còn xa = 7,5 | PASS | — |
 | UNIT-05 | SLA: đúng hạn chưa vi phạm, quá 1 giây thì vi phạm; đã xong thì không tính | PASS | — |
+| DSP-01 | Gợi ý chỉ chứa xe thật, đang sẵn sàng ở Hub cho, không trùng giữa các lệnh | FAIL | AssertionException: Một xe không được nằm trong hai gợi ý (mong đợi: 23, thực tế: 22) |
+| DSP-02 | Nhiều Hub cho không đổ vào một Hub nhận vượt mức thiếu | FAIL | AssertionException: Tổng xe đổ vào HUB-03 phải đúng phần thiếu (mong đợi: 2, thực tế: 4) |
+| DSP-03 | Tạo lệnh từ chối xe không hợp lệ | FAIL | AssertionException: Mã xe không tồn tại — không ném IllegalArgumentException |
+| DSP-04 | Tạo lệnh từ chối khi Hub đích không đủ chỗ (tính cả xe đang trên đường tới) | FAIL | AssertionException: Hai chỗ đã dành cho hai lệnh trước — không ném IllegalArgumentException |
+| DSP-05 | Không xuất phát khi xe đã đổi trạng thái sau lúc tạo lệnh | FAIL | AssertionException: Có xe không còn sẵn sàng thì không xuất phát |
+| DSP-06 | Hoàn tất cập nhật đúng hai Hub; Hub đích đầy thì chờ, không làm mất xe | FAIL | AssertionException: Không đủ chỗ thì chưa hoàn tất |
+| DSP-07 | Huỷ lệnh chưa xuất phát trả xe về cho lệnh khác; snapshot chứa lệnh điều phối | PASS | — |
+| DSP-08 | Ước tính lộ trình dùng GeoPoint và hằng số chung | PASS | — |
+
+> Có kịch bản không đạt — xem cột chi tiết và sửa nguyên nhân, không bỏ qua test.

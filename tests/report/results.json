@@ -1,8 +1,8 @@
 {
-  "runAt": "2026-11-21T23:43:12.6254436+07:00",
-  "total": 30,
-  "passed": 30,
-  "failed": 0,
+  "runAt": "2026-11-23T01:50:20.2130986+00:00",
+  "total": 38,
+  "passed": 32,
+  "failed": 6,
   "results": [
     {
       "Code": "SMOKE-01",
@@ -181,6 +181,54 @@
     {
       "Code": "UNIT-05",
       "Name": "SLA: đúng hạn chưa vi phạm, quá 1 giây thì vi phạm; đã xong thì không tính",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-01",
+      "Name": "Gợi ý chỉ chứa xe thật, đang sẵn sàng ở Hub cho, không trùng giữa các lệnh",
+      "Passed": false,
+      "Detail": "AssertionException: Một xe không được nằm trong hai gợi ý (mong đợi: 23, thực tế: 22)"
+    },
+    {
+      "Code": "DSP-02",
+      "Name": "Nhiều Hub cho không đổ vào một Hub nhận vượt mức thiếu",
+      "Passed": false,
+      "Detail": "AssertionException: Tổng xe đổ vào HUB-03 phải đúng phần thiếu (mong đợi: 2, thực tế: 4)"
+    },
+    {
+      "Code": "DSP-03",
+      "Name": "Tạo lệnh từ chối xe không hợp lệ",
+      "Passed": false,
+      "Detail": "AssertionException: Mã xe không tồn tại — không ném IllegalArgumentException"
+    },
+    {
+      "Code": "DSP-04",
+      "Name": "Tạo lệnh từ chối khi Hub đích không đủ chỗ (tính cả xe đang trên đường tới)",
+      "Passed": false,
+      "Detail": "AssertionException: Hai chỗ đã dành cho hai lệnh trước — không ném IllegalArgumentException"
+    },
+    {
+      "Code": "DSP-05",
+      "Name": "Không xuất phát khi xe đã đổi trạng thái sau lúc tạo lệnh",
+      "Passed": false,
+      "Detail": "AssertionException: Có xe không còn sẵn sàng thì không xuất phát"
+    },
+    {
+      "Code": "DSP-06",
+      "Name": "Hoàn tất cập nhật đúng hai Hub; Hub đích đầy thì chờ, không làm mất xe",
+      "Passed": false,
+      "Detail": "AssertionException: Không đủ chỗ thì chưa hoàn tất"
+    },
+    {
+      "Code": "DSP-07",
+      "Name": "Huỷ lệnh chưa xuất phát trả xe về cho lệnh khác; snapshot chứa lệnh điều phối",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-08",
+      "Name": "Ước tính lộ trình dùng GeoPoint và hằng số chung",
       "Passed": true,
       "Detail": ""
     }

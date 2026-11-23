@@ -576,12 +576,16 @@ public sealed class MainViewModel : ObservableObject
         {
             vehicleCodes.AddRange(_demo.Store.Vehicles
                 .Where(v => v.HubId == sourceHub.Id && v.Status == DeviceStatus.Available)
+                .Where(v => !_demo.Store.DispatchOrders.Any(o => o.IsActive && o.VehicleIds.Contains(v.Code)))
                 .Take(count)
                 .Select(v => v.Code));
         }
 
-        for (var i = vehicleCodes.Count; i < count; i++)
-            vehicleCodes.Add($"{SourceHubId}-XE-{i + 1:00}");
+        // Chỉ điều phối xe thật đang sẵn sàng; không tự sinh mã xe giả để bù số lượng.
+        if (vehicleCodes.Count == 0)
+            return $"{SourceHubId} không còn xe sẵn sàng để điều phối.";
+        if (vehicleCodes.Count < count)
+            return $"{SourceHubId} chỉ còn {vehicleCodes.Count} xe sẵn sàng (yêu cầu {count}).";
 
         try
         {
