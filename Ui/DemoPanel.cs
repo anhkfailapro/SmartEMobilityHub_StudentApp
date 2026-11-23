@@ -19,7 +19,7 @@ namespace SmartEMobilityHub.Ui
         {
             var sp = new StackPanel();
             sp.Children.Add(Heading("Demo panel"));
-            sp.Children.Add(Note("Không thuộc ứng dụng. Dùng để giả lập GPS, IoT, thời gian và các luồng thay thế (OPEN-20)."));
+            sp.Children.Add(Note("Không thuộc ứng dụng. Dùng để giả lập GPS, IoT, thời gian và các luồng thay thế."));
 
             sp.Children.Add(Heading("Thời gian demo"));
             _clock = Note("");
