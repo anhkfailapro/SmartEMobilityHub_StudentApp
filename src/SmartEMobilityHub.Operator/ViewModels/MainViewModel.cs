@@ -135,6 +135,8 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
+    public bool CanResume => _demo.Store.FindHub(_selected?.HubId ?? "")?.Status == HubStatus.Suspended;
+
     /// <summary>Nhịp UI 1 giây: thời gian mô phỏng trôi, tự quét mỗi 30 giây.</summary>
     public void Tick()
     {
@@ -327,6 +329,27 @@ public sealed class MainViewModel : ObservableObject
         return null;
     }
 
+    public string? ResumeSelectedHub()
+    {
+        if (_selected is null) return "Hãy chọn một sự cố.";
+
+        var hubId = _selected.HubId;
+        if (string.IsNullOrWhiteSpace(hubId)) return "Sự cố không gắn với Hub nào.";
+
+        try
+        {
+            if (!_demo.Incidents.ResumeHub(hubId, "OP-01")) return $"{hubId} không ở trạng thái tạm dừng.";
+            Note($"{hubId} đã mở lại hoạt động.");
+        }
+        catch (HubNotFoundException ex)
+        {
+            return ex.Message;
+        }
+
+        Refresh();
+        return null;
+    }
+
     // ---------- Demo panel ----------
 
     public void BreakPort()
@@ -461,6 +484,7 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(CanResolve));
         OnPropertyChanged(nameof(CanClose));
         OnPropertyChanged(nameof(CanSuspend));
+        OnPropertyChanged(nameof(CanResume));
         OnPropertyChanged(nameof(HasSelection));
         OnPropertyChanged(nameof(DetailVisibility));
         OnPropertyChanged(nameof(EmptyVisibility));

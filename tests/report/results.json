@@ -1,7 +1,7 @@
 {
-  "runAt": "2026-11-21T23:43:12.6254436+07:00",
-  "total": 30,
-  "passed": 30,
+  "runAt": "2026-11-23T01:51:08.6932904+00:00",
+  "total": 44,
+  "passed": 44,
   "failed": 0,
   "results": [
     {
@@ -181,6 +181,90 @@
     {
       "Code": "UNIT-05",
       "Name": "SLA: đúng hạn chưa vi phạm, quá 1 giây thì vi phạm; đã xong thì không tính",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-01",
+      "Name": "Tình trạng quá tải kéo dài chỉ báo một lần, hết quá tải thì báo lại được",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-02",
+      "Name": "Mất kết nối kéo dài: mỗi Hub chỉ một cảnh báo DEVICE_OFFLINE",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-03",
+      "Name": "Dữ liệu cũ kéo dài chỉ báo STALE_DATA một lần",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-04",
+      "Name": "Mạng cảm biến có lại thì cổng sạc trở về trạng thái thật, không kẹt OFFLINE",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-05",
+      "Name": "Kỹ thuật viên đã được gán thì không nhận thêm phiếu khác",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-06",
+      "Name": "Xử lý xong sự cố: thiết bị sẵn sàng lại, phiếu hoàn thành, kỹ thuật viên rảnh",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-07",
+      "Name": "Cổng lỗi, hết cổng trống: yêu cầu vẫn giữ đầu hàng chờ sau chu kỳ lập lịch kế tiếp",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-08",
+      "Name": "Mở lại Hub sau khi tạm dừng",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-09",
+      "Name": "Xe giữ RESERVED sau lỗi mở khoá được trả về AVAILABLE khi sự cố xử lý xong",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-10",
+      "Name": "Đang quét QR: gia hạn có giới hạn, quá số lần thì huỷ",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-11",
+      "Name": "Lệnh cấp nguồn timeout không đánh dấu cổng FAULTY, thử cổng kế tiếp",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-12",
+      "Name": "Kiểm tra công suất tính cả các cổng đang sạc",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-13",
+      "Name": "Vượt công suất là loại cảnh báo riêng, không bị coi là quá tải chỗ đỗ",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "REG-14",
+      "Name": "Snapshot tìm xe không phân biệt hoa thường như NetworkStore",
       "Passed": true,
       "Detail": ""
     }

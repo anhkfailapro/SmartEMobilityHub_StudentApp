@@ -23,6 +23,12 @@ public static class ServiceConstants
     /// <summary>Giả định A1 — số lần gửi lại tối đa.</summary>
     public const int MaxRetry = 5;
 
+    /// <summary>
+    /// Giả định A10 (GĐ8) — số lần gia hạn tối đa khi người dùng đang quét QR (UC-SYS-04 5a).
+    /// Sub 3 không giới hạn, nhưng nếu không chặn thì đơn có thể giữ xe mãi mãi.
+    /// </summary>
+    public const int MaxPickupExtensions = 5;
+
     /// <summary>UC-S-06 — chờ xác nhận mở khoá 30 giây.</summary>
     public const int UnlockTimeoutSeconds = 30;
 

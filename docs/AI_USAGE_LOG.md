@@ -188,3 +188,42 @@
 4. So lại các dòng tài liệu vừa sửa với code hiện tại (đặc biệt bảng Store trong GD1).
 
 **Mức đóng góp của AI:** toàn bộ phần rà soát/sửa do AI thực hiện trên code do chính AI sinh; Vỹ cần đọc lại diff trước khi bảo vệ.
+
+---
+
+## 2026-11-23 — GĐ8: review bằng knowledge graph (Graphify), sửa lỗi và bổ sung tính năng
+
+**Bối cảnh:** pull bản mới nhất (`main` @ `e69d9af`), build knowledge graph bằng Graphify (`graphify update .` — chỉ phân tích AST, không gọi LLM): 1.804 node, 4.518 cạnh, 98 cụm. Dùng các node trung tâm (`NetworkStore`, `MainViewModel`, `OperatorDemo`, `StatusUpdaterTimer`) để chọn chỗ đọc kỹ.
+
+**AI đã phát hiện và sửa** (mỗi lỗi có test hồi quy `REG-xx` trong `tests/.../Unit/RegressionTests.cs`, đỏ trước khi sửa, xanh sau khi sửa)
+
+| Test | Lỗi | Sửa |
+|---|---|---|
+| REG-01..03 | Quá tải / dữ liệu cũ / mất kết nối sinh cảnh báo mới mỗi 30 giây cho cùng một tình trạng | Cảnh báo theo đợt (DC-37) |
+| REG-04 | Sau một lần mất mạng cảm biến, mọi cổng sạc kẹt OFFLINE vĩnh viễn | Lưu/khôi phục trạng thái cổng (DC-38) |
+| REG-05 | Một kỹ thuật viên được gán vô hạn phiếu | KTV chuyển bận khi được gán (DC-39) |
+| REG-06 | Xử lý xong sự cố nhưng thiết bị không trở lại AVAILABLE, phiếu không COMPLETED | `ResolveIncident` (DC-39) |
+| REG-07 | Xe bị gián đoạn sạc mất vị trí đầu hàng chờ ở chu kỳ sau | Ghim yêu cầu (DC-40) |
+| REG-08 | Không có cách mở lại Hub đã tạm dừng | `ResumeHub` + nút UI (DC-41) |
+
+**Kiểm chứng:** Core + Tests build 0 warning/0 error trên Linux (.NET 10.0.115); **38/38 test PASS**. Project WPF `SmartEMobilityHub.Operator` **chưa được biên dịch** trong môi trường của AI (không tải được WPF targeting pack) — thay đổi UI nhỏ (1 nút, 1 handler, 1 thuộc tính `CanResume`, 1 hàm `ResumeSelectedHub`) và đã rà tay.
+
+**Nhóm cần tự kiểm tra**
+
+1. Build solution trên Windows và mở dashboard Operator: tạm dừng một Hub rồi bấm "Mở lại Hub".
+2. Demo panel "Ngắt Hub" → bấm quét vài lần: chỉ còn **một** cảnh báo mất kết nối, sau khi nối lại cổng sạc hiện lại trạng thái cũ.
+3. Gán KTV cho hai sự cố liên tiếp: sự cố thứ hai phải nhận người khác.
+4. Đọc DC-37..41 và xác nhận cách hiểu "cảnh báo theo đợt" khớp ý đồ Sub 3.
+
+**Điểm AI ghi nhận nhưng chưa sửa (cần nhóm quyết định):** xem phần "Còn mở" trong báo cáo review gửi kèm.
+
+**Mức đóng góp của AI:** toàn bộ phân tích, test hồi quy và bản sửa do AI thực hiện; nhóm cần đọc diff trước khi merge.
+
+### GĐ8 (tiếp) — xử lý các điểm còn mở và nhánh điều phối
+
+**Yêu cầu:** sửa nốt mọi điểm còn mở trong `GD8_REVIEW.md`.
+
+- `main`: sửa O-1..O-5 và O-7 (DC-42..44), thêm test REG-09..14, nâng tổng lên **44/44 PASS**. O-6 (hợp nhất app sinh viên với Core) chưa làm vì là quyết định phạm vi.
+- Nhánh `operator-dispatching-fixes`: viết lại phần kiểm tra trong `VehicleRedistributor`, bỏ việc tự sinh mã xe giả ở ViewModel, thêm `CancelOrder` và `DispatchOrders` vào snapshot, thêm 8 test DSP. Trên nhánh này **38/38 PASS**; 6/8 test DSP đỏ trên code gốc.
+- Giả định mới: A10 (5 lần gia hạn) và các ngưỡng điều phối được đưa vào `ServiceConstants`. Nhóm cần xác nhận các con số này.
+- WPF vẫn chưa được biên dịch trong môi trường của AI. Cần build trên Windows.

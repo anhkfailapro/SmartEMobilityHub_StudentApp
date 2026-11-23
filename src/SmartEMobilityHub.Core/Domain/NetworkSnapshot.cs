@@ -43,7 +43,8 @@ public sealed class NetworkSnapshot
 
     public MobilityHub? FindHub(string id) => Hubs.FirstOrDefault(h => h.Id == id);
 
-    public Vehicle? FindVehicle(string code) => Vehicles.FirstOrDefault(v => v.Code == code);
+    public Vehicle? FindVehicle(string code) =>
+        Vehicles.FirstOrDefault(v => string.Equals(v.Code, code.Trim(), StringComparison.OrdinalIgnoreCase));
 
     public IncidentRecord? FindIncident(string id) => Incidents.FirstOrDefault(i => i.IncidentId == id);
 }

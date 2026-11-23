@@ -16,6 +16,9 @@ public sealed class Reservation
     /// <summary>Người dùng đang quét QR nhận xe (UC-SYS-04 Exception 5a).</summary>
     public bool IsPickingUp { get; set; }
 
+    /// <summary>Số lần đã gia hạn vì đang quét QR (giả định A10).</summary>
+    public int ExtensionCount { get; set; }
+
     public DateTime? ClosedAt { get; set; }
     public string? CancelReason { get; set; }
 
@@ -30,6 +33,7 @@ public sealed class Reservation
         HoldUntil = HoldUntil,
         StartsAt = StartsAt,
         IsPickingUp = IsPickingUp,
+        ExtensionCount = ExtensionCount,
         ClosedAt = ClosedAt,
         CancelReason = CancelReason
     };

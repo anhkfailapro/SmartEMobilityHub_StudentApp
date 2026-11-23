@@ -39,7 +39,7 @@ public sealed class AutoCancelService
         {
             try
             {
-                if (reservation.IsPickingUp)
+                if (reservation.IsPickingUp && reservation.ExtensionCount < ServiceConstants.MaxPickupExtensions)
                 {
                     // Exception 5a: người dùng đang quét QR — gia hạn thay vì huỷ.
                     _reservations.ExtendHold(reservation.Id, 1);
@@ -47,7 +47,10 @@ public sealed class AutoCancelService
                     continue;
                 }
 
-                _reservations.CancelReservation(reservation.Id, "Quá 15 phút giữ chỗ");
+                var reason = reservation.IsPickingUp
+                    ? $"Quét QR quá {ServiceConstants.MaxPickupExtensions} lần gia hạn mà chưa nhận được xe"
+                    : "Quá 15 phút giữ chỗ";
+                _reservations.CancelReservation(reservation.Id, reason);
             }
             catch (Exception ex)
             {

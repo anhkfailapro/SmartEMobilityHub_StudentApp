@@ -1,7 +1,7 @@
 # Kết quả kiểm thử — Smart E-Mobility Hub (Core)
 
-- Thời điểm chạy: 2026-11-21 23:43:12
-- Tổng số: **30** · Đạt: **30** · Không đạt: **0**
+- Thời điểm chạy: 2026-11-23 01:51:08
+- Tổng số: **44** · Đạt: **44** · Không đạt: **0**
 - Nguồn: `tests/SmartEMobilityHub.Tests` (console runner, không dùng NuGet)
 
 | Mã | Tên kịch bản | Kết quả | Chi tiết lỗi |
@@ -36,3 +36,17 @@
 | UNIT-03 | Dữ liệu cũ: đúng 10 phút chưa cảnh báo, quá 1 giây thì cảnh báo | PASS | — |
 | UNIT-04 | Điểm ưu tiên: pin 0% + cần ngay = 92,5; pin 100% + còn xa = 7,5 | PASS | — |
 | UNIT-05 | SLA: đúng hạn chưa vi phạm, quá 1 giây thì vi phạm; đã xong thì không tính | PASS | — |
+| REG-01 | Tình trạng quá tải kéo dài chỉ báo một lần, hết quá tải thì báo lại được | PASS | — |
+| REG-02 | Mất kết nối kéo dài: mỗi Hub chỉ một cảnh báo DEVICE_OFFLINE | PASS | — |
+| REG-03 | Dữ liệu cũ kéo dài chỉ báo STALE_DATA một lần | PASS | — |
+| REG-04 | Mạng cảm biến có lại thì cổng sạc trở về trạng thái thật, không kẹt OFFLINE | PASS | — |
+| REG-05 | Kỹ thuật viên đã được gán thì không nhận thêm phiếu khác | PASS | — |
+| REG-06 | Xử lý xong sự cố: thiết bị sẵn sàng lại, phiếu hoàn thành, kỹ thuật viên rảnh | PASS | — |
+| REG-07 | Cổng lỗi, hết cổng trống: yêu cầu vẫn giữ đầu hàng chờ sau chu kỳ lập lịch kế tiếp | PASS | — |
+| REG-08 | Mở lại Hub sau khi tạm dừng | PASS | — |
+| REG-09 | Xe giữ RESERVED sau lỗi mở khoá được trả về AVAILABLE khi sự cố xử lý xong | PASS | — |
+| REG-10 | Đang quét QR: gia hạn có giới hạn, quá số lần thì huỷ | PASS | — |
+| REG-11 | Lệnh cấp nguồn timeout không đánh dấu cổng FAULTY, thử cổng kế tiếp | PASS | — |
+| REG-12 | Kiểm tra công suất tính cả các cổng đang sạc | PASS | — |
+| REG-13 | Vượt công suất là loại cảnh báo riêng, không bị coi là quá tải chỗ đỗ | PASS | — |
+| REG-14 | Snapshot tìm xe không phân biệt hoa thường như NetworkStore | PASS | — |

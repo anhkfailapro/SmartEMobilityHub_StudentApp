@@ -211,6 +211,7 @@ public sealed class AlertRow
             AlertType.HubOverload => "Quá tải Hub",
             AlertType.StaleData => "Dữ liệu cũ",
             AlertType.DeviceOffline => "Mất kết nối",
+            AlertType.PowerLimit => "Vượt công suất",
             _ => "Cổng sạc lỗi"
         };
         Message = alert.Message;

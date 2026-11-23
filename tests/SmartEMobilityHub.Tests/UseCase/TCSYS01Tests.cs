@@ -85,7 +85,7 @@ public static class TCSYS01Tests
             Assert.Equal(2, hub.ChargingPoints.Count(p => p.Status == DeviceStatus.Charging), "Chỉ cấp 2 cổng (14 kW)");
             Assert.Equal(2, plan.OrderedRequests.Count(r => r.AssignedPortId is not null));
             Assert.True(
-                world.Notification.OperatorAlerts.Any(a => a.Type == AlertType.HubOverload && a.Message.Contains("vượt giới hạn")),
+                world.Notification.OperatorAlerts.Any(a => a.Type == AlertType.PowerLimit && a.Message.Contains("vượt giới hạn")),
                 "Operator phải nhận đề xuất giãn tiến độ");
         });
 
