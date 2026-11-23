@@ -426,6 +426,112 @@
                                       VerticalAlignment="Center" />
                         </StackPanel>
 
+                        <TextBlock Text="Giám sát mạng lưới Hub" Style="{StaticResource H2}" Margin="0,14,0,6" />
+                        <ItemsControl ItemsSource="{Binding Hubs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                                        BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="{Binding Name}" FontSize="11.5" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold"
+                                                    Foreground="{Binding StatusBrush}" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <Grid Margin="0,3,0,0">
+                                                <TextBlock Text="{Binding LoadText}" Style="{StaticResource Caption}" />
+                                                <TextBlock Text="{Binding UtilizationText}" FontSize="11" FontWeight="SemiBold"
+                                                    Foreground="{Binding UtilizationBrush}" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <Grid Margin="0,2,0,0">
+                                                <TextBlock Text="{Binding FreeSlotsText}" Style="{StaticResource Caption}" />
+                                                <TextBlock Text="{Binding FreeChargersText}" Style="{StaticResource Caption}"
+                                                    HorizontalAlignment="Right" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Điều phối phương tiện" Style="{StaticResource H2}" Margin="0,14,0,6" />    
+                        <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                                BorderThickness="1" CornerRadius="8" Padding="8">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Hub nguồn" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <ComboBox ItemsSource="{Binding HubIds}" SelectedItem="{Binding SourceHubId, Mode=TwoWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Hub đích" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <ComboBox ItemsSource="{Binding HubIds}" SelectedItem="{Binding TargetHubId, Mode=TwoWay}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Số xe" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding DispatchVehicleCountText, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Nhân sự" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding DispatchStaffId, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <WrapPanel Margin="0,8,0,0">
+                                    <Button Content="Gợi ý &amp; tạo" Style="{StaticResource GhostButton}"
+                                            Click="SuggestDispatch_Click" Margin="0,0,6,6" />
+                                    <Button Content="Gửi lệnh" Style="{StaticResource PrimaryButton}"
+                                            Click="CreateDispatch_Click" Margin="0,0,6,6" />
+                                    <Button Content="Bắt đầu" Style="{StaticResource GhostButton}"
+                                            Click="ExecuteDispatch_Click" IsEnabled="{Binding CanExecuteDispatch}" Margin="0,0,6,6" />
+                                    <Button Content="Hoàn tất" Style="{StaticResource GhostButton}"
+                                            Click="CompleteDispatch_Click" IsEnabled="{Binding CanCompleteDispatch}" Margin="0,0,0,6" />
+                                </WrapPanel>
+
+                                <ListBox ItemsSource="{Binding DispatchOrders}"
+                                        SelectedItem="{Binding SelectedDispatchOrder, Mode=TwoWay}"
+                                        HorizontalContentAlignment="Stretch"
+                                        BorderThickness="0" Background="Transparent" MaxHeight="140">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="White" BorderBrush="{StaticResource Border}"
+                                                    BorderThickness="1" CornerRadius="6" Padding="7" Margin="0,0,0,4">
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding OrderId}" FontSize="11" FontWeight="SemiBold" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding RouteText}" FontSize="11.5" FontWeight="SemiBold"
+                                                                Margin="8,0,8,0" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding StatusText}" FontSize="10.5" FontWeight="SemiBold"
+                                                                Foreground="{Binding StatusBrush}" HorizontalAlignment="Right" />
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding VehiclesText}" Style="{StaticResource Caption}" Margin="0,2,0,0" />
+                                                    <TextBlock Text="{Binding MetaText}" Style="{StaticResource Caption}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                        </Border>
+
                         <TextBlock Text="Nhật ký hệ thống" Style="{StaticResource H2}" Margin="0,14,0,6" />
                         <Border Background="#0F172A" CornerRadius="8" Padding="8" MaxHeight="130">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">

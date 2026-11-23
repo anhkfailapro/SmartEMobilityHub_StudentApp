@@ -1,7 +1,7 @@
 {
-  "runAt": "2026-11-23T01:51:08.6932904+00:00",
-  "total": 44,
-  "passed": 44,
+  "runAt": "2026-11-23T01:52:02.2634817+00:00",
+  "total": 52,
+  "passed": 52,
   "failed": 0,
   "results": [
     {
@@ -265,6 +265,54 @@
     {
       "Code": "REG-14",
       "Name": "Snapshot tìm xe không phân biệt hoa thường như NetworkStore",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-01",
+      "Name": "Gợi ý chỉ chứa xe thật, đang sẵn sàng ở Hub cho, không trùng giữa các lệnh",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-02",
+      "Name": "Nhiều Hub cho không đổ vào một Hub nhận vượt mức thiếu",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-03",
+      "Name": "Tạo lệnh từ chối xe không hợp lệ",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-04",
+      "Name": "Tạo lệnh từ chối khi Hub đích không đủ chỗ (tính cả xe đang trên đường tới)",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-05",
+      "Name": "Không xuất phát khi xe đã đổi trạng thái sau lúc tạo lệnh",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-06",
+      "Name": "Hoàn tất cập nhật đúng hai Hub; Hub đích đầy thì chờ, không làm mất xe",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-07",
+      "Name": "Huỷ lệnh chưa xuất phát trả xe về cho lệnh khác; snapshot chứa lệnh điều phối",
+      "Passed": true,
+      "Detail": ""
+    },
+    {
+      "Code": "DSP-08",
+      "Name": "Ước tính lộ trình dùng GeoPoint và hằng số chung",
       "Passed": true,
       "Detail": ""
     }

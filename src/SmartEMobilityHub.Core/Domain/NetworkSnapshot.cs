@@ -16,7 +16,8 @@ public sealed class NetworkSnapshot
         IEnumerable<MaintenanceTask> maintenanceTasks,
         IEnumerable<Alert> alerts,
         IEnumerable<ChargingRequest> chargingRequests,
-        IEnumerable<Operator> operators)
+        IEnumerable<Operator> operators,
+        IEnumerable<DispatchOrder>? dispatchOrders = null)
     {
         TakenAt = takenAt;
         Hubs = hubs.Select(h => h.Clone()).ToList();
@@ -28,6 +29,7 @@ public sealed class NetworkSnapshot
         Alerts = alerts.Select(a => a.Clone()).ToList();
         ChargingRequests = chargingRequests.Select(r => r.Clone()).ToList();
         Operators = operators.Select(o => o.Clone()).ToList();
+        DispatchOrders = (dispatchOrders ?? Enumerable.Empty<DispatchOrder>()).Select(o => o.Clone()).ToList();
     }
 
     public DateTime TakenAt { get; }
@@ -40,6 +42,7 @@ public sealed class NetworkSnapshot
     public IReadOnlyList<Alert> Alerts { get; }
     public IReadOnlyList<ChargingRequest> ChargingRequests { get; }
     public IReadOnlyList<Operator> Operators { get; }
+    public IReadOnlyList<DispatchOrder> DispatchOrders { get; }
 
     public MobilityHub? FindHub(string id) => Hubs.FirstOrDefault(h => h.Id == id);
 

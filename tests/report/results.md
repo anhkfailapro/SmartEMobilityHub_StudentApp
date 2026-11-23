@@ -1,7 +1,7 @@
 # Kết quả kiểm thử — Smart E-Mobility Hub (Core)
 
-- Thời điểm chạy: 2026-11-23 01:51:08
-- Tổng số: **44** · Đạt: **44** · Không đạt: **0**
+- Thời điểm chạy: 2026-11-23 01:52:02
+- Tổng số: **52** · Đạt: **52** · Không đạt: **0**
 - Nguồn: `tests/SmartEMobilityHub.Tests` (console runner, không dùng NuGet)
 
 | Mã | Tên kịch bản | Kết quả | Chi tiết lỗi |
@@ -50,3 +50,11 @@
 | REG-12 | Kiểm tra công suất tính cả các cổng đang sạc | PASS | — |
 | REG-13 | Vượt công suất là loại cảnh báo riêng, không bị coi là quá tải chỗ đỗ | PASS | — |
 | REG-14 | Snapshot tìm xe không phân biệt hoa thường như NetworkStore | PASS | — |
+| DSP-01 | Gợi ý chỉ chứa xe thật, đang sẵn sàng ở Hub cho, không trùng giữa các lệnh | PASS | — |
+| DSP-02 | Nhiều Hub cho không đổ vào một Hub nhận vượt mức thiếu | PASS | — |
+| DSP-03 | Tạo lệnh từ chối xe không hợp lệ | PASS | — |
+| DSP-04 | Tạo lệnh từ chối khi Hub đích không đủ chỗ (tính cả xe đang trên đường tới) | PASS | — |
+| DSP-05 | Không xuất phát khi xe đã đổi trạng thái sau lúc tạo lệnh | PASS | — |
+| DSP-06 | Hoàn tất cập nhật đúng hai Hub; Hub đích đầy thì chờ, không làm mất xe | PASS | — |
+| DSP-07 | Huỷ lệnh chưa xuất phát trả xe về cho lệnh khác; snapshot chứa lệnh điều phối | PASS | — |
+| DSP-08 | Ước tính lộ trình dùng GeoPoint và hằng số chung | PASS | — |

@@ -25,6 +25,7 @@ public sealed class NetworkStore
     public List<Alert> Alerts { get; } = new();
     public List<ChargingRequest> ChargingRequests { get; } = new();
     public List<Operator> Operators { get; } = new();
+    public List<DispatchOrder> DispatchOrders { get; } = new();
 
     /// <summary>Bản sao sâu, chỉ đọc — không thể ghi ngược vào store.</summary>
     public NetworkSnapshot Snapshot() => new(
@@ -37,7 +38,8 @@ public sealed class NetworkStore
         MaintenanceTasks,
         Alerts,
         ChargingRequests,
-        Operators);
+        Operators,
+        DispatchOrders);
 
     public void Clear()
     {
@@ -53,6 +55,7 @@ public sealed class NetworkStore
         _alertSeq = 0;
         _taskSeq = 0;
         _incidentSeq = 1000;
+        DispatchOrders.Clear();
     }
 
     public MobilityHub? FindHub(string hubId) => Hubs.FirstOrDefault(h => h.Id == hubId);
