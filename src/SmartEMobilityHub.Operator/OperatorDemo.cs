@@ -29,6 +29,7 @@ public sealed class OperatorDemo
     public SmartChargingScheduler Charging { get; }
     public IncidentManager Incidents { get; }
     public StatusUpdaterTimer Timer { get; }
+    public VehicleRedistributor Redistributor { get; }
     public WhatIfController WhatIf { get; }
 
     public OperatorDemo()
@@ -50,6 +51,8 @@ public sealed class OperatorDemo
 
         Timer = new StatusUpdaterTimer(
             Store, Clock, Sync, Threshold, RetryQueue, AutoCancel, Charging, Logger, new NoopScheduler());
+
+        Redistributor = new VehicleRedistributor(Store, Clock);
         WhatIf = new WhatIfController(new TempStateRepository(Store), new WhatIfEngineService(), Store.Snapshot);
     }
 
