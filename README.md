@@ -142,3 +142,43 @@ SmartEMobilityHub_StudentApp/
 │  └─ report/                        results.md / results.json (tự sinh)
 └─ docs/                             đặc tả, quyết định, bàn giao, khai báo AI
 ```
+
+---
+
+## 8. Phần của Đức — mô phỏng What-if
+
+Chức năng **What-if** trong Trung tâm điều hành: cấu hình kịch bản, dự báo tải Hub, đánh giá ảnh hưởng, đề xuất điều phối, mô phỏng lại sau đề xuất và xuất báo cáo PDF. Giao diện được thiết kế theo màn hình Figma và hiển thị biểu đồ sử dụng bãi đỗ/cổng sạc theo từng mốc thời gian.
+
+### Chạy chức năng
+
+```bat
+dotnet run --project src\SmartEMobilityHub.Operator\SmartEMobilityHub.Operator.csproj
+```
+
+Trong cửa sổ Trung tâm điều hành, chọn **Mô phỏng & phân tích kịch bản** để mở What-if. Có thể chọn một trong năm nhóm kịch bản: tăng nhu cầu tại ga Metro, bãi đỗ đầy, tăng nhu cầu sạc, cổng sạc ngừng hoạt động hoặc phương tiện tập trung tại một Hub.
+
+### Luồng sử dụng
+
+1. Chọn kịch bản và Hub mục tiêu; nhập mức biến động nhu cầu, khung giờ, bước thời gian và số cổng sạc hỏng nếu phù hợp.
+2. Chạy mô phỏng để xem dự báo theo thời gian, tóm tắt tác động, cảnh báo và các Hub bị ảnh hưởng.
+3. Chọn **Mô phỏng** trên một phương án điều phối để tính lại kết quả và xem các đề xuất tiếp theo.
+4. Dùng lịch sử để xem lại phiên, chạy lại từ trạng thái đầu vào hoặc xuất báo cáo PDF.
+
+### Quy tắc và giới hạn chính
+
+- Tham số được kiểm tra trước khi chạy: Hub phải tồn tại, mức biến động nhu cầu từ **−50% đến +200%**, khung mô phỏng tối đa **24 giờ**, bước thời gian từ **5 đến 120 phút**. Số cổng hỏng phải hợp lệ với kịch bản và Hub đã chọn.
+- Biểu đồ biểu diễn phần trăm sử dụng bãi đỗ và cổng sạc từ mốc **0%**; thang tối thiểu đến **200%** và tự mở rộng khi dữ liệu dự báo cao hơn.
+- Ngưỡng tải cao là **90%**; mức sử dụng bãi đỗ vượt **100%** được đánh dấu quá sức chứa và cảnh báo nghiêm trọng. Tóm tắt cảnh báo và biểu đồ lấy từ cùng kết quả mô phỏng.
+- Mỗi lần chạy dùng snapshot và bản sao dữ liệu riêng. Mô phỏng phương án không ghi thay đổi vào trạng thái vận hành thật; kết quả và lịch sử chỉ phục vụ phân tích.
+- Kết quả gồm dự báo theo bước thời gian, so sánh trước/sau theo Hub, số Hub bị ảnh hưởng, cảnh báo tải và phương án điều phối. Báo cáo PDF tóm tắt phiên và kết quả tương ứng.
+
+### Thành phần mã nguồn
+
+| Thành phần | Trách nhiệm |
+|---|---|
+| `src/SmartEMobilityHub.Core/Services/WhatIfController.cs` | Điều phối cấu hình, chạy mô phỏng, áp dụng đề xuất, lịch sử và xuất báo cáo. |
+| `src/SmartEMobilityHub.Core/Services/WhatIfEngineService.cs` | Kiểm tra tham số, tính dự báo theo bước, đánh giá tác động và tạo/mô phỏng phương án điều phối trên snapshot. |
+| `src/SmartEMobilityHub.Core/Domain/SimulationModels.cs` | Mô hình tham số, phiên chạy, điểm dự báo, tác động Hub và đề xuất. |
+| `src/SmartEMobilityHub.Core/Store/TempStateRepository.cs` | Lưu snapshot tạm và lịch sử các phiên mô phỏng. |
+| `src/SmartEMobilityHub.Operator/WhatIfWindow.xaml` | Giao diện cấu hình, biểu đồ, cảnh báo, phương án và lịch sử What-if. |
+| `src/SmartEMobilityHub.Operator/ViewModels/WhatIfViewModel.cs` | Kết nối giao diện với controller, quản lý dữ liệu hiển thị và xuất báo cáo. |
