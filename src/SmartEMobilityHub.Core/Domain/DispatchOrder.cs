@@ -33,6 +33,35 @@ public sealed class DispatchOrder
         return true;
     }
 
+    public bool IsActive => Status is DispatchOrderStatus.Pending or DispatchOrderStatus.InProgress;
+
+    /// <summary>Huỷ lệnh chưa xuất phát.</summary>
+    public bool CancelOrder(DateTime now)
+    {
+        if (Status != DispatchOrderStatus.Pending)
+            return false;
+
+        Status = DispatchOrderStatus.Cancelled;
+        CompletedAt = now;
+        return true;
+    }
+
+    public DispatchOrder Clone() => new()
+    {
+        OrderId = OrderId,
+        SourceHubId = SourceHubId,
+        TargetHubId = TargetHubId,
+        VehicleIds = VehicleIds.ToList(),
+        StaffId = StaffId,
+        Reason = Reason,
+        EstimatedDistanceKm = EstimatedDistanceKm,
+        EstimatedDurationMinutes = EstimatedDurationMinutes,
+        Status = Status,
+        CreatedAt = CreatedAt,
+        StartedAt = StartedAt,
+        CompletedAt = CompletedAt
+    };
+
     public bool CompleteOrder(DateTime now)
     {
         if (Status != DispatchOrderStatus.InProgress)

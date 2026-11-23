@@ -69,7 +69,10 @@ public enum AlertType
     HubOverload,
     StaleData,
     DeviceOffline,
-    ChargerFault
+    ChargerFault,
+
+    /// <summary>GĐ8 (DC-44): kế hoạch sạc vượt giới hạn công suất Hub — tách khỏi HubOverload (quá tải chỗ đỗ).</summary>
+    PowerLimit
 }
 
 /// <summary>Trạng thái phiếu bảo trì (Bảng 27).</summary>

@@ -25,6 +25,9 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
     private double _weightNeedTime = DefaultWeightNeedTime;
     private double _weightPeak = DefaultWeightPeak;
 
+    /// <summary>Hub đang có kế hoạch vượt công suất đã báo — tránh báo lại mỗi chu kỳ.</summary>
+    private readonly HashSet<string> _overPowerHubs = new();
+
     public SmartChargingScheduler(
         NetworkStore store,
         IIoTSensorGateway gateway,
@@ -85,15 +88,19 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
             plan.OrderedRequests.Add(ordered[index]);
         }
 
-        if (!CheckPowerLimit(hub, plan))
+        if (CheckPowerLimit(hub, plan))
         {
-            var message = $"{hub.ShortName}: kế hoạch cần {plan.TotalPowerKw:0.#} kW, vượt giới hạn {hub.PowerLimitKw:0.#} kW. " +
+            _overPowerHubs.Remove(hub.Id);
+        }
+        else if (_overPowerHubs.Add(hub.Id))
+        {
+            var message = $"{hub.ShortName}: đang sạc {UsedPowerKw(hub):0.#} kW + kế hoạch cần {plan.TotalPowerKw:0.#} kW, vượt giới hạn {hub.PowerLimitKw:0.#} kW. " +
                           "Đề xuất giãn tiến độ sạc các yêu cầu cuối hàng chờ.";
             _logger.Warn(message, "UC-OP-04");
             _alertSink.DispatchAlert(new Alert
             {
                 AlertId = _store.NextAlertId(),
-                Type = AlertType.HubOverload,
+                Type = AlertType.PowerLimit,
                 HubId = hub.Id,
                 Message = message,
                 CreatedAt = _clock.Now
@@ -162,12 +169,18 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
         return true;
     }
 
-    /// <summary>Bảng 37 — so tổng công suất kế hoạch với giới hạn Hub.</summary>
+    /// <summary>
+    /// Bảng 37 — so công suất đang sạc + công suất kế hoạch với giới hạn Hub
+    /// (cùng ngân sách mà <see cref="AllocatePower"/> dùng để cấp cổng).
+    /// </summary>
     public bool CheckPowerLimit(MobilityHub hub, ChargingPlan plan)
     {
         if (hub is null || plan is null) throw new IllegalArgumentException("Hub hoặc kế hoạch không hợp lệ.");
-        return plan.TotalPowerKw <= hub.PowerLimitKw + 1e-9;
+        return UsedPowerKw(hub) + plan.TotalPowerKw <= hub.PowerLimitKw + 1e-9;
     }
+
+    private static double UsedPowerKw(MobilityHub hub) =>
+        hub.ChargingPoints.Where(p => p.Status == DeviceStatus.Charging).Sum(p => p.PowerKw);
 
     /// <summary>
     /// Bảng 37 — cấp cổng theo thứ tự ưu tiên trong ngân sách công suất còn lại.
@@ -177,11 +190,7 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
     {
         if (hub is null || plan is null) throw new IllegalArgumentException("Hub hoặc kế hoạch không hợp lệ.");
 
-        var usedKw = hub.ChargingPoints
-            .Where(p => p.Status == DeviceStatus.Charging)
-            .Sum(p => p.PowerKw);
-
-        var budgetKw = hub.PowerLimitKw - usedKw;
+        var budgetKw = hub.PowerLimitKw - UsedPowerKw(hub);
         var freePorts = hub.ChargingPoints
             .Where(p => p.Status == DeviceStatus.Available)
             .OrderBy(p => p.Number)
@@ -200,6 +209,13 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
 
                 var result = _gateway.SendPowerCommand(point.Id, point.PowerKw);
                 freePorts.Remove(point);
+
+                if (result.Outcome == PowerCommandOutcome.Timeout)
+                {
+                    // Mất phản hồi tạm thời: bỏ qua cổng ở chu kỳ này, không coi là hỏng (DC-43).
+                    _logger.Warn($"Cổng {point.Id} không phản hồi lệnh cấp nguồn — thử lại ở chu kỳ sau.", "UC-SYS-01");
+                    continue;
+                }
 
                 if (result.Outcome != PowerCommandOutcome.Ack)
                 {
@@ -312,6 +328,8 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
             .OrderBy(r => r.QueuePosition)
             .ToList();
 
+        // Ghim để chu kỳ lập lịch kế tiếp không xếp lại theo điểm và đẩy xe xuống (Exception 5a).
+        request.Pinned = true;
         request.QueuePosition = 0;
         for (var index = 0; index < others.Count; index++) others[index].QueuePosition = index + 1;
     }

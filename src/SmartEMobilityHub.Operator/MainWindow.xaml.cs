@@ -51,6 +51,7 @@ public partial class MainWindow : Window
     private void Assign_Click(object sender, RoutedEventArgs e) => Run(_viewModel.AssignSelected);
     private void Resolve_Click(object sender, RoutedEventArgs e) => Run(_viewModel.ResolveSelected);
     private void Close_Click(object sender, RoutedEventArgs e) => Run(_viewModel.CloseSelected);
+    private void Resume_Click(object sender, RoutedEventArgs e) => Run(_viewModel.ResumeSelectedHub);
 
     private void Suspend_Click(object sender, RoutedEventArgs e)
     {

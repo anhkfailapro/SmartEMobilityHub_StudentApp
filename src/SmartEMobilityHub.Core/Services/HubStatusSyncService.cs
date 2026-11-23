@@ -17,6 +17,12 @@ public sealed class HubStatusSyncService
     private readonly ISystemLogger _logger;
     private readonly IAlertSink _alertSink;
 
+    /// <summary>
+    /// Trạng thái cổng ngay trước khi Hub mất kết nối. Khi kết nối lại, khôi phục trạng thái này
+    /// trước khi đọc telemetry, để cổng không bị kẹt OFFLINE vĩnh viễn sau một lần mất mạng.
+    /// </summary>
+    private readonly Dictionary<string, Dictionary<string, DeviceStatus>> _portsBeforeOffline = new();
+
     public HubStatusSyncService(
         NetworkStore store,
         IIoTSensorGateway gateway,
@@ -40,8 +46,10 @@ public sealed class HubStatusSyncService
         {
             try
             {
+                RestorePortsBeforeOffline(hub);
                 var telemetry = _gateway.FetchSensorTelemetry(hub.Id);
                 Apply(hub, telemetry);
+                _portsBeforeOffline.Remove(hub.Id);
                 synced++;
             }
             catch (Exception ex) when (ex is SensorUnreachableException or GatewayTimeoutException)
@@ -88,8 +96,25 @@ public sealed class HubStatusSyncService
         hub.LastUpdatedAt = telemetry.CapturedAt;
     }
 
+    private void RestorePortsBeforeOffline(MobilityHub hub)
+    {
+        if (!_portsBeforeOffline.TryGetValue(hub.Id, out var saved)) return;
+
+        foreach (var point in hub.ChargingPoints)
+        {
+            if (point.Status == DeviceStatus.Offline && saved.TryGetValue(point.Id, out var status))
+                point.Status = status;
+        }
+    }
+
     private void MarkOffline(MobilityHub hub, Exception error)
     {
+        // Chỉ chụp trạng thái và báo động ở lần chuyển ONLINE → OFFLINE; các chu kỳ mất kết nối
+        // tiếp theo vẫn ghi log nhưng không phát thêm cảnh báo trùng.
+        var wasOnline = hub.Connection == ConnectionStatus.Online;
+        if (wasOnline)
+            _portsBeforeOffline[hub.Id] = hub.ChargingPoints.ToDictionary(p => p.Id, p => p.Status);
+
         hub.Connection = ConnectionStatus.Offline;
         if (hub.Status == HubStatus.Online) hub.Status = HubStatus.Offline;
 
@@ -97,6 +122,8 @@ public sealed class HubStatusSyncService
 
         // Không cập nhật LastUpdatedAt: giữ mốc cũ để UI hiển thị "Dữ liệu cũ · N phút".
         _logger.Error($"Mất kết nối cảm biến tại {hub.ShortName} ({hub.Id}): {error.Message}", "UC-SYS-02");
+
+        if (!wasOnline) return;
 
         _alertSink.DispatchAlert(new Alert
         {

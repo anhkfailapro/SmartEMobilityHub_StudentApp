@@ -1,184 +1,236 @@
-# Smart E-Mobility Hub – Student App (Demo)
+# Smart E-Mobility Hub
 
-Frontend demo of the **Student / Private EV Owner mobile app** for the Smart E-Mobility Hub project (CO3001 – Group 21).
-It covers use cases **UC-01 … UC-11**, including their exceptions and alternative flows, with in-memory mock data.
+Smart E-Mobility Hub is a demo system for shared electric bikes and motorbikes, parking and charging hubs on a university campus.
+It is the CO3001 (Software Engineering) project of Group 21.
 
-- Technology: **C# / WPF on .NET 10** (`net10.0-windows`). No NuGet packages.
-- The window shows a **phone screen (390 × 844)** on the left and a **Demo panel** on the right.
-- UI language: Vietnamese (same as the Figma design).
-- Requirements: `docs/SmartEMobilityHub_StudentMobileApp_TechnicalSpec.pdf`. Decisions that override the spec: `docs/DECISIONS.md`.
+The repository contains one Visual Studio solution with four projects:
+
+| Project | Type | What it is |
+|---|---|---|
+| `SmartEMobilityHub` (repository root) | WPF app | **Student app.** Phone-style app for students and private EV owners: find a vehicle, reserve, pick up, ride, return, request or schedule charging, report problems, view history. |
+| `src/SmartEMobilityHub.Core` | Class library | **Core services.** Hub status sync, overload alerts, auto-cancel of expired reservations, smart charging scheduling, incident management, capacity limits. No UI. |
+| `src/SmartEMobilityHub.Operator` | WPF app | **Operator dashboard.** Control centre for incidents and maintenance, built on the Core library. |
+| `tests/SmartEMobilityHub.Tests` | Console app | **Test runner** for the Core library. Writes a test report after each run. |
+
+All data is in memory and generated at start-up. There is no backend, no database, no real payment and no real GPS/IoT device; these are simulated.
+The UI language is Vietnamese.
+
+---
 
 ## 1. Requirements
 
 | Item | Version |
 |---|---|
 | OS | Windows 10 or Windows 11 |
-| IDE | Visual Studio 2022 **17.14 or newer**, or Visual Studio 2026, with the workload **".NET desktop development"** |
-| SDK | **.NET 10 SDK** (check with `dotnet --list-sdks`; a line starting with `10.` must exist) |
+| IDE | Visual Studio 2026, or Visual Studio 2022 version 17.14 or newer, with the workload **".NET desktop development"** |
+| SDK | **.NET 10 SDK** — check with `dotnet --list-sdks` (a line starting with `10.` must exist) |
 
-Optional: install the **Roboto** font to match Figma exactly. Without it the app uses Segoe UI.
+No NuGet packages are used. Nothing else needs to be installed.
+Optional: install the **Roboto** font for the intended look of the student app. Without it, Segoe UI is used.
 
-## 2. How to run
+## 2. Build and run
 
-### Option A – Visual Studio
+### Visual Studio
 1. Open `SmartEMobilityHub.slnx`.
-2. Press **F5** (or *Debug → Start Debugging*).
+2. In Solution Explorer, right-click the project you want to run → **Set as Startup Project**:
+   - `SmartEMobilityHub` – student app
+   - `SmartEMobilityHub.Operator` – operator dashboard
+   - `SmartEMobilityHub.Tests` – test runner
+3. Press **F5**.
 
-### Option B – Command line
+To start the student app and the dashboard together: right-click the solution → **Configure Startup Projects** → **Multiple startup projects**.
+
+### Command line (from the repository root)
 ```bat
-cd path\to\SmartEMobilityHub
-dotnet run
-```
+rem Student app
+dotnet run --project SmartEMobilityHub.csproj
 
-The window can be resized. The content scales to fit.
-
-## 3. How to use the demo
-
-- **Phone screen (left):** the student app. The bottom bar has 5 tabs: Trang chủ, Đặt chỗ, Chuyến đi, Thông báo, Tài khoản.
-- **Demo panel (right):** not part of the app. It simulates things a real phone/IoT system would provide:
-  - **Thời gian demo:** move the clock forward (+1/+5/+15/+30 min) to test hold expiry, late-cancel fees and reminders.
-  - **Công tắc tình huống:** switches that force an alternative path (for example "Hub trả xe hết chỗ").
-  - **Sự kiện hệ thống:** one-click system events (stale data, charging point assigned, charging point broken).
-  - **Đặt lại toàn bộ demo:** reset all data.
-- No login: the app opens as demo user **Minh**, who is both a Student and a Private EV Owner.
-
-## 4. Walkthrough per use case
-
-| UC | Normal flow | Alternative / exception paths and how to trigger them |
-|---|---|---|
-| UC-01 Plan journey | Home → type a destination (or tap a suggestion) → **Tìm** → *Chọn Hub xuất phát* → vehicle list | **3a** tap a Hub card on Home · **4a** Demo panel "Dịch vụ bản đồ không phản hồi" · **7a** tap *Xem tất cả* → *Hub Nhà văn hóa SV* (no available vehicle → 3 nearest Hubs) |
-| UC-02 Vehicle status | Vehicle list → tap a vehicle | **1a** chip "Pin > 50%" · **2a** EM-2060 (data 14 min old) or Demo panel "Làm cũ dữ liệu EB-1024" · **3a** EM-2060 (faulty) / EB-1031 (reserved) → read-only, *Đặt trước* disabled |
-| UC-03 Reserve vehicle | Detail → *Đặt trước* → *Xác nhận đặt* → countdown + pick-up code | **2a** Demo panel "SV khác đặt xe trước" · **2b** reserve a second vehicle · **4a** *Hủy* on the confirm screen · **5a** Demo panel "+15 phút" |
-| UC-04 Reserve parking | Home → *Đặt chỗ đỗ xe* → fill form → *Xác nhận đặt chỗ* → slot + entry QR | **3a** switch "Đến ngay" · **4a** Demo panel "Hub đỗ xe đã chọn hết chỗ" → Hubs within 1 km · **4b** make a second parking reservation (limit = 1) |
-| UC-05 Cancel / change | Tab *Đặt chỗ* → *Hủy* → confirm | **3a–3c** *Đổi giờ* on a parking or charging booking (Demo panel "Khung giờ mới không còn chỗ" = time kept) · **6a** cancel the vehicle reservation after pick-up · **6b** book parking with *Đến ngay* (start < 5 min), then cancel → late fee 10.000đ |
-| UC-06 Pick up | Reservation screen → *Quét QR để nhận xe* → *Giả lập quét (đúng xe)* → unlocking → trip starts | **1a** *Nhập mã thủ công* (the screen shows the demo codes) · **2a** *Quét nhầm xe khác* (2 more attempts) · **2b** move the clock past the hold time · **4a** Demo panel "Xe không xác nhận mở khóa" → incident + support contact. Extra: "Sinh viên chưa ở Hub" |
-| UC-07 Return | Tab *Chuyến đi* → *Trả xe* → choose Hub → *Xác nhận trả xe* → invoice | **2a** Demo panel "Xe không nằm trong Hub" · **2b** return at *KTX Khu A* (full) or Demo panel "Hub trả xe hết chỗ" → nearest Hub + 10 free minutes · **4a** the demo user has 1 free monthly-plan minute |
-| UC-08 Charging request | Trip → *Yêu cầu sạc* → *Xác nhận yêu cầu sạc* → queue position. Demo panel "Cấp cổng sạc" sends the "charging point assigned" notification | **2a** Demo panel "Tất cả cổng sạc đang bận" · **3a** *Chọn Hub khác* · **3b** *Kết thúc chuyến, đặt xe mới và yêu cầu sạc* · **5a** submit twice for the same vehicle |
-| UC-09 Schedule charging | Home → *Lên lịch sạc* → fill form → *Xác nhận lịch sạc* → booking detail; reminder 30 min before | **3a** switch "Sạc sớm nhất có thể" · **4a** Demo panel "Không còn cổng sạc trong khung giờ" · **4b** choose 150 min at *Thư viện Trung tâm* (limit 120) · **5a** Demo panel "Cổng sạc đã đặt bị hỏng" (moved / cancelled) |
-| UC-10 Report problem | Trip → *Báo lỗi* (or Trip summary → *Báo lỗi xe*) → fill form → *Gửi báo cáo* → report code | **2a** report the vehicle you are riding → "Kết thúc chuyến và báo lỗi" · **3a** pick a photo > 5 MB (or tap "Demo: thử chọn ảnh 7,2 MB") · **4a** report **EB-1031** (already has incident BC-1187 → linked) |
-| UC-11 Notifications & history | Home → *Hoạt động* (or tab *Thông báo*) → tabs *Thông báo* / *Lịch sử* → tap an entry → detail + invoice | **3a** stay on *Thông báo* (newest first, marked as read) · **4a** Demo panel "Không có lịch sử 3 tháng" |
-
-Other features: **Tài khoản** tab shows the read-only private vehicles, the monthly-plan minutes and a **dark mode** switch.
-
-## 5. Not in this demo (by decision)
-
-- Real login, real payment, real GPS/IoT/map (all simulated).
-- Payment failure (UC-07 5a) and "Pay now" (UC-11 6a): payment always succeeds (OPEN-12).
-- Parking grace time, no-show, extension (OPEN-07); deposit for charging bookings (OPEN-06).
-- QR codes are drawn placeholders and cannot be scanned.
-- Prices, labels and priority ranges marked *Assumed – review* in `docs/DECISIONS.md` are demo values.
-
-## 6. Project structure
-
-```
-SmartEMobilityHub/
-├─ SmartEMobilityHub.slnx / .csproj   WPF project (net10.0-windows)
-├─ App.xaml, MainWindow.xaml(.cs)     window: phone frame + Demo panel
-├─ DemoApp.cs                         wiring: services, clock, 1-second timer, tab navigation
-├─ Models/      domain classes from spec §4 (Hub, Vehicle, VehicleReservation, ParkingReservation,
-│               PrivateEVChargingSession, ChargingRequest, Trip, Invoice, Incident, …)
-├─ Data/        DemoConfig (prices, limits, labels), DemoClock, DemoToggles, MockDataStore (seed data)
-├─ Services/    spec §8 services: JourneyPlanner, VehicleManager, ReservationService, ParkingService,
-│               PickUpService, TripBillingService, ChargingService, BookingService, IncidentService,
-│               NotificationService, HistoryService
-├─ Ui/          Theme (light/dark tokens from Figma), UiKit (shared controls), AppShell (navigation,
-│               dialogs, bottom bar), DemoPanel
-├─ Screens/     one class per screen (Home, VehicleList, VehicleDetail, Reservation, ScanQr, Trip, …)
-└─ docs/        spec PDF, DECISIONS.md, PLAN.md, CHANGE_LOG_proposal.md
-```
-
-Architecture: **Screen (UI) → Service → in-memory data**, matching the spec's traceability table (§8).
-Screens are built in C# with the shared `UiKit`, so every screen uses the same Figma style.
-
----
-
-## 7. Phần của Vỹ — dịch vụ lõi & Trung tâm điều hành
-
-Ngoài app sinh viên, repo có thêm ba project (vẫn **không dùng NuGet**, cùng .NET 10):
-
-| Project | Vai trò |
-|---|---|
-| `src/SmartEMobilityHub.Core` | Lõi nghiệp vụ dùng chung: UC-SYS-01…04 (lập lịch sạc, đồng bộ trạng thái, ngưỡng quá tải, huỷ đặt chỗ quá hạn), UC-OP-03 (quản lý sự cố) và UC-OP-04 (giới hạn công suất). Không phụ thuộc WPF. |
-| `src/SmartEMobilityHub.Operator` | **Trung tâm điều hành** (WPF): danh sách 24 sự cố, chi tiết + nhật ký, khoá thiết bị, tạo phiếu bảo trì, gán kỹ thuật viên, tạm dừng Hub; cột phải có KPI, hàng chờ sạc và panel demo. |
-| `tests/SmartEMobilityHub.Tests` | Console runner: **18 test case bắt buộc** (Bảng 62–67) + 5 test biên + 7 smoke seed. Tự sinh `tests/report/results.md` và `results.json`. |
-
-### Chạy
-
-```bat
-cd SmartEMobilityHub_StudentApp
-
-rem Dashboard điều hành
+rem Operator dashboard
 dotnet run --project src\SmartEMobilityHub.Operator\SmartEMobilityHub.Operator.csproj
 
-rem Kiểm thử (exit code 0 = tất cả đạt)
+rem Tests (exit code 0 = all passed)
 dotnet run --project tests\SmartEMobilityHub.Tests\SmartEMobilityHub.Tests.csproj
 ```
 
-Máy chưa có .NET 10 SDK thì dùng SDK cục bộ mà Vỹ đã cài (thư mục ngoài repo): thay `dotnet` bằng `..\.dotnet\dotnet`.
+---
 
-### Tài liệu bàn giao
+## 3. Student app
 
-- `docs/GD2_GD4_SERVICES.md` — kiến trúc service, API, sáu bước timer, cách tích hợp.
-- `docs/GD5_TESTS.md` — bảng 18 case + kết quả 30/30, ghi chú dữ liệu test.
-- `docs/GD6_OPERATOR_UI.md` — mô tả màn hình và kịch bản demo 10 bước.
-- `docs/DESIGN_CHANGES.md` — mọi sai lệch so với Submission #3 (DC-01…DC-34).
-- `docs/AI_USAGE_LOG.md` — khai báo sử dụng AI theo từng giai đoạn.
-- `docs/GD0_REVIEW.md`, `docs/GD1_CORE_CSHARP.md` — rà soát đặc tả và bàn giao GĐ1.
+The window shows a **phone screen (390 × 844)** on the left and a **Demo panel** on the right. The window can be resized; the content scales.
 
-### Lưu ý tích hợp
+- **Phone screen:** the app itself. Bottom tabs: Trang chủ (Home), Đặt chỗ (Reservations), Chuyến đi (Trip), Thông báo (Notifications), Tài khoản (Account).
+- **Demo panel:** not part of the app. It simulates what real devices and time would do:
+  - **Thời gian demo** – move the clock forward (+1 / +5 / +15 / +30 minutes) to test hold expiry, late-cancel fees and reminders.
+  - **Công tắc tình huống** – switches that force an alternative path (for example "Hub trả xe hết chỗ" = return hub is full).
+  - **Sự kiện hệ thống** – one-click system events: stale vehicle data, charging point assigned, charging point broken.
+  - **Đặt lại toàn bộ demo** – reset all data.
+- There is no login. The app opens as demo user **Minh**, who is both a student and a private EV owner.
 
-- Dashboard dùng seed riêng của Core (`NetworkSeed`), **không sửa** `MockDataStore` của app sinh viên: seed app cố ý cho KTX Khu A đầy 100% để demo UC-07, trong khi KPI của dashboard cần HUB-08 = 90%.
-- App sinh viên chỉ bị sửa `SmartEMobilityHub.csproj` (loại `src/**`, `tests/**` khỏi glob) và `SmartEMobilityHub.slnx` (thêm project); không đổi XAML hay logic màn hình sinh viên.
-- Khi tích hợp thật, thêm `ProjectReference` sang Core và map enum `DeviceStatus` (PascalCase) ↔ `VehicleStatus`/`PointStatus` của app tại biên.
+### Use cases and how to show them
 
-```
-SmartEMobilityHub_StudentApp/
-├─ SmartEMobilityHub.csproj          WPF app sinh viên (UC-01…UC-11)
-├─ src/
-│  ├─ SmartEMobilityHub.Core/        lõi nghiệp vụ + adapter + seed
-│  └─ SmartEMobilityHub.Operator/    dashboard Quản lý sự cố & Bảo trì
-├─ tests/
-│  ├─ SmartEMobilityHub.Tests/       runner + 18 case + unit biên
-│  └─ report/                        results.md / results.json (tự sinh)
-└─ docs/                             đặc tả, quyết định, bàn giao, khai báo AI
-```
+| Use case | Normal flow | Alternative paths and how to trigger them |
+|---|---|---|
+| UC-01 Plan journey | Home → type a destination (or tap a suggestion) → **Tìm** → *Chọn Hub xuất phát* → vehicle list | Tap a hub card on Home · Demo panel "Dịch vụ bản đồ không phản hồi" (map service timeout → hubs by straight-line distance) · *Xem tất cả* → *Hub Nhà văn hóa SV* (no vehicle → 3 nearest hubs) |
+| UC-02 Vehicle status | Vehicle list → tap a vehicle | Chip "Pin > 50%" · EM-2060 (data 14 min old) or Demo panel "Làm cũ dữ liệu EB-1024" → stale warning · EM-2060 (faulty) / EB-1031 (reserved) → read-only, *Đặt trước* disabled |
+| UC-03 Reserve vehicle | Detail → *Đặt trước* → *Xác nhận đặt* → 15-minute countdown + pick-up code | Demo panel "SV khác đặt xe trước" · reserve a second vehicle (limit 1) · *Hủy* on the confirm screen · Demo panel "+15 phút" (hold expires) |
+| UC-04 Reserve parking | Home → *Đặt chỗ đỗ xe* → fill form → *Xác nhận đặt chỗ* → slot + entry QR | Switch "Đến ngay" · Demo panel "Hub đỗ xe đã chọn hết chỗ" → hubs within 1 km · a second parking reservation (limit 1) |
+| UC-05 Cancel / change time | Tab *Đặt chỗ* → *Hủy* → confirm | *Đổi giờ* on a parking or charging booking (Demo panel "Khung giờ mới không còn chỗ" = old time kept) · cancel the vehicle reservation after pick-up (refused) · parking with *Đến ngay*, then cancel → late fee 10.000đ |
+| UC-06 Pick up | Reservation → *Quét QR để nhận xe* → *Giả lập quét (đúng xe)* → unlocking → trip starts | *Nhập mã thủ công* (screen shows demo codes) · *Quét nhầm xe khác* (2 more attempts) · clock past the hold time · Demo panel "Xe không xác nhận mở khóa" → incident + support contact · Demo panel "Sinh viên chưa ở Hub" |
+| UC-07 Return | Tab *Chuyến đi* → *Trả xe* → choose hub → *Xác nhận trả xe* → invoice | Demo panel "Xe không nằm trong Hub" · return at *KTX Khu A* (full) or Demo panel "Hub trả xe hết chỗ" → nearest hub + 10 free minutes · monthly-plan free minute is deducted |
+| UC-08 Charging request | Trip → *Yêu cầu sạc* → *Xác nhận yêu cầu sạc* → queue position; Demo panel "Cấp cổng sạc" sends "charging point assigned" | Demo panel "Tất cả cổng sạc đang bận" · *Chọn Hub khác* · *Kết thúc chuyến, đặt xe mới và yêu cầu sạc* · submit twice for the same vehicle (duplicate refused) |
+| UC-09 Schedule charging (private EV) | Home → *Lên lịch sạc* → fill form → *Xác nhận lịch sạc* → booking detail; reminder 30 minutes before | Switch "Sạc sớm nhất có thể" · Demo panel "Không còn cổng sạc trong khung giờ" → alternative windows · 150 minutes at *Thư viện Trung tâm* (hub limit 120) · Demo panel "Cổng sạc đã đặt bị hỏng" (booking moved or cancelled) |
+| UC-10 Report problem | Trip → *Báo lỗi* (or trip summary → *Báo lỗi xe*) → fill form → *Gửi báo cáo* → report code | Report the vehicle you are riding → "Kết thúc chuyến và báo lỗi" · photo larger than 5 MB (or "Demo: thử chọn ảnh 7,2 MB") · report **EB-1031** (already has open incident BC-1187 → report is linked) |
+| UC-11 Notifications and history | Home → *Hoạt động* (or tab *Thông báo*) → *Thông báo* / *Lịch sử* → tap an entry → detail + invoice | Notifications are newest first and marked as read · Demo panel "Không có lịch sử 3 tháng" → empty state |
+
+The **Tài khoản** tab shows the registered private vehicles (read-only), the remaining monthly-plan minutes and a **dark mode** switch.
+
+### Business rules used
+
+| Rule | Value |
+|---|---|
+| Shared-vehicle hold time | 15 minutes |
+| Active reservations per user | 1 vehicle, 1 parking, 1 charging booking |
+| Vehicle data shown as stale | older than 10 minutes |
+| Late-cancel fee | 10.000đ if cancelled less than 5 minutes before start |
+| Unlock confirmation timeout | 30 seconds |
+| Wrong vehicle at pick-up | 2 more attempts |
+| Extra free time when return hub is full | 10 minutes |
+| Vehicle becomes "Cần sạc" (needs charge) | battery below 20 % |
+| Rental price | 1.500đ per started minute |
+| Charging reminder | 30 minutes before start |
+| Problem photo size | up to 5 MB |
+| History period | last 3 months |
+| Charging priority label (score 0–100) | 0–24 Thấp · 25–49 Trung bình · 50–74 Cao · 75–100 Khẩn cấp |
+
+All prices and limits are in `Data/DemoConfig.cs`.
+
+### Not simulated in the student app
+- Payment failure and "Pay now" (payment always succeeds).
+- Parking grace time, no-show and extension; deposit for charging bookings.
+- QR codes are drawn placeholders and cannot be scanned.
 
 ---
 
-## 8. Phần của Đức — mô phỏng What-if
+## 4. Operator dashboard
 
-Chức năng **What-if** trong Trung tâm điều hành: cấu hình kịch bản, dự báo tải Hub, đánh giá ảnh hưởng, đề xuất điều phối, mô phỏng lại sau đề xuất và xuất báo cáo PDF. Giao diện được thiết kế theo màn hình Figma và hiển thị biểu đồ sử dụng bãi đỗ/cổng sạc theo từng mốc thời gian.
+A control-centre window (1520 × 940, minimum 1240 × 760) with three columns:
 
-### Chạy chức năng
+| Column | Content |
+|---|---|
+| Left | 24 incidents with code, device, priority, status and time; filter chips (Tất cả / Mới / Kiểm tra / Đang sửa / Đã xong); search by code, device, fault or hub |
+| Middle | Incident detail: description, reporter, time; action buttons; maintenance task (technician, SLA left or overdue); processing log |
+| Right | KPIs (new / checking-locked / in repair / done), overloaded hubs, alerts; 5 technicians with availability and distance; charging queue of HUB-08; recent alerts; demo scenario buttons; system log |
 
-```bat
-dotnet run --project src\SmartEMobilityHub.Operator\SmartEMobilityHub.Operator.csproj
+The header shows the simulated clock, "updated N seconds ago · 30-second cycle" and a **Quét ngay** (scan now) button.
+
+### Incident actions
+
+| Button | Enabled when | Result |
+|---|---|---|
+| Khoá thiết bị (lock device) | incident New / Checking | device and incident become Locked |
+| Tạo phiếu bảo trì (create maintenance task) | incident not closed | task created with SLA deadline by priority |
+| Gán KTV gần nhất (assign nearest technician) | incident not closed or resolved | creates the task if needed, assigns the nearest available technician |
+| Hoàn tất xử lý (finish repair) | incident In repair | In repair → Resolved |
+| Đóng sự cố (close incident) | incident Resolved | Resolved → Closed |
+| Tạm dừng Hub (suspend hub) | hub not suspended | asks for confirmation, suspends the hub, cancels its upcoming reservations, notifies users |
+
+Invalid actions show a Vietnamese message box; the app does not crash.
+
+### Demo scenario buttons
+
+| Button | Effect |
+|---|---|
+| Cổng CS-08-08 lỗi | charging point fault → point Faulty, sensor incident created |
+| Mất kết nối HUB-03 | hub and its 4 points go Offline, connection-loss incident created |
+| Dữ liệu cũ HUB-08 | hub data set 14 minutes old → stale-data alert |
+| Mạng cảnh báo lỗi | alert channel down → HUB-08 overload alert is queued |
+| Khôi phục & gửi lại | channel back, clock +31 s → queued alerts are resent |
+| Sự cố mở khoá | unlock-timeout incident for vehicle XE-121, reservation R-103 |
+| Thêm 3 yêu cầu sạc | 3 charging requests at HUB-08, scheduler assigns points |
+| +1 / +5 / +15 phút | move the simulated clock |
+| Tự động quét | turn the 30-second automatic scan on/off |
+| Tăng tốc ×10 | 1 real second = 10 simulated seconds |
+| Đặt lại demo | rebuild all data, services and clock |
+
+### Suggested 5-minute demo
+1. Select **SC-1024** (HUB-08, Khẩn cấp) and read the description and log.
+2. **Tạo phiếu bảo trì** → task MT-0001 with a 30-minute deadline.
+3. **Gán KTV gần nhất** → technician T-02; incident becomes In repair.
+4. **Hoàn tất xử lý**, then **Đóng sự cố** → KPI "Đã xong" increases.
+5. Select **SC-1017** (XE-087) → **Khoá thiết bị**.
+6. **Cổng CS-08-08 lỗi** → a new incident and a "charging point fault" alert appear.
+
+---
+
+## 5. Core services
+
+`src/SmartEMobilityHub.Core` holds the business logic shared by the dashboard and the tests. It does not depend on WPF.
+
+| Service | Responsibility |
+|---|---|
+| `StatusUpdaterTimer` | Runs every 30 seconds: sync hub status → check stale data → check thresholds → smart charging → auto-cancel → resend queued alerts. Each step is isolated, so one failure does not stop the others. |
+| `HubStatusSyncService` | Reads telemetry for every hub; a lost device goes Offline without blocking other hubs. |
+| `ThresholdMonitor` | Overload alert when a hub reaches 90 % of capacity (54/60 = alert, 53/60 = no alert). |
+| `AlertRetryQueue` | Queues alerts when the channel is down and resends them after 30 seconds. |
+| `AutoCancelService` | Cancels reservations held longer than 15 minutes and releases the resource; extends the hold if the user is picking up. |
+| `SmartChargingScheduler` | Ranks charging requests by battery level, needed time and peak demand; respects hub power limits; moves vehicles from faulty points. |
+| `IncidentManager` | Receives student, sensor and unlock-timeout reports; links duplicates; lock device, maintenance task, technician assignment, suspend hub. |
+| `VehicleRedistributor` | Finds hubs with too many or too few vehicles, suggests dispatch orders, and executes or completes them. |
+
+Folders: `Domain` (entities and enums), `Ports` (interfaces), `Adapters` (in-memory and mock implementations), `Seed` (12 hubs, vehicles, 24 incidents, technicians, reservations), `Store`, `Clock` (`SystemClock`, `FakeClock` for tests, and a scaled clock that speeds up simulated time for demos). Services never read `DateTime.Now` directly, so time-based rules can be tested.
+
+## 6. Tests
+
+`tests/SmartEMobilityHub.Tests` is a console test runner (no test framework, no NuGet). Each test builds a fresh in-memory world with a fixed `FakeClock`, so results are repeatable.
+
+| Group | Count | Covers |
+|---|---|---|
+| Seed smoke tests | 7 | seed data, snapshot copy, clock |
+| TCSYS02 – hub status sync | 3 | 30-second cycle, lost device, stale data |
+| TCSYS03 – overload alerts | 3 | 90 % threshold, alert queue and resend |
+| TCSYS04 – auto-cancel | 3 | 15-minute limit, boundary, pick-up in progress |
+| TCSYS01 – smart charging | 4 | ranking, weight validation, power limit, faulty point |
+| TCOP03 – incident management | 5 | student report, duplicate link, lock + task + technician, suspend hub, unlock timeout |
+| Boundary unit tests | 5 | thresholds, stale data, priority score, SLA |
+
+Each run prints the results and writes `tests/report/results.md` and `results.json`. These report files are generated locally and are not committed. The exit code is 0 when all tests pass.
+
+---
+
+## 7. Repository structure
+
+```
+SmartEMobilityHub.slnx              solution (4 projects)
+SmartEMobilityHub.csproj            student app (WPF)
+App.xaml, MainWindow.xaml(.cs)      student app window: phone frame + Demo panel
+DemoApp.cs                          student app wiring: services, clock, timer, navigation
+Models/                             student app domain classes
+Data/                               DemoConfig (prices, limits, labels), DemoClock, DemoToggles, MockDataStore
+Services/                           JourneyPlanner, VehicleManager, ReservationService, ParkingService, PickUpService,
+                                    TripBillingService, ChargingService, BookingService, IncidentService,
+                                    NotificationService, HistoryService
+Ui/                                 Theme (light/dark), UiKit (shared controls), AppShell (navigation, dialogs), DemoPanel
+Screens/                            one class per student app screen
+src/SmartEMobilityHub.Core/         core services library
+src/SmartEMobilityHub.Operator/     operator dashboard (WPF, MVVM)
+tests/SmartEMobilityHub.Tests/      test runner
+docs/                               project documents
 ```
 
-Trong cửa sổ Trung tâm điều hành, chọn **Mô phỏng & phân tích kịch bản** để mở What-if. Có thể chọn một trong năm nhóm kịch bản: tăng nhu cầu tại ga Metro, bãi đỗ đầy, tăng nhu cầu sạc, cổng sạc ngừng hoạt động hoặc phương tiện tập trung tại một Hub.
+### Architecture notes
+- **Student app:** Screen → Service → in-memory store. Screens are C# classes built with the shared `UiKit`, so all screens share one style.
+- **Operator dashboard:** MVVM (`ViewModels/MainViewModel.cs`) on top of the Core services.
+- The student app and the dashboard each use their own demo data. The student app is not connected to the Core library yet; connecting it means adding a project reference to Core and mapping the vehicle and point status enums.
 
-### Luồng sử dụng
+## 8. Team
 
-1. Chọn kịch bản và Hub mục tiêu; nhập mức biến động nhu cầu, khung giờ, bước thời gian và số cổng sạc hỏng nếu phù hợp.
-2. Chạy mô phỏng để xem dự báo theo thời gian, tóm tắt tác động, cảnh báo và các Hub bị ảnh hưởng.
-3. Chọn **Mô phỏng** trên một phương án điều phối để tính lại kết quả và xem các đề xuất tiếp theo.
-4. Dùng lịch sử để xem lại phiên, chạy lại từ trạng thái đầu vào hoặc xuất báo cáo PDF.
+CO3001 – Software Engineering, Group 21 · Ho Chi Minh City University of Technology (HCMUT), VNU-HCM.
+Supervisor: Nguyen Minh Tam.
 
-### Quy tắc và giới hạn chính
-
-- Tham số được kiểm tra trước khi chạy: Hub phải tồn tại, mức biến động nhu cầu từ **−50% đến +200%**, khung mô phỏng tối đa **24 giờ**, bước thời gian từ **5 đến 120 phút**. Số cổng hỏng phải hợp lệ với kịch bản và Hub đã chọn.
-- Biểu đồ biểu diễn phần trăm sử dụng bãi đỗ và cổng sạc từ mốc **0%**; thang tối thiểu đến **200%** và tự mở rộng khi dữ liệu dự báo cao hơn.
-- Ngưỡng tải cao là **90%**; mức sử dụng bãi đỗ vượt **100%** được đánh dấu quá sức chứa và cảnh báo nghiêm trọng. Tóm tắt cảnh báo và biểu đồ lấy từ cùng kết quả mô phỏng.
-- Mỗi lần chạy dùng snapshot và bản sao dữ liệu riêng. Mô phỏng phương án không ghi thay đổi vào trạng thái vận hành thật; kết quả và lịch sử chỉ phục vụ phân tích.
-- Kết quả gồm dự báo theo bước thời gian, so sánh trước/sau theo Hub, số Hub bị ảnh hưởng, cảnh báo tải và phương án điều phối. Báo cáo PDF tóm tắt phiên và kết quả tương ứng.
-
-### Thành phần mã nguồn
-
-| Thành phần | Trách nhiệm |
+| Student ID | Member |
 |---|---|
-| `src/SmartEMobilityHub.Core/Services/WhatIfController.cs` | Điều phối cấu hình, chạy mô phỏng, áp dụng đề xuất, lịch sử và xuất báo cáo. |
-| `src/SmartEMobilityHub.Core/Services/WhatIfEngineService.cs` | Kiểm tra tham số, tính dự báo theo bước, đánh giá tác động và tạo/mô phỏng phương án điều phối trên snapshot. |
-| `src/SmartEMobilityHub.Core/Domain/SimulationModels.cs` | Mô hình tham số, phiên chạy, điểm dự báo, tác động Hub và đề xuất. |
-| `src/SmartEMobilityHub.Core/Store/TempStateRepository.cs` | Lưu snapshot tạm và lịch sử các phiên mô phỏng. |
-| `src/SmartEMobilityHub.Operator/WhatIfWindow.xaml` | Giao diện cấu hình, biểu đồ, cảnh báo, phương án và lịch sử What-if. |
-| `src/SmartEMobilityHub.Operator/ViewModels/WhatIfViewModel.cs` | Kết nối giao diện với controller, quản lý dữ liệu hiển thị và xuất báo cáo. |
+| 2310785 | Nguyễn Minh Đức |
+| 2414064 | Châu Hoàng Vỹ |
+| 2412520 | Dương Phúc Tất Nhiên |
+| 2313698 | Chu Quang Trường |
+| 2411035 | Đào Văn Trọng Hiệp |

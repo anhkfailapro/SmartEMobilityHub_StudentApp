@@ -106,6 +106,7 @@ public sealed class IncidentManager
             AlertType.HubOverload => PriorityLevel.Critical,
             AlertType.DeviceOffline => PriorityLevel.High,
             AlertType.ChargerFault => PriorityLevel.High,
+            AlertType.PowerLimit => PriorityLevel.High,
             _ => PriorityLevel.Medium
         };
 
@@ -225,7 +226,12 @@ public sealed class IncidentManager
         var incident = _store.FindIncident(task.IncidentId);
         if (incident is not null && !incident.IsOpen()) return false;
 
+        // Gán lại cho người khác thì trả người cũ về trạng thái sẵn sàng.
+        if (task.AssignedTech is not null && task.AssignedTech.TechId != technician.TechId)
+            task.AssignedTech.Available = true;
+
         task.Assign(technician, _clock.Now, ServiceConstants.SlaFor(incident?.Priority ?? PriorityLevel.Medium));
+        technician.Available = false;
 
         if (incident is not null)
         {
@@ -291,9 +297,56 @@ public sealed class IncidentManager
         return cancelled;
     }
 
-    /// <summary>Bảng 41 — chỉ cho phép chuyển trạng thái hợp lệ (giải thích C6).</summary>
+    /// <summary>
+    /// Bảng 41 — mở lại Hub đã tạm dừng. Trả false nếu Hub không ở trạng thái SUSPENDED.
+    /// Hub đang mất kết nối thì mở lại về OFFLINE, chu kỳ đồng bộ sẽ đưa lên ONLINE khi có tín hiệu.
+    /// </summary>
+    public bool ResumeHub(string hubId, string operatorId)
+    {
+        var hub = _store.GetHub(hubId);
+        if (hub.Status != HubStatus.Suspended) return false;
+
+        hub.Status = hub.Connection == ConnectionStatus.Online ? HubStatus.Online : HubStatus.Offline;
+        _logger.Info($"{operatorId} mở lại {hub.ShortName}.", "UC-OP-03");
+        return true;
+    }
+
+    /// <summary>
+    /// Kết thúc sửa chữa: IN_REPAIR → RESOLVED, hoàn thành các phiếu đang mở, trả kỹ thuật viên
+    /// về sẵn sàng và đưa thiết bị về AVAILABLE để sinh viên dùng lại.
+    /// </summary>
+    public void ResolveIncident(string incidentId, string note)
+    {
+        var incident = _store.GetIncident(incidentId);
+        Transition(incident, IncidentStatus.Resolved);
+
+        var openTasks = _store.MaintenanceTasks.Where(t =>
+            t.IncidentId == incident.IncidentId &&
+            t.Status is MaintenanceStatus.Assigned or MaintenanceStatus.InProgress);
+
+        foreach (var task in openTasks)
+        {
+            if (task.Status == MaintenanceStatus.Assigned) task.Start();
+            task.Complete(note, _clock.Now);
+            if (task.AssignedTech is not null) task.AssignedTech.Available = true;
+        }
+
+        SetDeviceStatus(incident, DeviceStatus.Available);
+        AddLog(incident, $"Hoàn tất sửa chữa: {note}", "Người vận hành");
+    }
+
+    /// <summary>
+    /// Bảng 41 — chỉ cho phép chuyển trạng thái hợp lệ (giải thích C6).
+    /// Chuyển sang RESOLVED đi qua <see cref="ResolveIncident"/> để thiết bị và phiếu được giải phóng.
+    /// </summary>
     public void UpdateIncidentStatus(string incidentId, IncidentStatus status)
     {
+        if (status == IncidentStatus.Resolved)
+        {
+            ResolveIncident(incidentId, "Đã xử lý xong.");
+            return;
+        }
+
         var incident = _store.GetIncident(incidentId);
         Transition(incident, status);
     }
@@ -370,6 +423,7 @@ public sealed class IncidentManager
                 $"{hub?.ShortName ?? hubId} đạt {hub?.MaxUtilization * 100:0}% sức chứa ({hub?.OccupiedParkingSlots}/{hub?.ParkingCapacity} chỗ).",
             AlertType.StaleData => $"Dữ liệu {objectCode} đã cũ hơn {ServiceConstants.StaleThresholdMinutes} phút.",
             AlertType.DeviceOffline => $"{objectCode} mất kết nối cảm biến.",
+            AlertType.PowerLimit => $"{hub?.ShortName ?? hubId} có kế hoạch sạc vượt giới hạn {hub?.PowerLimitKw:0.#} kW.",
             _ => $"{objectCode} báo lỗi cổng sạc."
         };
     }

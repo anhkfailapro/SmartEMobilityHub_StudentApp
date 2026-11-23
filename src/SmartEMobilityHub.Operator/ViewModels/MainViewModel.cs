@@ -136,6 +136,8 @@ public sealed class MainViewModel : ObservableObject
         }
     }
 
+    public bool CanResume => _demo.Store.FindHub(_selected?.HubId ?? "")?.Status == HubStatus.Suspended;
+
     /// <summary>Nhịp UI 1 giây: thời gian mô phỏng trôi, tự quét mỗi 30 giây.</summary>
     public void Tick()
     {
@@ -329,6 +331,27 @@ public sealed class MainViewModel : ObservableObject
         return null;
     }
 
+    public string? ResumeSelectedHub()
+    {
+        if (_selected is null) return "Hãy chọn một sự cố.";
+
+        var hubId = _selected.HubId;
+        if (string.IsNullOrWhiteSpace(hubId)) return "Sự cố không gắn với Hub nào.";
+
+        try
+        {
+            if (!_demo.Incidents.ResumeHub(hubId, "OP-01")) return $"{hubId} không ở trạng thái tạm dừng.";
+            Note($"{hubId} đã mở lại hoạt động.");
+        }
+        catch (HubNotFoundException ex)
+        {
+            return ex.Message;
+        }
+
+        Refresh();
+        return null;
+    }
+
     // ---------- Demo panel ----------
 
     public void BreakPort()
@@ -463,6 +486,7 @@ public sealed class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(CanResolve));
         OnPropertyChanged(nameof(CanClose));
         OnPropertyChanged(nameof(CanSuspend));
+        OnPropertyChanged(nameof(CanResume));
         OnPropertyChanged(nameof(HasSelection));
         OnPropertyChanged(nameof(DetailVisibility));
         OnPropertyChanged(nameof(EmptyVisibility));
@@ -576,12 +600,16 @@ public sealed class MainViewModel : ObservableObject
         {
             vehicleCodes.AddRange(_demo.Store.Vehicles
                 .Where(v => v.HubId == sourceHub.Id && v.Status == DeviceStatus.Available)
+                .Where(v => !_demo.Store.DispatchOrders.Any(o => o.IsActive && o.VehicleIds.Contains(v.Code)))
                 .Take(count)
                 .Select(v => v.Code));
         }
 
-        for (var i = vehicleCodes.Count; i < count; i++)
-            vehicleCodes.Add($"{SourceHubId}-XE-{i + 1:00}");
+        // Chỉ điều phối xe thật đang sẵn sàng; không tự sinh mã xe giả để bù số lượng.
+        if (vehicleCodes.Count == 0)
+            return $"{SourceHubId} không còn xe sẵn sàng để điều phối.";
+        if (vehicleCodes.Count < count)
+            return $"{SourceHubId} chỉ còn {vehicleCodes.Count} xe sẵn sàng (yêu cầu {count}).";
 
         try
         {

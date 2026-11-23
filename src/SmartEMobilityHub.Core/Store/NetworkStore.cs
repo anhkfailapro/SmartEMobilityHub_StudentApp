@@ -38,7 +38,8 @@ public sealed class NetworkStore
         MaintenanceTasks,
         Alerts,
         ChargingRequests,
-        Operators);
+        Operators,
+        DispatchOrders);
 
     public void Clear()
     {
