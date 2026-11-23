@@ -30,6 +30,8 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="Mô phỏng What-if" Style="{StaticResource PrimaryButton}"
+                            Click="WhatIf_Click" Margin="0,0,12,0" />
                     <StackPanel Margin="0,0,18,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding ClockText}" Foreground="White" FontSize="17"
                                    FontWeight="SemiBold" HorizontalAlignment="Right" />

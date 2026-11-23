@@ -162,6 +162,41 @@ Invalid actions show a Vietnamese message box; the app does not crash.
 
 ---
 
+### What-if simulation (Nguyễn Minh Đức)
+
+The operator dashboard includes a What-if simulation workflow for forecasting hub demand and evaluating dispatch actions. It supports five scenario families: a Metro demand surge, a full parking hub, a charging demand surge, a charger outage, and vehicle concentration at one hub.
+
+To open it, run the operator dashboard and select **Mô phỏng & phân tích kịch bản**:
+
+```bat
+dotnet run --project src\SmartEMobilityHub.Operator\SmartEMobilityHub.Operator.csproj
+```
+
+#### Workflow
+
+1. Select a scenario and target hub; configure demand change, the analysis window, time-step size, and failed-charger count where applicable.
+2. Run the simulation to view the time-step forecast, hub impact summary, overload warnings, and dispatch recommendations.
+3. Select **Mô phỏng** beside a recommendation to recalculate the scenario and review the updated result and recommendations.
+4. Browse simulation history, rerun from the same input snapshot, or export the result as a PDF report.
+
+#### Rules and behavior
+
+- Input validation requires an existing hub, demand change from **−50% to +200%**, an analysis window no longer than **24 hours**, and time steps from **5 to 120 minutes**. Charger-outage scenarios also validate the number of disabled ports against the selected hub.
+- The chart starts at **0%**, uses a minimum vertical scale of **200%**, and expands when a forecast exceeds that scale. Parking and charging utilization are plotted from the forecast points.
+- **90%** is the high-load threshold. Parking utilization above **100%** indicates demand beyond the hub's parking capacity and is treated as critical. The chart and warning summary use the same simulation result.
+- Each run uses an isolated snapshot and cloned state. Applying a recommendation reruns the simulation without changing operational state.
+- Results include the time-step forecast, before/after hub impacts, affected and overloaded hub counts, recommendations, and a PDF export.
+
+#### Main implementation files
+
+| File | Responsibility |
+|---|---|
+| `src/SmartEMobilityHub.Core/Services/WhatIfController.cs` | Configures and runs sessions, applies recommendations, manages reruns/history, and exports reports. |
+| `src/SmartEMobilityHub.Core/Services/WhatIfEngineService.cs` | Validates parameters, calculates forecasts, evaluates impacts, and generates/simulates recommendations on snapshots. |
+| `src/SmartEMobilityHub.Core/Domain/SimulationModels.cs` | Defines simulation parameters, sessions, forecast points, hub impacts, and recommendations. |
+| `src/SmartEMobilityHub.Core/Store/TempStateRepository.cs` | Stores temporary simulation snapshots and session history. |
+| `src/SmartEMobilityHub.Operator/WhatIfWindow.xaml` | What-if configuration, chart, warnings, recommendations, and history UI. |
+| `src/SmartEMobilityHub.Operator/ViewModels/WhatIfViewModel.cs` | Connects UI state to the controller and exposes simulation results and PDF export. |
 ## 5. Core services
 
 `src/SmartEMobilityHub.Core` holds the business logic shared by the dashboard and the tests. It does not depend on WPF.
