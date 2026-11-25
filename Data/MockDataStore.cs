@@ -4,7 +4,9 @@ namespace SmartEMobilityHub.Data
 {
     public class MockDataStore
     {
-        public string StudentName { get; } = "Minh";
+        /// <summary>Tên sinh viên đang đăng nhập (cập nhật khi đăng nhập).</summary>
+        public string StudentName { get; set; } = "Minh";
+        public string StudentId { get; set; } = "";
         public int PlanFreeMinutes { get; set; } = 1;
         public List<Hub> Hubs { get; } = new();
         public List<Vehicle> Vehicles { get; } = new();

@@ -293,7 +293,7 @@ namespace SmartEMobilityHub.Ui
             };
         }
 
-        public static Border InputBox(string placeholder, string text, Action<string> onChange, bool multiline = false)
+        public static Border InputBox(string placeholder, string text, Action<string> onChange, bool multiline = false, Action? onEnter = null)
         {
             var tb = new TextBox
             {
@@ -322,9 +322,61 @@ namespace SmartEMobilityHub.Ui
                 hint.Visibility = string.IsNullOrEmpty(tb.Text) ? Visibility.Visible : Visibility.Collapsed;
                 onChange(tb.Text);
             };
+            if (onEnter != null && !multiline)
+                tb.KeyDown += (_, e) =>
+                {
+                    if (e.Key != System.Windows.Input.Key.Enter) return;
+                    e.Handled = true;
+                    onEnter();
+                };
             var grid = new Grid();
             grid.Children.Add(hint);
             grid.Children.Add(tb);
+            return new Border
+            {
+                Background = Theme.Surface,
+                BorderBrush = Theme.Border,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(12, 10, 12, 10),
+                Child = grid
+            };
+        }
+
+        /// <summary>Ô nhập mật khẩu (ẩn ký tự), cùng kiểu dáng với <see cref="InputBox"/>.</summary>
+        public static Border PasswordInput(string placeholder, string password, Action<string> onChange, Action? onEnter = null)
+        {
+            var pb = new PasswordBox
+            {
+                Password = password,
+                FontFamily = Font,
+                FontSize = 14,
+                Background = Brushes.Transparent,
+                Foreground = Theme.Text,
+                CaretBrush = Theme.Text,
+                BorderThickness = new Thickness(0),
+                VerticalContentAlignment = VerticalAlignment.Center
+            };
+            var hint = Text(placeholder, TextKind.Body, Theme.Text2);
+            hint.IsHitTestVisible = false;
+            hint.VerticalAlignment = VerticalAlignment.Center;
+            hint.Margin = new Thickness(2, 0, 0, 0);
+            hint.Visibility = string.IsNullOrEmpty(password) ? Visibility.Visible : Visibility.Collapsed;
+            pb.PasswordChanged += (_, _) =>
+            {
+                hint.Visibility = string.IsNullOrEmpty(pb.Password) ? Visibility.Visible : Visibility.Collapsed;
+                onChange(pb.Password);
+            };
+            if (onEnter != null)
+                pb.KeyDown += (_, e) =>
+                {
+                    if (e.Key != System.Windows.Input.Key.Enter) return;
+                    e.Handled = true;
+                    onEnter();
+                };
+            var grid = new Grid();
+            grid.Children.Add(hint);
+            grid.Children.Add(pb);
             return new Border
             {
                 Background = Theme.Surface,

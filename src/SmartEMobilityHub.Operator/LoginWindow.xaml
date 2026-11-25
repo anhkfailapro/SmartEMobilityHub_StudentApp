@@ -1,0 +1,72 @@
+<Window x:Class="SmartEMobilityHub.Operator.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Đăng nhập · Trung tâm điều hành"
+        Width="440" SizeToContent="Height" ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource CanvasBg}"
+        FontFamily="Segoe UI, Roboto, sans-serif"
+        TextOptions.TextFormattingMode="Display">
+    <Window.Resources>
+        <Style x:Key="PasswordInput" TargetType="PasswordBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceAlt}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="9,7" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <StackPanel>
+        <!-- Header cùng kiểu với MainWindow -->
+        <Border Background="#0F172A" Padding="22,16">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="38" Height="38" CornerRadius="10" Background="#2563EB">
+                    <TextBlock Text="⚡" FontSize="19" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="Trung tâm điều hành" FontSize="18" FontWeight="SemiBold" Foreground="White" />
+                    <TextBlock Text="Smart E-Mobility Hub · Nhóm 21 · CO3001" FontSize="11.5" Foreground="#94A3B8" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="18">
+            <StackPanel>
+                <TextBlock Text="Đăng nhập người vận hành" Style="{StaticResource H1}" />
+                <TextBlock Text="Chỉ tài khoản Operator mới vào được bảng điều khiển."
+                           Style="{StaticResource Caption}" Margin="0,4,0,14" TextWrapping="Wrap" />
+
+                <Border x:Name="ErrorPanel" Visibility="Collapsed" Background="#FEF2F2" BorderBrush="#FECACA"
+                        BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,12">
+                    <TextBlock x:Name="ErrorText" Foreground="{StaticResource Danger}" FontSize="12.5" TextWrapping="Wrap" />
+                </Border>
+
+                <TextBlock Text="Tên đăng nhập" Style="{StaticResource H2}" Margin="0,0,0,6" />
+                <TextBox x:Name="UsernameBox" Style="{StaticResource SearchBox}" Margin="0,0,0,12" />
+
+                <TextBlock Text="Mật khẩu" Style="{StaticResource H2}" Margin="0,0,0,6" />
+                <PasswordBox x:Name="PasswordBox" Style="{StaticResource PasswordInput}" Margin="0,0,0,16" />
+
+                <Button x:Name="LoginButton" Content="Đăng nhập" Style="{StaticResource PrimaryButton}"
+                        IsDefault="True" Click="Login_Click" />
+
+                <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}" BorderThickness="1"
+                        CornerRadius="8" Padding="10,8" Margin="0,16,0,0">
+                    <TextBlock x:Name="DemoHint" Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                </Border>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Window>

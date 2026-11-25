@@ -1,6 +1,8 @@
+using SmartEMobilityHub.Core.Clock;
+
 namespace SmartEMobilityHub.Data
 {
-    public class DemoClock
+    public class DemoClock : IClock
     {
         public TimeSpan Offset { get; private set; } = TimeSpan.Zero;
 

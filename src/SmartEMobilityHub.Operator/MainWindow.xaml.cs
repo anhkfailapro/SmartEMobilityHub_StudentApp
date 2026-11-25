@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Threading;
+using SmartEMobilityHub.Core.Domain;
 using SmartEMobilityHub.Operator.ViewModels;
 
 namespace SmartEMobilityHub.Operator;
@@ -18,6 +19,35 @@ public partial class MainWindow : Window
         _timer.Tick += (_, _) => _viewModel.Tick();
         _timer.Start();
         Closed += (_, _) => _timer.Stop();
+
+        // Chế độ chụp màn hình cho phần Working demonstration.
+        var args = Environment.GetCommandLineArgs();
+        var ci = Array.IndexOf(args, "--capture");
+        if (ci >= 0)
+        {
+            var dir = ci + 1 < args.Length ? args[ci + 1] : "demo_screens/operator";
+            Loaded += async (_, _) => await global::SmartEMobilityHub.Capture.OperatorCapture.RunAsync(this, dir);
+        }
+    }
+
+    /// <summary>Hiện người vận hành đang đăng nhập; vai trò và ca trực lấy từ seed Operator nếu có.</summary>
+    public void SetCurrentUser(UserAccount account)
+    {
+        var op = _demo.Store.Operators.FirstOrDefault(o => o.OperatorId == account.LinkedId);
+        OperatorNameText.Text = op?.Name ?? account.DisplayName;
+        OperatorRoleText.Text = op is null ? account.LinkedId : $"{op.Role} · {op.ShiftLabel}";
+    }
+
+    private void Logout_Click(object sender, RoutedEventArgs e)
+    {
+        var confirm = MessageBox.Show(
+            this,
+            "Đăng xuất khỏi Trung tâm điều hành?",
+            "Đăng xuất",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (confirm == MessageBoxResult.Yes) ((App)Application.Current).Logout(this);
     }
 
     private void ResetDemo()

@@ -64,7 +64,8 @@ The window shows a **phone screen (390 × 844)** on the left and a **Demo panel*
   - **Công tắc tình huống** – switches that force an alternative path (for example "Hub trả xe hết chỗ" = return hub is full).
   - **Sự kiện hệ thống** – one-click system events: stale vehicle data, charging point assigned, charging point broken.
   - **Đặt lại toàn bộ demo** – reset all data.
-- There is no login. The app opens as demo user **Minh**, who is both a student and a private EV owner.
+- The app opens on a **login screen** (student ID + password). Demo account: **2310001 / sv123456** → user **Minh**, who is both a student and a private EV owner. *Tài khoản → Đăng xuất* returns to the login screen (reservations and trips are kept).
+- Login alternative paths: empty field · wrong ID or password (same message, shows attempts left) · 5 wrong attempts lock the account for 5 minutes (use the Demo panel clock to unlock) · an operator account is refused on the student app.
 
 ### Use cases and how to show them
 
@@ -121,7 +122,9 @@ A control-centre window (1520 × 940, minimum 1240 × 760) with three columns:
 | Middle | Incident detail: description, reporter, time; action buttons; maintenance task (technician, SLA left or overdue); processing log |
 | Right | KPIs (new / checking-locked / in repair / done), overloaded hubs, alerts; 5 technicians with availability and distance; charging queue of HUB-08; recent alerts; demo scenario buttons; system log |
 
-The header shows the simulated clock, "updated N seconds ago · 30-second cycle" and a **Quét ngay** (scan now) button.
+A **login window** opens first. Only operator accounts can sign in — demo account **op01 / op123456** (OP-01 Hoàng Vỹ). The same rules apply as in the student app (5 wrong attempts → 5-minute lock; a student account is refused).
+
+The header shows the simulated clock, "updated N seconds ago · 30-second cycle", a **Quét ngay** (scan now) button, the signed-in operator with role and shift, and **Đăng xuất** (log out → back to the login window).
 
 ### Incident actions
 
@@ -227,6 +230,7 @@ Folders: `Domain` (entities and enums), `Ports` (interfaces), `Adapters` (in-mem
 | TCSYS01 – smart charging | 4 | ranking, weight validation, power limit, faulty point |
 | TCOP03 – incident management | 5 | student report, duplicate link, lock + task + technician, suspend hub, unlock timeout |
 | Boundary unit tests | 5 | thresholds, stale data, priority score, SLA |
+| AUTH – login | 8 | correct login, empty fields, wrong password, 5-attempt lock, role check, hashed passwords, logout |
 
 Each run prints the results and writes `tests/report/results.md` and `results.json`. These report files are generated locally and are not committed. The exit code is 0 when all tests pass.
 

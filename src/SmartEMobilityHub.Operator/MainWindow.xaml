@@ -39,6 +39,14 @@
                                    HorizontalAlignment="Right" />
                     </StackPanel>
                     <Button Content="Quét ngay" Style="{StaticResource PrimaryButton}" Click="Scan_Click" />
+                    <Border Width="1" Background="#334155" Margin="18,4,18,4" />
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                        <TextBlock x:Name="OperatorNameText" Foreground="White" FontSize="13"
+                                   FontWeight="SemiBold" HorizontalAlignment="Right" />
+                        <TextBlock x:Name="OperatorRoleText" Foreground="#94A3B8" FontSize="11"
+                                   HorizontalAlignment="Right" />
+                    </StackPanel>
+                    <Button Content="Đăng xuất" Style="{StaticResource GhostButton}" Click="Logout_Click" />
                 </StackPanel>
             </Grid>
         </Border>

@@ -20,7 +20,16 @@ namespace SmartEMobilityHub
         {
             InitializeComponent();
             Height = Math.Min(Height, SystemParameters.WorkArea.Height - 20);
-            DemoApp.Start(PhoneHost, DemoPanelHost);
+            // Chế độ chụp màn hình cho phần Working demonstration: dotnet run -- --capture demo_screens\student
+            var args = Environment.GetCommandLineArgs();
+            var ci = Array.IndexOf(args, "--capture");
+            // Chế độ chụp tự đăng nhập tài khoản demo để kịch bản đi thẳng vào Trang chủ.
+            DemoApp.Start(PhoneHost, DemoPanelHost, requireLogin: ci < 0);
+            if (ci >= 0)
+            {
+                var dir = ci + 1 < args.Length ? args[ci + 1] : "demo_screens/student";
+                Loaded += async (_, _) => await Capture.StudentCapture.RunAsync(PhoneHost, dir);
+            }
         }
     }
 }

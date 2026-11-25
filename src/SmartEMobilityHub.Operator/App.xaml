@@ -1,7 +1,7 @@
 <Application x:Class="SmartEMobilityHub.Operator.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             ShutdownMode="OnLastWindowClose">
     <Application.Resources>
         <!-- Token lấy từ Ui/Theme.cs của app nhóm (Figma). -->
         <SolidColorBrush x:Key="CanvasBg" Color="#F1F5F9" />
