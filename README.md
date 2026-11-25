@@ -126,6 +126,40 @@ A **login window** opens first. Only operator accounts can sign in — demo acco
 
 The header shows the simulated clock, "updated N seconds ago · 30-second cycle", a **Quét ngay** (scan now) button, the signed-in operator with role and shift, and **Đăng xuất** (log out → back to the login window).
 
+### Light / dark mode
+
+**☾ Chế độ tối / ☀ Chế độ sáng** in the header switches the whole dashboard (also the login and What-if windows). Colours live in `Themes/Light.xaml` and `Themes/Dark.xaml`; every window uses `DynamicResource`, so the switch is immediate.
+
+### Smart charging schedule (UC-OP-04)
+
+The right column shows the charging queue of any hub (hub picker), ports in use, free ports and power used against the hub limit. The operator can:
+
+- change the priority weights (low battery / needed soon / peak hour, sum = 1) — invalid values are refused and the old weights are kept;
+- **Lập lịch lại** (reschedule) the selected hub;
+- **▲ Ghim lên / ▼ Ghim xuống** to pin a waiting request to a position; pinned requests keep their place when the queue is re-ranked.
+
+### Linked mode with the student app
+
+In the student app, Demo panel → **Mở Trung tâm điều hành (dùng chung dữ liệu)** opens the operator login (**op01 / op123456**) and then the dashboard **in the same process, on the same network data**:
+
+| Student app does | Operator sees |
+|---|---|
+| reserve / cancel a vehicle, hold expires | vehicle Reserved / Available, reservation in the network |
+| pick up, return at another hub | hub parking counters change, vehicle moves hub |
+| report a problem | new incident in the queue (duplicates merged) |
+| request charging | request in the hub's charging queue, scheduled within the power limit |
+| reserve a parking slot | hub occupancy +1 |
+
+| Operator does | Student app shows |
+|---|---|
+| suspend a hub | active holds at that hub cancelled with a notification; hub marked "Tạm dừng", no new reservations, parking or charging |
+| lock a vehicle / finish repair | vehicle becomes unavailable / available again |
+| dispatch vehicles to another hub | vehicle appears at the new hub |
+| charging port assigned | the student's request shows its port |
+| resolve the student's incident | the report is marked resolved, with a notification |
+
+Hub mapping: H1 Ga Metro → HUB-01, H2 Thư viện → HUB-04, H3 KTX Khu A → HUB-02, H4 Nhà văn hóa SV → HUB-11. The two apps also share one clock (fast-forwarding the student clock moves the network clock). Implementation: `Services/NetworkLink.cs` (student side) and `src/SmartEMobilityHub.Core/Services/StudentAppGateway.cs` (Core).
+
 ### Incident actions
 
 | Button | Enabled when | Result |
@@ -231,6 +265,7 @@ Folders: `Domain` (entities and enums), `Ports` (interfaces), `Adapters` (in-mem
 | TCOP03 – incident management | 5 | student report, duplicate link, lock + task + technician, suspend hub, unlock timeout |
 | Boundary unit tests | 5 | thresholds, stale data, priority score, SLA |
 | AUTH – login | 8 | correct login, empty fields, wrong password, 5-attempt lock, role check, hashed passwords, logout |
+| LINK – student app ↔ operator | 10 | shared vehicles, reserve / cancel / pick up / return, hub suspension cancels holds, incident merge, charging queue and port release, parking occupancy |
 
 Each run prints the results and writes `tests/report/results.md` and `results.json`. These report files are generated locally and are not committed. The exit code is 0 when all tests pass.
 

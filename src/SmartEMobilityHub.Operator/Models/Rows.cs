@@ -222,6 +222,8 @@ public sealed class AlertRow
 
 public sealed class QueueRow
 {
+    public string RequestId { get; }
+    public bool IsWaiting { get; }
     public string PositionText { get; }
     public string Vehicle { get; }
     public string BatteryText { get; }
@@ -230,10 +232,12 @@ public sealed class QueueRow
 
     public QueueRow(ChargingRequest request, int index)
     {
+        RequestId = request.RequestId;
+        IsWaiting = request.AssignedPortId is null;
         PositionText = $"#{index + 1}";
         Vehicle = request.VehicleId;
         BatteryText = $"{request.BatteryLevel}%";
-        ScoreText = $"{request.PriorityScore:0.0}";
+        ScoreText = request.Pinned ? "ghim" : $"{request.PriorityScore:0.0}";
         StatusText = request.AssignedPortId ?? "Chờ cổng";
     }
 }

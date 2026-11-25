@@ -5,22 +5,28 @@
         Title="Mô phỏng và phân tích kịch bản · Trung tâm điều hành"
         Height="900" Width="1480" MinHeight="760" MinWidth="1160"
         WindowStartupLocation="CenterOwner"
-        Background="#F4F6FA"
+        Background="{DynamicResource CanvasBg}"
+        Foreground="{DynamicResource Text}"
         FontFamily="Segoe UI, Roboto, sans-serif">
     <Window.Resources>
         <local:UtilizationToHeightConverter x:Key="UtilizationToHeight" />
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#334155" />
+            <Setter Property="Foreground" Value="{DynamicResource Text}" />
             <Setter Property="Margin" Value="0,0,0,6" />
         </Style>
         <Style x:Key="ScenarioInput" TargetType="Control">
             <Setter Property="FontSize" Value="12.5" />
-            <Setter Property="Foreground" Value="#0F172A" />
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="BorderBrush" Value="#DCE3EF" />
+            <Setter Property="Foreground" Value="{DynamicResource Text}" />
+            <Setter Property="Background" Value="{DynamicResource Surface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Border}" />
             <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="MinHeight" Value="36" />
+        </Style>
+        <Style x:Key="ScenarioCombo" TargetType="ComboBox" BasedOn="{StaticResource ThemedComboBox}">
+            <Setter Property="FontSize" Value="12.5" />
             <Setter Property="Padding" Value="10,8" />
             <Setter Property="MinHeight" Value="36" />
         </Style>
@@ -139,12 +145,12 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Text="Mô phỏng và phân tích kịch bản" FontSize="21" FontWeight="Bold"
-                               Foreground="#172554" />
+                               Foreground="{DynamicResource Text}" />
                     <TextBlock Text="Phân tích tác động và đề xuất phương án điều phối cho toàn mạng lưới."
-                               FontSize="11.5" Foreground="#718096" Margin="0,3,0,0" />
+                               FontSize="11.5" Foreground="{DynamicResource Text2}" Margin="0,3,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <TextBlock Text="UC-WI-01 → UC-WI-05" FontSize="10" Foreground="#64748B"
+                    <TextBlock Text="UC-WI-01 → UC-WI-05" FontSize="10" Foreground="{DynamicResource Text2}"
                                VerticalAlignment="Center" Margin="0,0,12,0" />
                     <Button Content="← Quay lại" Style="{StaticResource GhostButton}" Click="Close_Click"
                             Padding="11,6" />
@@ -156,9 +162,9 @@
                 <Border Style="{StaticResource MetricCard}">
                     <Grid>
                         <StackPanel>
-                            <TextBlock Text="BƯỚC DỰ BÁO" FontSize="9.5" Foreground="#718096" FontWeight="Bold" />
+                            <TextBlock Text="BƯỚC DỰ BÁO" FontSize="9.5" Foreground="{DynamicResource Text2}" FontWeight="Bold" />
                             <TextBlock Text="{Binding Forecast.Count}" FontSize="21" FontWeight="Bold"
-                                       Foreground="#172554" Margin="0,3,0,0" />
+                                       Foreground="{DynamicResource Text}" Margin="0,3,0,0" />
                             <TextBlock Text="mốc thời gian" FontSize="9.5" Foreground="#94A3B8" />
                         </StackPanel>
                         <Border Width="28" Height="28" CornerRadius="7" Background="#EFF6FF"
@@ -171,12 +177,12 @@
                 <Border Style="{StaticResource MetricCard}">
                     <Grid>
                         <StackPanel>
-                            <TextBlock Text="HUB BỊ ẢNH HƯỞNG" FontSize="9.5" Foreground="#718096" FontWeight="Bold" />
+                            <TextBlock Text="HUB BỊ ẢNH HƯỞNG" FontSize="9.5" Foreground="{DynamicResource Text2}" FontWeight="Bold" />
                             <TextBlock Text="{Binding AffectedHubCount}" FontSize="21" FontWeight="Bold"
-                                       Foreground="#172554" Margin="0,3,0,0" />
+                                       Foreground="{DynamicResource Text}" Margin="0,3,0,0" />
                             <TextBlock Text="trong mạng lưới" FontSize="9.5" Foreground="#94A3B8" />
                         </StackPanel>
-                        <Border Width="28" Height="28" CornerRadius="7" Background="#F1F5F9"
+                        <Border Width="28" Height="28" CornerRadius="7" Background="{DynamicResource SurfaceAlt}"
                                 HorizontalAlignment="Right" VerticalAlignment="Top">
                             <TextBlock Text="⌖" Foreground="#475569" FontSize="17" HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
@@ -186,9 +192,9 @@
                 <Border Style="{StaticResource MetricCard}">
                     <Grid>
                         <StackPanel>
-                            <TextBlock Text="PHƯƠNG ÁN ĐỀ XUẤT" FontSize="9.5" Foreground="#718096" FontWeight="Bold" />
+                            <TextBlock Text="PHƯƠNG ÁN ĐỀ XUẤT" FontSize="9.5" Foreground="{DynamicResource Text2}" FontWeight="Bold" />
                             <TextBlock Text="{Binding Recommendations.Count}" FontSize="21" FontWeight="Bold"
-                                       Foreground="#172554" Margin="0,3,0,0" />
+                                       Foreground="{DynamicResource Text}" Margin="0,3,0,0" />
                             <TextBlock Text="có thể mô phỏng lại" FontSize="9.5" Foreground="#94A3B8" />
                         </StackPanel>
                         <Border Width="28" Height="28" CornerRadius="7" Background="#F5F3FF"
@@ -201,7 +207,7 @@
                 <Border Style="{StaticResource MetricCard}" Margin="0">
                     <Grid>
                         <StackPanel>
-                            <TextBlock Text="CẢNH BÁO QUÁ TẢI" FontSize="9.5" Foreground="#718096" FontWeight="Bold" />
+                            <TextBlock Text="CẢNH BÁO QUÁ TẢI" FontSize="9.5" Foreground="{DynamicResource Text2}" FontWeight="Bold" />
                             <TextBlock Text="{Binding CriticalHubCount}" FontSize="21" FontWeight="Bold"
                                        Foreground="#DC2626" Margin="0,3,0,0" />
                             <TextBlock Text="Hub vượt sức chứa" FontSize="9.5" Foreground="#94A3B8" />
@@ -229,13 +235,13 @@
                             <TextBlock Text="Xác định kịch bản mô phỏng" Style="{StaticResource SectionTitle}"
                                        Margin="0,0,0,15" />
                             <TextBlock Text="Kịch bản mô phỏng" Style="{StaticResource FieldLabel}" />
-                            <ComboBox Style="{StaticResource ScenarioInput}" ItemsSource="{Binding Presets}"
+                            <ComboBox Style="{StaticResource ScenarioCombo}" ItemsSource="{Binding Presets}"
                                       SelectedItem="{Binding SelectedPreset}" DisplayMemberPath="Name" />
                             <TextBlock Text="{Binding SelectedPreset.Description}" FontSize="10"
-                                       Foreground="#8995A8" TextWrapping="Wrap" Margin="1,5,0,0" />
+                                       Foreground="{DynamicResource Text2}" TextWrapping="Wrap" Margin="1,5,0,0" />
 
                             <TextBlock Text="Hub mô phỏng" Style="{StaticResource FieldLabel}" Margin="0,15,0,6" />
-                            <ComboBox Style="{StaticResource ScenarioInput}" ItemsSource="{Binding Hubs}"
+                            <ComboBox Style="{StaticResource ScenarioCombo}" ItemsSource="{Binding Hubs}"
                                       SelectedItem="{Binding SelectedHub}" DisplayMemberPath="Name" />
 
                             <Grid Margin="0,15,0,5">
@@ -259,7 +265,7 @@
                             </Grid>
 
                             <TextBlock Text="Khung thời gian phân tích" Style="{StaticResource FieldLabel}" Margin="0,14,0,6" />
-                            <Border Background="#F8FAFC" BorderBrush="#DCE3EF" BorderThickness="1"
+                            <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}" BorderThickness="1"
                                     CornerRadius="7" Padding="9,7">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -329,12 +335,12 @@
                                             <RowDefinition Height="*" />
                                             <RowDefinition Height="*" />
                                         </Grid.RowDefinitions>
-                                        <TextBlock Text="{Binding ForecastAxisTop}" FontSize="8.5" Foreground="#64748B" />
-                                        <TextBlock Grid.Row="1" Text="{Binding ForecastAxisUpper}" FontSize="8.5" Foreground="#64748B" />
-                                        <TextBlock Grid.Row="2" Text="{Binding ForecastAxisMiddle}" FontSize="8.5" Foreground="#64748B" />
-                                        <TextBlock Grid.Row="3" Text="{Binding ForecastAxisLower}" FontSize="8.5" Foreground="#64748B" />
+                                        <TextBlock Text="{Binding ForecastAxisTop}" FontSize="8.5" Foreground="{DynamicResource Text2}" />
+                                        <TextBlock Grid.Row="1" Text="{Binding ForecastAxisUpper}" FontSize="8.5" Foreground="{DynamicResource Text2}" />
+                                        <TextBlock Grid.Row="2" Text="{Binding ForecastAxisMiddle}" FontSize="8.5" Foreground="{DynamicResource Text2}" />
+                                        <TextBlock Grid.Row="3" Text="{Binding ForecastAxisLower}" FontSize="8.5" Foreground="{DynamicResource Text2}" />
                                         <TextBlock Grid.Row="3" Text="{Binding ForecastAxisBottom}" FontSize="8.5"
-                                                   Foreground="#64748B" VerticalAlignment="Bottom" />
+                                                   Foreground="{DynamicResource Text2}" VerticalAlignment="Bottom" />
                                     </Grid>
                                     <ItemsControl Grid.Column="1" ItemsSource="{Binding Forecast}" VerticalAlignment="Stretch">
                                         <ItemsControl.ItemsPanel>
@@ -354,11 +360,11 @@
                                                             <RowDefinition Height="*" />
                                                             <RowDefinition Height="*" />
                                                         </Grid.RowDefinitions>
-                                                        <Border Height="1" Background="#E8EDF5" VerticalAlignment="Top" />
-                                                        <Border Grid.Row="1" Height="1" Background="#E8EDF5" VerticalAlignment="Top" />
-                                                        <Border Grid.Row="2" Height="1" Background="#E8EDF5" VerticalAlignment="Top" />
-                                                        <Border Grid.Row="3" Height="1" Background="#E8EDF5" VerticalAlignment="Top" />
-                                                        <Border Grid.Row="3" Height="1" Background="#E8EDF5" VerticalAlignment="Bottom" />
+                                                        <Border Height="1" Background="{DynamicResource Border}" VerticalAlignment="Top" />
+                                                        <Border Grid.Row="1" Height="1" Background="{DynamicResource Border}" VerticalAlignment="Top" />
+                                                        <Border Grid.Row="2" Height="1" Background="{DynamicResource Border}" VerticalAlignment="Top" />
+                                                        <Border Grid.Row="3" Height="1" Background="{DynamicResource Border}" VerticalAlignment="Top" />
+                                                        <Border Grid.Row="3" Height="1" Background="{DynamicResource Border}" VerticalAlignment="Bottom" />
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
                                                                     Grid.RowSpan="4" VerticalAlignment="Bottom"
                                                                     Height="132" Panel.ZIndex="1">
@@ -381,7 +387,7 @@
                                                         </StackPanel>
                                                     </Grid>
                                                     <TextBlock Grid.Row="1" Text="{Binding At, StringFormat=HH:mm}"
-                                                               FontSize="8.5" Foreground="#64748B"
+                                                               FontSize="8.5" Foreground="{DynamicResource Text2}"
                                                                HorizontalAlignment="Center" Margin="0,5,0,0" />
                                                 </Grid>
                                             </DataTemplate>
@@ -390,9 +396,9 @@
                                 </Grid>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
                                     <Border Width="8" Height="8" CornerRadius="4" Background="#8B83E8" Margin="0,0,5,0" />
-                                    <TextBlock Text="Sử dụng bãi đỗ" FontSize="9" Foreground="#64748B" Margin="0,0,14,0" />
+                                    <TextBlock Text="Sử dụng bãi đỗ" FontSize="9" Foreground="{DynamicResource Text2}" Margin="0,0,14,0" />
                                     <Border Width="8" Height="8" CornerRadius="4" Background="#B8C4F3" Margin="0,0,5,0" />
-                                    <TextBlock Text="Sử dụng cổng sạc" FontSize="9" Foreground="#64748B" />
+                                    <TextBlock Text="Sử dụng cổng sạc" FontSize="9" Foreground="{DynamicResource Text2}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -428,20 +434,20 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border CornerRadius="6" Padding="8,7" Margin="0,0,0,5"
-                                                    Background="#FFFFFF" BorderBrush="#E7ECF4" BorderThickness="1">
+                                                    Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="1">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Text="▶" FontSize="9" Foreground="#334155"
+                                                    <TextBlock Text="▶" FontSize="9" Foreground="{DynamicResource Text}"
                                                                VerticalAlignment="Top" Margin="0,3,7,0" />
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="{Binding Title}" FontSize="10.5" FontWeight="SemiBold"
-                                                                   Foreground="#263449" TextWrapping="Wrap" />
+                                                                   Foreground="{DynamicResource Text}" TextWrapping="Wrap" />
                                                         <TextBlock Text="{Binding Description}" FontSize="9.5"
-                                                                   Foreground="#718096" TextWrapping="Wrap" Margin="0,2,4,0" />
+                                                                   Foreground="{DynamicResource Text2}" TextWrapping="Wrap" Margin="0,2,4,0" />
                                                     </StackPanel>
                                                     <Button Grid.Column="2" Content="Mô phỏng" Tag="{Binding Id}"
                                                             Click="ApplyRecommendation_Click" Style="{StaticResource GhostButton}"
@@ -453,7 +459,7 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                                 <TextBlock Text="{Binding AffectedHubCount, StringFormat=Hub ảnh hưởng: {0}}"
-                                           FontSize="9.5" Foreground="#718096" Margin="0,3,0,0" />
+                                           FontSize="9.5" Foreground="{DynamicResource Text2}" Margin="0,3,0,0" />
                             </StackPanel>
                         </Border>
 
@@ -471,14 +477,14 @@
                                         Click="Export_Click" Padding="10,6" FontSize="10" />
                             </StackPanel>
                         </Grid>
-                        <ComboBox ItemsSource="{Binding History}" SelectedItem="{Binding SelectedHistorySession}"
+                        <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding History}" SelectedItem="{Binding SelectedHistorySession}"
                                   Padding="8" FontSize="10.5" Margin="0,0,0,12">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding Preset.Name}" />
                                         <TextBlock Text="  ·  " />
-                                        <TextBlock Text="{Binding SessionId}" Foreground="#64748B" />
+                                        <TextBlock Text="{Binding SessionId}" Foreground="{DynamicResource Text2}" />
                                         <TextBlock Text="  ·  " />
                                         <TextBlock Text="{Binding Runs.Count, StringFormat={}{0} lần chạy}" />
                                     </StackPanel>
@@ -489,14 +495,14 @@
                 </Grid>
             </ScrollViewer>
 
-            <Border Grid.Row="3" Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="1"
+            <Border Grid.Row="3" Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}" BorderThickness="1"
                     CornerRadius="7" Padding="10,7" Margin="0,10,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding StatusText}" Foreground="#526176" FontSize="10.5"
+                    <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource Text2}" FontSize="10.5"
                                VerticalAlignment="Center" />
                     <TextBlock Grid.Column="1" Text="{Binding DurationText, StringFormat=Thời gian chạy: {0}}"
                                Foreground="#94A3B8" FontSize="9.5" HorizontalAlignment="Right"

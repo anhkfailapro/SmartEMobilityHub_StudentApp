@@ -119,6 +119,11 @@ namespace SmartEMobilityHub.Screens
                     new DialogAction("Xem yêu cầu", ButtonVariant.Primary, () => Shell.Replace(new ChargingQueuedScreen(existing.Id))),
                     new DialogAction("Đóng", ButtonVariant.Outline));
             }
+            else if (!result.Ok)
+            {
+                Shell.ShowDialog(Tone.Warning, "Không gửi được yêu cầu sạc", result.Message,
+                    new DialogAction("Đóng", ButtonVariant.Outline));
+            }
             return result;
         }
 

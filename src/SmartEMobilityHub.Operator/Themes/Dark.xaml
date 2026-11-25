@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Chế độ tối — cùng tên khoá với Light.xaml. -->
+    <SolidColorBrush x:Key="CanvasBg" Color="#0B1220" />
+    <SolidColorBrush x:Key="Surface" Color="#111827" />
+    <SolidColorBrush x:Key="SurfaceAlt" Color="#1E293B" />
+    <SolidColorBrush x:Key="Border" Color="#334155" />
+    <SolidColorBrush x:Key="BorderStrong" Color="#475569" />
+    <SolidColorBrush x:Key="Text" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="Text2" Color="#94A3B8" />
+    <SolidColorBrush x:Key="Primary" Color="#3B82F6" />
+    <SolidColorBrush x:Key="PrimarySubtle" Color="#1E3A8A" />
+    <SolidColorBrush x:Key="Danger" Color="#F87171" />
+    <SolidColorBrush x:Key="Success" Color="#34D399" />
+    <SolidColorBrush x:Key="Warning" Color="#FBBF24" />
+    <SolidColorBrush x:Key="HoverBg" Color="#1E3A8A" />
+    <SolidColorBrush x:Key="FilterText" Color="#CBD5E1" />
+    <SolidColorBrush x:Key="ChipHover" Color="#334155" />
+    <SolidColorBrush x:Key="SelectedBorder" Color="#60A5FA" />
+</ResourceDictionary>

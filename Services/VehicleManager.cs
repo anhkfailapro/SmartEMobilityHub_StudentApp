@@ -9,7 +9,7 @@ namespace SmartEMobilityHub.Services
         public int AvailableCount(Hub hub) => ListVehicles(hub.Id).Count(v => v.IsAvailable);
 
         public List<Hub> NearestHubsWithAvailable(Hub from, int count) =>
-            DemoApp.Store.Hubs.Where(h => h.Id != from.Id && AvailableCount(h) > 0).OrderBy(h => h.DistanceKmTo(from)).Take(count).ToList();
+            DemoApp.Store.Hubs.Where(h => h.Id != from.Id && !h.IsSuspended && AvailableCount(h) > 0).OrderBy(h => h.DistanceKmTo(from)).Take(count).ToList();
 
         public Vehicle? GetDetails(string code) => DemoApp.Store.GetVehicle(code);
 

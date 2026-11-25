@@ -24,6 +24,15 @@ namespace SmartEMobilityHub.Screens
                         new DialogAction("Đến chuyến đi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Trip)),
                         new DialogAction("Đóng", ButtonVariant.Outline));
                     break;
+                case "HubSuspended":
+                    {
+                        var hubId = DemoApp.Store.GetVehicle(vehicleCode)?.HubId;
+                        var name = hubId == null ? "Hub này" : DemoApp.Store.GetHub(hubId).Name;
+                        shell.ShowDialog(Tone.Danger, "Hub đang tạm dừng hoạt động", $"{name} tạm dừng theo quyết định của người vận hành nên không nhận đặt xe. Vui lòng chọn Hub khác.",
+                            new DialogAction("Về trang chủ", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Home)),
+                            new DialogAction("Đóng", ButtonVariant.Outline));
+                        break;
+                    }
                 default:
                     shell.ShowDialog(Tone.Warning, "Xe vừa được người khác đặt", $"{vehicleCode} đã được một sinh viên khác đặt trước. Vui lòng chọn xe khác.",
                         new DialogAction("Về danh sách xe", ButtonVariant.Primary, () => shell.BackTo<VehicleListScreen>()));

@@ -19,9 +19,10 @@
     <ApplicationDefinition Remove="tests/**" />
   </ItemGroup>
 
-  <!-- Dùng chung AuthService và tài khoản demo với Trung tâm điều hành. -->
+  <!-- Dùng chung Core (AuthService, mạng lưới) và mở được Trung tâm điều hành trong cùng tiến trình (chế độ liên thông). -->
   <ItemGroup>
     <ProjectReference Include="src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />
+    <ProjectReference Include="src/SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj" />
   </ItemGroup>
 
 </Project>

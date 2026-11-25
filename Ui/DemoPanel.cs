@@ -21,6 +21,14 @@ namespace SmartEMobilityHub.Ui
             sp.Children.Add(Heading("Demo panel"));
             sp.Children.Add(Note("Không thuộc ứng dụng. Dùng để giả lập GPS, IoT, thời gian và các luồng thay thế."));
 
+            sp.Children.Add(Heading("Liên thông Trung tâm điều hành"));
+            sp.Children.Add(Note("Mở bảng điều khiển của người vận hành dùng chung dữ liệu với app này: đặt / nhận / trả xe, báo lỗi, yêu cầu sạc hiện ngay bên Operator; Operator tạm dừng Hub, khoá xe, điều phối xe thì app Sinh viên cập nhật theo. Tài khoản Operator demo: op01 / op123456."));
+            sp.Children.Add(Btn("Mở Trung tâm điều hành (dùng chung dữ liệu)", () =>
+            {
+                DemoApp.Link.OpenOperatorDashboard();
+                SetStatus("Đăng nhập Operator để mở bảng điều khiển liên thông.");
+            }, true));
+
             sp.Children.Add(Heading("Thời gian demo"));
             _clock = Note("");
             sp.Children.Add(_clock);

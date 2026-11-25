@@ -18,6 +18,7 @@ public partial class LoginWindow : Window
     public LoginWindow(AuthService auth)
     {
         _auth = auth;
+        Themes.OperatorTheme.EnsureLoaded();
         InitializeComponent();
         DemoHint.Text = $"Tài khoản demo: {AccountSeed.OperatorUsername} · mật khẩu {AccountSeed.OperatorPassword}";
         Loaded += (_, _) => UsernameBox.Focus();

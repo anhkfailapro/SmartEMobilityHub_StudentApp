@@ -12,6 +12,8 @@ namespace SmartEMobilityHub.Models
         public ReservationState State { get; set; }
         public int WrongAttempts { get; set; }
         public bool IsPickingUp { get; set; }
+        /// <summary>Số lần đã gia hạn giữ xe vì đang quét QR / mở khoá (tối đa DemoConfig.MaxPickUpExtensions).</summary>
+        public int PickUpExtensions { get; set; }
         public DateTime? ClosedAt { get; set; }
     }
 }

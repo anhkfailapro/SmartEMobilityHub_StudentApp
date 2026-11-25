@@ -60,7 +60,8 @@ namespace SmartEMobilityHub.Services
                     Title = $"Lịch sạc · {Store.GetPrivateVehicle(s.PrivateVehicleId).Plate}",
                     HubName = Store.GetHub(s.HubId).ShortName,
                     Duration = $"{s.DurationMinutes} phút",
-                    Fee = DemoConfig.Money(s.CancellationFee),
+                    // Phiên sạc hoàn tất phải hiện chi phí sạc; trước đây luôn hiện phí huỷ (0đ).
+                    Fee = DemoConfig.Money(s.State == SessionState.Completed ? DemoApp.Booking.EstimateCost(s.DurationMinutes) : s.CancellationFee),
                     Status = DemoConfig.SessionStateLabel(s.State).Label
                 });
             }

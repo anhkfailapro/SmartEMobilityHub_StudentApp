@@ -179,6 +179,9 @@ public sealed class SmartChargingScheduler : ISmartSchedulingService
         return UsedPowerKw(hub) + plan.TotalPowerKw <= hub.PowerLimitKw + 1e-9;
     }
 
+    /// <summary>Công suất các cổng đang cấp nguồn tại Hub (kW) — hiển thị cho Operator (UC-OP-04).</summary>
+    public double GetUsedPowerKw(MobilityHub hub) => UsedPowerKw(hub);
+
     private static double UsedPowerKw(MobilityHub hub) =>
         hub.ChargingPoints.Where(p => p.Status == DeviceStatus.Charging).Sum(p => p.PowerKw);
 

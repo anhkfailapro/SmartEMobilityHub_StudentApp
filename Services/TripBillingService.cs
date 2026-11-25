@@ -20,7 +20,7 @@ namespace SmartEMobilityHub.Services
         public int CurrentFee(Trip t) => BillableMinutes(t) * DemoConfig.RentalPricePerMinute;
 
         public Hub? NearestHubWithFreeSlots(Hub from, string? excludeId) =>
-            Store.Hubs.Where(h => h.FreeSlots > 0 && h.Id != excludeId).OrderBy(h => h.DistanceKmTo(from)).FirstOrDefault();
+            Store.Hubs.Where(h => h.FreeSlots > 0 && !h.IsSuspended && h.Id != excludeId).OrderBy(h => h.DistanceKmTo(from)).FirstOrDefault();
 
         public OpResult<Hub> CheckReturn(string hubId, bool redirected = false)
         {
@@ -30,6 +30,8 @@ namespace SmartEMobilityHub.Services
                 var nearest = NearestHubWithFreeSlots(hub, null);
                 return OpResult<Hub>.Fail("OutsideHub", "Xe không nằm trong khu vực Hub nên không thể trả xe. Hãy di chuyển đến Hub gần nhất còn chỗ trống.", nearest);
             }
+            if (hub.IsSuspended)
+                return OpResult<Hub>.Fail("HubFull", $"{hub.Name} đang tạm dừng hoạt động.", NearestHubWithFreeSlots(hub, hub.Id));
             if ((!redirected && DemoApp.Toggles.ReturnHubFull) || hub.FreeSlots <= 0)
             {
                 var nearest = NearestHubWithFreeSlots(hub, hub.Id);
@@ -79,6 +81,7 @@ namespace SmartEMobilityHub.Services
             v.Slot = t.EndSlot;
             v.LastUpdate = now;
             hub.FreeSlots = Math.Max(0, hub.FreeSlots - 1);
+            DemoApp.Link.OnReturned(v, hubId);
 
             var r = Store.VehicleReservations.FirstOrDefault(x => x.State == ReservationState.Started);
             if (r != null)

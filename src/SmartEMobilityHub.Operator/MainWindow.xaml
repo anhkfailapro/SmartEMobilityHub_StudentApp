@@ -4,7 +4,8 @@
         Title="Smart E-Mobility Hub · Trung tâm điều hành"
         Height="940" Width="1520" MinHeight="760" MinWidth="1240"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource CanvasBg}"
+        Background="{DynamicResource CanvasBg}"
+        Foreground="{DynamicResource Text}"
         FontFamily="Segoe UI, Roboto, sans-serif"
         TextOptions.TextFormattingMode="Display">
     <Grid>
@@ -46,6 +47,8 @@
                         <TextBlock x:Name="OperatorRoleText" Foreground="#94A3B8" FontSize="11"
                                    HorizontalAlignment="Right" />
                     </StackPanel>
+                    <Button x:Name="ThemeButton" Content="☾ Chế độ tối" Style="{StaticResource GhostButton}"
+                            Click="Theme_Click" Margin="0,0,8,0" ToolTip="Đổi chế độ giao diện Sáng / Tối" />
                     <Button Content="Đăng xuất" Style="{StaticResource GhostButton}" Click="Logout_Click" />
                 </StackPanel>
             </Grid>
@@ -66,7 +69,7 @@
                         <Grid>
                             <TextBlock Text="Sự cố &amp; Bảo trì" Style="{StaticResource H1}" />
                             <Border HorizontalAlignment="Right" VerticalAlignment="Center"
-                                    Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                                    Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                     BorderThickness="1" CornerRadius="10" Padding="8,3">
                                 <TextBlock Text="{Binding VisibleCountText}" Style="{StaticResource Caption}" />
                             </Border>
@@ -74,6 +77,7 @@
 
                         <ListBox ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedFilter}"
                                  ItemContainerStyle="{StaticResource FilterItem}"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  BorderThickness="0" Background="Transparent" Margin="0,10,0,6">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -110,7 +114,7 @@
                                     <StackPanel Grid.Column="1" Margin="10,0,0,0">
                                         <Grid>
                                             <TextBlock Text="{Binding Code}" FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource Text}" />
+                                                       Foreground="{DynamicResource Text}" />
                                             <Border HorizontalAlignment="Right" Background="{Binding StatusBackground}"
                                                     CornerRadius="8" Padding="7,2">
                                                 <TextBlock Text="{Binding StatusText}" FontSize="10"
@@ -118,7 +122,7 @@
                                             </Border>
                                         </Grid>
                                         <TextBlock Text="{Binding Title}" FontSize="12.5" TextWrapping="Wrap"
-                                                   Foreground="{StaticResource Text}" Margin="0,3,0,0" />
+                                                   Foreground="{DynamicResource Text}" Margin="0,3,0,0" />
                                         <Grid Margin="0,5,0,0">
                                             <TextBlock Text="{Binding Meta}" Style="{StaticResource Caption}" />
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -169,11 +173,11 @@
                                 </StackPanel>
                             </Grid>
 
-                            <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                            <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                     BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,14,0,0">
                                 <StackPanel>
                                     <TextBlock Text="{Binding SelectedIncident.Description}" TextWrapping="Wrap"
-                                               FontSize="12.5" Foreground="{StaticResource Text}" />
+                                               FontSize="12.5" Foreground="{DynamicResource Text}" />
                                     <TextBlock Margin="0,8,0,0" Style="{StaticResource Caption}">
                                         <Run Text="Người báo: " />
                                         <Run Text="{Binding SelectedIncident.ReporterText, Mode=OneWay}" />
@@ -195,7 +199,7 @@
                                 <Button Content="Đóng sự cố" Style="{StaticResource GhostButton}"
                                         Click="Close_Click" IsEnabled="{Binding CanClose}" Margin="0,0,8,8" />
                                 <Button Content="Tạm dừng Hub" Style="{StaticResource GhostButton}"
-                                        Foreground="{StaticResource Danger}" Click="Suspend_Click"
+                                        Foreground="{DynamicResource Danger}" Click="Suspend_Click"
                                         IsEnabled="{Binding CanSuspend}" Margin="0,0,8,8" />
                                 <Button Content="Mở lại Hub" Style="{StaticResource GhostButton}"
                                         Click="Resume_Click" IsEnabled="{Binding CanResume}" Margin="0,0,0,8" />
@@ -205,8 +209,8 @@
                             <ItemsControl ItemsSource="{Binding SelectedTasks}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Background="{StaticResource SurfaceAlt}"
-                                                BorderBrush="{StaticResource Border}" BorderThickness="1"
+                                        <Border Background="{DynamicResource SurfaceAlt}"
+                                                BorderBrush="{DynamicResource Border}" BorderThickness="1"
                                                 CornerRadius="8" Padding="10" Margin="0,0,0,6">
                                             <Grid>
                                                 <StackPanel>
@@ -236,7 +240,7 @@
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding TimeText}" Style="{StaticResource Caption}" />
-                                            <Ellipse Grid.Column="1" Width="7" Height="7" Fill="{StaticResource Primary}"
+                                            <Ellipse Grid.Column="1" Width="7" Height="7" Fill="{DynamicResource Primary}"
                                                      VerticalAlignment="Top" Margin="0,4,0,0" />
                                             <StackPanel Grid.Column="2">
                                                 <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12.5" />
@@ -252,8 +256,8 @@
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
                                 Visibility="{Binding EmptyVisibility}">
                         <TextBlock Text="Chọn một sự cố ở cột bên trái" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="{StaticResource Text}" HorizontalAlignment="Center" />
-                        <TextBlock Text="24 sự cố mẫu: 12 mới · 7 kiểm tra · 5 đang sửa"
+                                   Foreground="{DynamicResource Text}" HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding EmptyHintText}"
                                    Style="{StaticResource Caption}" Margin="0,6,0,0" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Grid>
@@ -310,15 +314,15 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                            <Border Grid.Column="0" Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                     BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,4,0">
                                 <StackPanel>
                                     <TextBlock Text="{Binding OverloadText}" FontSize="17" FontWeight="SemiBold"
-                                               Foreground="{StaticResource Danger}" />
+                                               Foreground="{DynamicResource Danger}" />
                                     <TextBlock Text="Hub quá tải" Style="{StaticResource Caption}" />
                                 </StackPanel>
                             </Border>
-                            <Border Grid.Column="1" Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                            <Border Grid.Column="1" Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                     BorderThickness="1" CornerRadius="10" Padding="10" Margin="4,0,0,0">
                                 <StackPanel>
                                     <TextBlock Text="{Binding AlertCountText}" FontSize="17" FontWeight="SemiBold"
@@ -354,11 +358,29 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <TextBlock Text="Hàng chờ sạc HUB-08" Style="{StaticResource H2}" Margin="0,12,0,6" />
-                        <ItemsControl ItemsSource="{Binding ChargingQueue}">
-                            <ItemsControl.ItemTemplate>
+                        <!-- UC-OP-04: Quản lý lịch sạc thông minh -->
+                        <Grid Margin="0,14,0,6">
+                            <TextBlock Text="Lịch sạc thông minh" Style="{StaticResource H2}" VerticalAlignment="Center" />
+                            <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding HubIds}"
+                                      SelectedItem="{Binding ChargingHubId, Mode=TwoWay}"
+                                      Width="96" HorizontalAlignment="Right" />
+                        </Grid>
+                        <TextBlock Text="{Binding ChargingSummaryText}" Style="{StaticResource Caption}"
+                                   TextWrapping="Wrap" Margin="0,0,0,6" />
+                        <ListBox ItemsSource="{Binding ChargingQueue}"
+                                 SelectedItem="{Binding SelectedQueueRow, Mode=TwoWay}"
+                                 ItemContainerStyle="{StaticResource QueueItem}"
+                                 HorizontalContentAlignment="Stretch" BorderThickness="0"
+                                 Background="Transparent" Foreground="{DynamicResource Text}">
+                            <!-- Không có ScrollViewer riêng: cuộn chuột trên hàng chờ vẫn cuộn cả cột. -->
+                            <ListBox.Template>
+                                <ControlTemplate TargetType="ListBox">
+                                    <ItemsPresenter />
+                                </ControlTemplate>
+                            </ListBox.Template>
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,0,0,4">
+                                    <Grid Margin="0,1,0,1">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="24" />
                                             <ColumnDefinition Width="*" />
@@ -370,21 +392,68 @@
                                         <TextBlock Grid.Column="1" Text="{Binding Vehicle}" FontSize="11.5" />
                                         <TextBlock Grid.Column="2" Text="{Binding BatteryText}" FontSize="11.5" />
                                         <TextBlock Grid.Column="3" Text="{Binding ScoreText}" FontSize="11.5"
-                                                   Foreground="{StaticResource Primary}" />
+                                                   Foreground="{DynamicResource Primary}" />
                                         <TextBlock Grid.Column="4" Text="{Binding StatusText}" Style="{StaticResource Caption}"
                                                    HorizontalAlignment="Right" />
                                     </Grid>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <Button Content="Thêm 3 yêu cầu sạc" Style="{StaticResource GhostButton}"
-                                Click="ChargeDemo_Click" Margin="0,6,0,0" HorizontalAlignment="Left" />
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <WrapPanel Margin="0,6,0,0">
+                            <Button Content="▲ Ghim lên" Style="{StaticResource GhostButton}" Click="QueueUp_Click"
+                                    IsEnabled="{Binding CanMoveQueueUp}" Margin="0,0,6,6" />
+                            <Button Content="▼ Ghim xuống" Style="{StaticResource GhostButton}" Click="QueueDown_Click"
+                                    IsEnabled="{Binding CanMoveQueueDown}" Margin="0,0,6,6" />
+                            <Button Content="Lập lịch lại" Style="{StaticResource GhostButton}" Click="Reschedule_Click"
+                                    Margin="0,0,6,6" />
+                            <Button Content="Thêm 3 yêu cầu sạc (HUB-08)" Style="{StaticResource GhostButton}"
+                                    Click="ChargeDemo_Click" Margin="0,0,0,6" />
+                        </WrapPanel>
+
+                        <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
+                                BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,2,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Quy tắc ưu tiên (tổng = 1)" FontSize="11.5" FontWeight="SemiBold" />
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="6" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="6" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Pin thấp" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding WeightBatteryText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Sắp cần xe" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding WeightNeedTimeText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputBox}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Text="Cao điểm" Style="{StaticResource Caption}" Margin="0,0,0,2" />
+                                        <TextBox Text="{Binding WeightPeakText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource InputBox}" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="{Binding WeightsInfoText}" Style="{StaticResource Caption}"
+                                           TextWrapping="Wrap" Margin="0,6,0,0" />
+                                <WrapPanel Margin="0,6,0,0">
+                                    <Button Content="Áp dụng" Style="{StaticResource PrimaryButton}"
+                                            Click="ApplyWeights_Click" Margin="0,0,6,0" />
+                                    <Button Content="Mặc định" Style="{StaticResource GhostButton}"
+                                            Click="ResetWeights_Click" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
 
                         <TextBlock Text="Cảnh báo gần đây" Style="{StaticResource H2}" Margin="0,14,0,6" />
                         <ItemsControl ItemsSource="{Binding Alerts}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                             BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
                                         <StackPanel>
                                             <Grid>
@@ -393,7 +462,7 @@
                                                            HorizontalAlignment="Right" />
                                             </Grid>
                                             <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="11"
-                                                       Margin="0,3,0,0" Foreground="{StaticResource Text2}" />
+                                                       Margin="0,3,0,0" Foreground="{DynamicResource Text2}" />
                                             <TextBlock Text="{Binding DeliveryText}" FontSize="10.5"
                                                        Foreground="{Binding DeliveryBrush}" Margin="0,2,0,0" />
                                         </StackPanel>
@@ -430,9 +499,9 @@
                         </WrapPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                            <CheckBox Content="Tự động quét" IsChecked="{Binding AutoScan}" FontSize="11.5"
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét" IsChecked="{Binding AutoScan}" FontSize="11.5"
                                       VerticalAlignment="Center" Margin="0,0,14,0" />
-                            <CheckBox Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="11.5"
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="11.5"
                                       VerticalAlignment="Center" />
                         </StackPanel>
 
@@ -440,7 +509,7 @@
                         <ItemsControl ItemsSource="{Binding Hubs}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                         BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
                                         <StackPanel>
                                             <Grid>
@@ -465,7 +534,7 @@
                         </ItemsControl>
 
                         <TextBlock Text="Điều phối phương tiện" Style="{StaticResource H2}" Margin="0,14,0,6" />    
-                        <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}"
+                        <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                 BorderThickness="1" CornerRadius="8" Padding="8">
                             <StackPanel>
                                 <Grid>
@@ -476,11 +545,11 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Hub nguồn" Style="{StaticResource Caption}" Margin="0,0,0,2" />
-                                        <ComboBox ItemsSource="{Binding HubIds}" SelectedItem="{Binding SourceHubId, Mode=TwoWay}" />
+                                        <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding HubIds}" SelectedItem="{Binding SourceHubId, Mode=TwoWay}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Hub đích" Style="{StaticResource Caption}" Margin="0,0,0,2" />
-                                        <ComboBox ItemsSource="{Binding HubIds}" SelectedItem="{Binding TargetHubId, Mode=TwoWay}" />
+                                        <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding HubIds}" SelectedItem="{Binding TargetHubId, Mode=TwoWay}" />
                                     </StackPanel>
                                 </Grid>
 
@@ -492,11 +561,11 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Số xe" Style="{StaticResource Caption}" Margin="0,0,0,2" />
-                                        <TextBox Text="{Binding DispatchVehicleCountText, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Text="{Binding DispatchVehicleCountText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputBox}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="Nhân sự" Style="{StaticResource Caption}" Margin="0,0,0,2" />
-                                        <TextBox Text="{Binding DispatchStaffId, UpdateSourceTrigger=PropertyChanged}" />
+                                        <TextBox Text="{Binding DispatchStaffId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource InputBox}" />
                                     </StackPanel>
                                 </Grid>
 
@@ -517,7 +586,7 @@
                                         BorderThickness="0" Background="Transparent" MaxHeight="140">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="White" BorderBrush="{StaticResource Border}"
+                                            <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}"
                                                     BorderThickness="1" CornerRadius="6" Padding="7" Margin="0,0,0,4">
                                                 <StackPanel>
                                                     <Grid>

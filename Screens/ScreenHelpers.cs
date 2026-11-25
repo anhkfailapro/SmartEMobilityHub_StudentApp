@@ -10,6 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         public static string HubMeta(Hub h)
         {
+            if (h.IsSuspended) return "Tạm dừng hoạt động · không nhận đặt xe, đỗ xe, sạc";
             var avail = DemoApp.Vehicles.AvailableCount(h);
             var slots = h.FreeSlots > 0 ? $"{h.FreeSlots} chỗ trống" : "Hết chỗ đỗ";
             return $"{avail} xe sẵn sàng · {slots} · {h.FreePoints} cổng sạc";

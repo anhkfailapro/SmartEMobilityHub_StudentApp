@@ -3,6 +3,7 @@ using SmartEMobilityHub.Core.Clock;
 using SmartEMobilityHub.Core.Domain;
 using SmartEMobilityHub.Core.Seed;
 using SmartEMobilityHub.Core.Services;
+using SmartEMobilityHub.Operator.Themes;
 
 namespace SmartEMobilityHub.Operator;
 
@@ -14,6 +15,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        OperatorTheme.EnsureLoaded();
 
         // Chế độ chụp màn hình: tự đăng nhập tài khoản demo và mở thẳng bảng điều khiển.
         if (e.Args.Contains("--capture"))

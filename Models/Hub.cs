@@ -11,6 +11,8 @@ namespace SmartEMobilityHub.Models
         public int FreeSlots { get; set; }
         public int MaxChargingMinutes { get; init; }
         public int QueueLength { get; set; }
+        /// <summary>Operator tạm dừng Hub (đồng bộ từ Trung tâm điều hành): không nhận đặt xe, đỗ xe, sạc.</summary>
+        public bool IsSuspended { get; set; }
         public List<ChargingPoint> Points { get; } = new();
 
         public int FreePoints => Points.Count(p => p.Status == PointStatus.Free);

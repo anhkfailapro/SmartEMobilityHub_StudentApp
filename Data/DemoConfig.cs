@@ -16,6 +16,8 @@ namespace SmartEMobilityHub.Data
         public const int LateCancelWindowMinutes = 5;
         public const int StaleMinutes = 10;
         public const int UnlockTimeoutSeconds = 30;
+        /// <summary>Cùng giới hạn với Core (ServiceConstants.MaxPickupExtensions): không gia hạn giữ xe vô hạn.</summary>
+        public const int MaxPickUpExtensions = 5;
         public const int UnlockNormalSeconds = 3;
         public const int MaxExtraPickUpAttempts = 2;
         public const double MaxPhotoMb = 5;

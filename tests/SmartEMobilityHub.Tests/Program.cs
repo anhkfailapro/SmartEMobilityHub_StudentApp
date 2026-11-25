@@ -13,6 +13,7 @@ BoundaryTests.Register(runner);
 RegressionTests.Register(runner);
 DispatchTests.Register(runner);
 AuthTests.Register(runner);
+StudentLinkTests.Register(runner);
 
 Console.WriteLine("Smart E-Mobility Hub — Core test runner");
 Console.WriteLine(new string('-', 60));

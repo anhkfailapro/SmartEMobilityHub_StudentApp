@@ -33,6 +33,7 @@ namespace SmartEMobilityHub.Services
             if (open != null)
             {
                 open.ReportCount++;
+                DemoApp.Link.OnProblemReported(open, pointNumber);
                 DemoApp.Notifications.Send("Đã tiếp nhận báo lỗi", $"{objectCode} đã có sự cố đang xử lý ({open.Code}). Báo cáo của bạn đã được gộp vào sự cố này.", Tone.Info);
                 return new OpResult<Incident> { Value = open, Message = "Linked" };
             }
@@ -50,6 +51,7 @@ namespace SmartEMobilityHub.Services
                 CreatedAt = DemoApp.Clock.Now
             };
             Store.Incidents.Add(incident);
+            DemoApp.Link.OnProblemReported(incident, pointNumber);
 
             if (vehicle != null && vehicle.Status != VehicleStatus.InUse) vehicle.Status = VehicleStatus.UnderCheck;
             if (kind == ReportObjectKind.ChargingPoint && pointNumber.HasValue)

@@ -7,7 +7,7 @@ using SmartEMobilityHub.Core.Services;
 
 namespace SmartEMobilityHub.Operator.ViewModels;
 
-public sealed class MainViewModel : ObservableObject
+public sealed partial class MainViewModel : ObservableObject
 {
     private readonly OperatorDemo _demo;
 
@@ -119,6 +119,9 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public bool HasSelection => _selected is not null;
+
+    /// <summary>Tóm tắt theo dữ liệu thật (trước đây là chuỗi cố định "24 sự cố mẫu…", sai sau khi xử lý sự cố).</summary>
+    public string EmptyHintText => $"{KpiNew} mới · {KpiCheck} kiểm tra / khoá · {KpiRepair} đang sửa · {KpiDone} đã xong";
     public Visibility DetailVisibility => HasSelection ? Visibility.Visible : Visibility.Collapsed;
     public Visibility EmptyVisibility => HasSelection ? Visibility.Collapsed : Visibility.Visible;
 
@@ -188,6 +191,7 @@ public sealed class MainViewModel : ObservableObject
         KpiRepair = all.Count(i => i.Status == IncidentStatus.InRepair).ToString();
         KpiDone = all.Count(i => i.Status is IncidentStatus.Resolved or IncidentStatus.Closed).ToString();
         VisibleCountText = $"{Incidents.Count} sự cố";
+        OnPropertyChanged(nameof(EmptyHintText));
 
         OverloadText = _demo.Store.Hubs.Count(h =>
             h.Status == HubStatus.Online &&
@@ -399,7 +403,8 @@ public sealed class MainViewModel : ObservableObject
     public void AddChargingRequests()
     {
         var ports = _demo.AddChargingRequests();
-        Note($"Đã lập lịch sạc HUB-08 · cấp {ports} cổng trong giới hạn công suất.");
+        ChargingHubId = OperatorDemo.ChargingDemoHubId;
+        Note($"Đã lập lịch sạc {OperatorDemo.ChargingDemoHubId} · cấp {ports} cổng trong giới hạn công suất.");
         Refresh();
     }
 
@@ -452,18 +457,6 @@ public sealed class MainViewModel : ObservableObject
         Alerts.Clear();
         foreach (var alert in merged) Alerts.Add(new AlertRow(alert));
         AlertCountText = merged.Count.ToString();
-    }
-
-    private void RefreshQueue()
-    {
-        ChargingQueue.Clear();
-        var index = 0;
-
-        foreach (var request in _demo.Charging.GetQueue("HUB-08").Take(6))
-        {
-            ChargingQueue.Add(new QueueRow(request, index));
-            index++;
-        }
     }
 
     private void UpdateHeader()

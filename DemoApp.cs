@@ -31,6 +31,9 @@ namespace SmartEMobilityHub
         /// <summary>Đăng nhập dùng chung với Core; tài khoản demo nạp từ <see cref="AccountSeed"/>.</summary>
         public static AuthService Auth { get; } = CreateAuth();
 
+        /// <summary>Liên thông với Trung tâm điều hành: dùng chung mạng lưới Core (Hub, xe, đặt chỗ, sự cố, hàng chờ sạc).</summary>
+        public static NetworkLink Link { get; } = new();
+
         private static DemoPanel? _panel;
         private static DispatcherTimer? _timer;
 
@@ -40,6 +43,7 @@ namespace SmartEMobilityHub
         public static void Start(Border phoneHost, Border panelHost, bool requireLogin = true)
         {
             Store.Seed(Clock.Now);
+            Link.Reset();
             Shell = new AppShell(phoneHost);
             _panel = new DemoPanel(panelHost);
             _panel.Build();
@@ -100,6 +104,8 @@ namespace SmartEMobilityHub
         {
             var expired = Reservations.AutoCancelExpired();
             Booking.ProcessSessions();
+            var parkingDone = Parking.CompleteFinished();
+            var networkChanged = Link.SyncFromNetwork();
             var current = Shell.Current;
             if (expired.Count > 0 && current is ReservationScreen or ScanQrScreen or ManualCodeScreen)
             {
@@ -110,7 +116,7 @@ namespace SmartEMobilityHub
                     new DialogAction("Đóng", ButtonVariant.Outline, () => GoTab(NavTab.Home)));
             }
             current?.OnTick();
-            if (Shell.Current != null && (Shell.Current.WantsTick || expired.Count > 0)) Shell.Refresh();
+            if (Shell.Current != null && (Shell.Current.WantsTick || expired.Count > 0 || parkingDone > 0 || networkChanged)) Shell.Refresh();
             _panel?.UpdateClock();
         }
 
@@ -127,6 +133,7 @@ namespace SmartEMobilityHub
             Toggles.Reset();
             Theme.IsDark = false;
             Store.Seed(Clock.Now);
+            Link.Reset();
             Shell.ResetTo(Auth.IsLoggedIn ? new HomeScreen() : new LoginScreen());
             _panel?.Build();
         }

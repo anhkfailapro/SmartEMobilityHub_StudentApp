@@ -21,8 +21,11 @@ namespace SmartEMobilityHub.Services
             if (DemoApp.Toggles.MapServiceTimeout)
                 return new JourneyResult { Destination = dest.Name, RouteAvailable = false, HubsByStraightLine = byLine };
 
-            var start = byLine.FirstOrDefault(h => DemoApp.Vehicles.AvailableCount(h) > 0) ?? byLine[0];
-            var end = store.Hubs.OrderBy(h => h.DistanceKmTo(dest.X, dest.Y)).First();
+            // Hub đang tạm dừng (Operator) không được chọn làm điểm nhận / trả xe.
+            var open = byLine.Where(h => !h.IsSuspended).ToList();
+            if (open.Count == 0) open = byLine;
+            var start = open.FirstOrDefault(h => DemoApp.Vehicles.AvailableCount(h) > 0) ?? open[0];
+            var end = open.OrderBy(h => h.DistanceKmTo(dest.X, dest.Y)).First();
             return new JourneyResult
             {
                 Destination = dest.Name,

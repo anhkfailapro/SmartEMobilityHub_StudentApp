@@ -16,10 +16,14 @@ namespace SmartEMobilityHub.Services
             if (Store.VehicleReservations.Count(r => r.State == ReservationState.Active) >= DemoConfig.MaxActiveVehicle) return "AlreadyActive";
             var v = Store.GetVehicle(vehicleCode);
             if (v == null || !v.IsAvailable) return "TakenByOther";
+            if (v.HubId != null && Store.GetHub(v.HubId).IsSuspended) return "HubSuspended";
+            var network = DemoApp.Link.CheckReserve(v);
+            if (network != "") return network;
             if (DemoApp.Toggles.AnotherStudentReservesFirst)
             {
                 v.Status = VehicleStatus.Reserved;
                 DemoApp.Toggles.AnotherStudentReservesFirst = false;
+                DemoApp.Link.OnReservedByOtherStudent(v);
                 return "TakenByOther";
             }
             return "";
@@ -43,6 +47,7 @@ namespace SmartEMobilityHub.Services
                 State = ReservationState.Active
             };
             Store.VehicleReservations.Add(r);
+            DemoApp.Link.OnVehicleReserved(r);
             DemoApp.Notifications.Send("Đặt xe thành công", $"Xe {v.Code} được giữ đến {DemoConfig.Time(r.HoldUntil)} tại {Store.GetHub(r.HubId).ShortName}. Mã nhận xe {r.PickUpCode}.", Tone.Success);
             return OpResult<VehicleReservation>.Success(r);
         }
@@ -59,15 +64,20 @@ namespace SmartEMobilityHub.Services
             var expired = new List<VehicleReservation>();
             foreach (var r in Store.VehicleReservations.Where(r => r.State == ReservationState.Active && r.HoldUntil <= Now).ToList())
             {
-                if (r.IsPickingUp)
+                // Đang quét QR / mở khoá thì gia hạn, nhưng có giới hạn: trước đây IsPickingUp còn bật
+                // (ví dụ sinh viên rời màn hình mở khoá) thì đặt chỗ được gia hạn mãi và xe bị giữ vô thời hạn.
+                if (r.IsPickingUp && r.PickUpExtensions < DemoConfig.MaxPickUpExtensions)
                 {
+                    r.PickUpExtensions++;
                     r.HoldUntil = Now.AddSeconds(DemoConfig.UnlockTimeoutSeconds);
                     continue;
                 }
+                r.IsPickingUp = false;
                 r.State = ReservationState.Expired;
                 r.ClosedAt = Now;
                 var v = Store.GetVehicle(r.VehicleCode);
                 if (v != null && v.Status == VehicleStatus.Reserved) v.Status = VehicleStatus.Available;
+                DemoApp.Link.OnReservationExpired(r);
                 DemoApp.Notifications.Send("Đặt chỗ đã bị hủy", $"Hết thời gian giữ xe {r.VehicleCode}. Xe đã trở về trạng thái sẵn sàng.", Tone.Danger);
                 expired.Add(r);
             }
@@ -215,6 +225,7 @@ namespace SmartEMobilityHub.Services
                         r.ClosedAt = Now;
                         var v = Store.GetVehicle(r.VehicleCode);
                         if (v != null && v.Status == VehicleStatus.Reserved) v.Status = VehicleStatus.Available;
+                        DemoApp.Link.OnReservationCancelled(r);
                         what = $"đặt xe {r.VehicleCode}";
                         break;
                     }
@@ -224,7 +235,9 @@ namespace SmartEMobilityHub.Services
                         p.State = ReservationState.Cancelled;
                         p.CancellationFee = fee;
                         p.ClosedAt = Now;
-                        Store.GetHub(p.HubId).FreeSlots++;
+                        var hub = Store.GetHub(p.HubId);
+                        hub.FreeSlots = Math.Min(hub.ParkingCapacity, hub.FreeSlots + 1);
+                        DemoApp.Link.OnParkingChanged(p.HubId, -1);
                         what = $"đặt chỗ đỗ {p.SlotNumber}";
                         break;
                     }
@@ -240,9 +253,9 @@ namespace SmartEMobilityHub.Services
                 default:
                     {
                         var q = Store.ChargingRequests.First(x => x.Id == id);
+                        DemoApp.Charging.Release(q);
                         q.State = ChargingRequestState.Cancelled;
-                        var hub = Store.GetHub(q.HubId);
-                        hub.QueueLength = Math.Max(0, hub.QueueLength - 1);
+                        DemoApp.Link.OnChargingRequestCancelled(q);
                         what = $"yêu cầu sạc {q.VehicleCode}";
                         break;
                     }

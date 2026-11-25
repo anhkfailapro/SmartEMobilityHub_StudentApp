@@ -29,6 +29,8 @@ namespace SmartEMobilityHub.Services
                 return OpResult<PrivateEVChargingSession>.Fail("LimitReached", $"Bạn đã có 1 lịch sạc đang hoạt động ({DemoConfig.Time(active.Start)} tại {Store.GetHub(active.HubId).ShortName}). Hãy hủy hoặc hoàn tất lịch đó trước.");
             if (start < Now.AddMinutes(-1))
                 return OpResult<PrivateEVChargingSession>.Fail("InPast", "Giờ bắt đầu đã qua. Vui lòng chọn giờ khác.");
+            if (hub.IsSuspended)
+                return OpResult<PrivateEVChargingSession>.Fail("NoPoint", $"{hub.Name} đang tạm dừng hoạt động theo quyết định của người vận hành.");
             var usable = hub.Points.Where(p => p.Status != PointStatus.OutOfService).ToList();
             if ((!alternative && DemoApp.Toggles.NoChargingPointInWindow) || usable.Count == 0 || hub.FreeSlots <= 0)
                 return OpResult<PrivateEVChargingSession>.Fail("NoPoint", $"Không còn cổng sạc hoặc chỗ đỗ trống tại {hub.Name} trong khung {DemoConfig.Time(start)}–{DemoConfig.Time(start.AddMinutes(durationMinutes))}.");
@@ -60,7 +62,7 @@ namespace SmartEMobilityHub.Services
         {
             var hub = Store.GetHub(hubId);
             var list = new List<(Hub Hub, DateTime Start)> { (hub, start.AddHours(1)), (hub, start.AddHours(2)) };
-            foreach (var h in Store.Hubs.Where(h => h.Id != hubId && h.FreeSlots > 0 && h.Points.Any(p => p.Status != PointStatus.OutOfService)).OrderBy(h => h.DistanceKmTo(hub)).Take(2))
+            foreach (var h in Store.Hubs.Where(h => h.Id != hubId && !h.IsSuspended && h.FreeSlots > 0 && h.Points.Any(p => p.Status != PointStatus.OutOfService)).OrderBy(h => h.DistanceKmTo(hub)).Take(2))
                 list.Add((h, start));
             return list;
         }

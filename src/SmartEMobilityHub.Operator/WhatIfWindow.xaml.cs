@@ -13,7 +13,9 @@ public partial class WhatIfWindow : Window
 
     public WhatIfWindow(WhatIfController controller, NetworkStore store, Func<DateTime> now)
     {
+        Themes.OperatorTheme.EnsureLoaded();
         InitializeComponent();
+        MainWindow.FitToWorkArea(this);
         _viewModel = new WhatIfViewModel(controller, store, now);
         DataContext = _viewModel;
     }

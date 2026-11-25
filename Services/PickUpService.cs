@@ -56,6 +56,7 @@ namespace SmartEMobilityHub.Services
             hub.FreeSlots = Math.Min(hub.ParkingCapacity, hub.FreeSlots + 1);
             r.State = ReservationState.Started;
             r.IsPickingUp = false;
+            DemoApp.Link.OnPickedUp(r);
             var trip = new Trip { Id = Store.NextId("T"), VehicleCode = v.Code, StartHubId = hub.Id, StartTime = now, StartBattery = v.Battery };
             Store.Trips.Add(trip);
             Store.ActiveTrip = trip;
@@ -65,6 +66,7 @@ namespace SmartEMobilityHub.Services
         public Incident ReceiveUnlockTimeout(VehicleReservation r)
         {
             r.IsPickingUp = false;
+            DemoApp.Link.OnUnlockTimeout(r);
             return DemoApp.Incidents.CreateUnlockTimeoutIncident(r.VehicleCode, r.HubId);
         }
     }

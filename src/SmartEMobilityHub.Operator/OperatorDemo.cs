@@ -32,9 +32,17 @@ public sealed class OperatorDemo
     public VehicleRedistributor Redistributor { get; }
     public WhatIfController WhatIf { get; }
 
-    public OperatorDemo()
+    /// <summary>Cổng nhận thao tác của app Sinh viên khi hai app chạy liên thông.</summary>
+    public StudentAppGateway StudentGateway { get; }
+
+    public OperatorDemo() : this(Start)
     {
-        Clock = new FakeClock(Start);
+    }
+
+    /// <param name="start">Mốc giờ mô phỏng. Chế độ liên thông dùng giờ của app Sinh viên để hai bên cùng một đồng hồ.</param>
+    public OperatorDemo(DateTime start)
+    {
+        Clock = new FakeClock(start);
         Store = new NetworkStore(Clock);
         NetworkSeed.Apply(Store, Clock.Now);
 
@@ -54,6 +62,7 @@ public sealed class OperatorDemo
 
         Redistributor = new VehicleRedistributor(Store, Clock);
         WhatIf = new WhatIfController(new TempStateRepository(Store), new WhatIfEngineService(), Store.Snapshot);
+        StudentGateway = new StudentAppGateway(Store, Incidents, Charging, Reservations, Clock);
     }
 
     public void Scan() => Timer.TickNow();
@@ -101,6 +110,9 @@ public sealed class OperatorDemo
 
     public IncidentRecord RaiseUnlockTimeout() => Incidents.ReceiveUnlockTimeout("XE-121", "R-103");
 
+    /// <summary>Hub có 3 yêu cầu sạc mẫu (HUB-08 là hero entity của màn hình Incident).</summary>
+    public const string ChargingDemoHubId = "HUB-08";
+
     public int AddChargingRequests()
     {
         if (Store.ChargingRequests.Count == 0)
@@ -110,7 +122,7 @@ public sealed class OperatorDemo
             AddRequest("CR-DEMO-3", "XE-128", 55, 90);
         }
 
-        var plan = Charging.RunSchedule(Store.GetHub("HUB-08"));
+        var plan = Charging.RunSchedule(Store.GetHub(ChargingDemoHubId));
         return plan.OrderedRequests.Count(r => r.AssignedPortId is not null);
     }
 

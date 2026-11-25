@@ -4,13 +4,16 @@
         Title="Đăng nhập · Trung tâm điều hành"
         Width="440" SizeToContent="Height" ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource CanvasBg}"
+        Background="{DynamicResource CanvasBg}"
+        Foreground="{DynamicResource Text}"
         FontFamily="Segoe UI, Roboto, sans-serif"
         TextOptions.TextFormattingMode="Display">
     <Window.Resources>
         <Style x:Key="PasswordInput" TargetType="PasswordBox">
-            <Setter Property="Background" Value="{StaticResource SurfaceAlt}" />
-            <Setter Property="BorderBrush" Value="{StaticResource Border}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceAlt}" />
+            <Setter Property="Foreground" Value="{DynamicResource Text}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource Text}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Border}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="9,7" />
             <Setter Property="FontSize" Value="12.5" />
@@ -50,7 +53,7 @@
 
                 <Border x:Name="ErrorPanel" Visibility="Collapsed" Background="#FEF2F2" BorderBrush="#FECACA"
                         BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,0,0,12">
-                    <TextBlock x:Name="ErrorText" Foreground="{StaticResource Danger}" FontSize="12.5" TextWrapping="Wrap" />
+                    <TextBlock x:Name="ErrorText" Foreground="{DynamicResource Danger}" FontSize="12.5" TextWrapping="Wrap" />
                 </Border>
 
                 <TextBlock Text="Tên đăng nhập" Style="{StaticResource H2}" Margin="0,0,0,6" />
@@ -62,7 +65,7 @@
                 <Button x:Name="LoginButton" Content="Đăng nhập" Style="{StaticResource PrimaryButton}"
                         IsDefault="True" Click="Login_Click" />
 
-                <Border Background="{StaticResource SurfaceAlt}" BorderBrush="{StaticResource Border}" BorderThickness="1"
+                <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}" BorderThickness="1"
                         CornerRadius="8" Padding="10,8" Margin="0,16,0,0">
                     <TextBlock x:Name="DemoHint" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                 </Border>
