@@ -114,13 +114,18 @@ All prices and limits are in `Data/DemoConfig.cs`.
 
 ## 4. Operator dashboard
 
-A control-centre window (1520 × 940, minimum 1240 × 760) with three columns:
+A control-centre window (1520 × 940, minimum 1240 × 760) with a **left sidebar** and six pages. The sidebar shows a live count (badge) next to each page and the 30-second scan settings at the bottom.
 
-| Column | Content |
+| Page | Content |
 |---|---|
-| Left | 24 incidents with code, device, priority, status and time; filter chips (Tất cả / Mới / Kiểm tra / Đang sửa / Đã xong); search by code, device, fault or hub |
-| Middle | Incident detail: description, reporter, time; action buttons; maintenance task (technician, SLA left or overdue); processing log |
-| Right | KPIs (new / checking-locked / in repair / done), overloaded hubs, alerts; 5 technicians with availability and distance; charging queue of HUB-08; recent alerts; demo scenario buttons; system log |
+| **Tổng quan mạng lưới** (network overview) | 6 KPI tiles (hubs online, vehicles available, free charging points, overloaded hubs, open incidents, alerts); one card per hub with parking and charging utilisation bars (blue < 80 %, orange 80–89 %, red ≥ 90 %), available vehicles and free points; list of hubs at ≥ 80 % capacity; recent alerts. Click a hub card to open its vehicles and charging points. |
+| **Sự cố & bảo trì** (incidents) | 24 incidents with filter chips and search; incident detail with actions, maintenance task and processing log; status KPIs and the 5 technicians. |
+| **Xe & cổng sạc** (vehicles & charging points) | Table of every vehicle (connection, type/model, hub/slot, battery bar, status, last sensor update — older than 10 minutes is orange), sorted by lowest battery; filter by hub, status group and text. Grid of charging points per hub (free / charging / assigned / faulty / offline, vehicle, power used against the hub limit). |
+| **Lịch sạc thông minh** (smart charging) | Charging queue of the selected hub, pin up/down, reschedule, the hub's charging-point grid, and the priority weights. |
+| **Điều phối phương tiện** (dispatch) | Load balance of every hub (surplus / balanced / short of vehicles) and the dispatch form with the list of orders. |
+| **Kịch bản demo & nhật ký** (demo & log) | Demo scenario buttons, simulated clock, auto-scan / ×10 speed, recent alerts and the system log. |
+
+The **Mô phỏng What-if** button (header and sidebar) opens the What-if window.
 
 A **login window** opens first. Only operator accounts can sign in — demo account **op01 / op123456** (OP-01 Hoàng Vỹ). The same rules apply as in the student app (5 wrong attempts → 5-minute lock; a student account is refused).
 
@@ -132,7 +137,7 @@ The header shows the simulated clock, "updated N seconds ago · 30-second cycle"
 
 ### Smart charging schedule (UC-OP-04)
 
-The right column shows the charging queue of any hub (hub picker), ports in use, free ports and power used against the hub limit. The operator can:
+The **Lịch sạc thông minh** page shows the charging queue of any hub (hub picker), ports in use, free ports and power used against the hub limit. The operator can:
 
 - change the priority weights (low battery / needed soon / peak hour, sum = 1) — invalid values are refused and the old weights are kept;
 - **Lập lịch lại** (reschedule) the selected hub;
@@ -173,7 +178,11 @@ Hub mapping: H1 Ga Metro → HUB-01, H2 Thư viện → HUB-04, H3 KTX Khu A →
 
 Invalid actions show a Vietnamese message box; the app does not crash.
 
-### Demo scenario buttons
+### Dispatch (page "Điều phối phương tiện")
+
+**Gợi ý tự động** looks for a hub at ≥ 85 % parking use and a hub at ≤ 35 % and creates an order that moves real, available vehicles towards 65 %. If no hub is at ≤ 35 %, it accepts a receiving hub below 50 % so an overloaded hub can still be relieved (the status bar says so). **Tạo lệnh** creates an order from the form, **Xuất phát** starts it (vehicles become "Đang điều chuyển") and **Hoàn tất** completes it and updates both hubs.
+
+### Demo scenario buttons (page "Kịch bản demo & nhật ký")
 
 | Button | Effect |
 |---|---|
@@ -190,12 +199,14 @@ Invalid actions show a Vietnamese message box; the app does not crash.
 | Đặt lại demo | rebuild all data, services and clock |
 
 ### Suggested 5-minute demo
+0. On **Tổng quan mạng lưới**, point out the KPI tiles and the red HUB-08 card (90 %); click it to see its vehicles and charging points. Then open **Sự cố & bảo trì**.
 1. Select **SC-1024** (HUB-08, Khẩn cấp) and read the description and log.
 2. **Tạo phiếu bảo trì** → task MT-0001 with a 30-minute deadline.
 3. **Gán KTV gần nhất** → technician T-02; incident becomes In repair.
 4. **Hoàn tất xử lý**, then **Đóng sự cố** → KPI "Đã xong" increases.
 5. Select **SC-1017** (XE-087) → **Khoá thiết bị**.
-6. **Cổng CS-08-08 lỗi** → a new incident and a "charging point fault" alert appear.
+6. **Kịch bản demo & nhật ký** → **Cổng CS-08-08 lỗi** → a new incident and a "charging point fault" alert appear; on **Xe & cổng sạc** (HUB-08) port #8 is shown as faulty.
+7. **Điều phối phương tiện** → **Gợi ý tự động** → **Xuất phát** → **Hoàn tất**.
 
 ---
 

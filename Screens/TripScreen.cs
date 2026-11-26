@@ -39,9 +39,10 @@ namespace SmartEMobilityHub.Screens
 
             var timer = new System.Windows.Controls.Border
             {
-                Background = Theme.Primary,
-                CornerRadius = new CornerRadius(16),
+                Background = Theme.HeroGradient,
+                CornerRadius = new CornerRadius(24),
                 Padding = new Thickness(20),
+                Effect = Theme.SoftShadow(26, 6, 0.28, "#4F46E5"),
                 Child = Stack(12,
                     Centered(Text("Thời gian đã đi", TextKind.Body, Theme.OnPrimary)),
                     Centered(Text(ScreenHelpers.Elapsed(DemoApp.Clock.Now - trip.StartTime), TextKind.Huge, Theme.OnPrimary)),

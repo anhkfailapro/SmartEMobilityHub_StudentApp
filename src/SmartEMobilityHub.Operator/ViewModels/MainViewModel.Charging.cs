@@ -11,7 +11,7 @@ namespace SmartEMobilityHub.Operator.ViewModels;
 /// </summary>
 public sealed partial class MainViewModel
 {
-    private const int QueueRowsShown = 8;
+    private const int QueueRowsShown = 12;
 
     private string _chargingHubId = OperatorDemo.ChargingDemoHubId;
     private QueueRow? _selectedQueueRow;
@@ -28,6 +28,7 @@ public sealed partial class MainViewModel
         {
             if (string.IsNullOrWhiteSpace(value) || !SetProperty(ref _chargingHubId, value)) return;
             RefreshQueue();
+            RefreshChargingPorts();
         }
     }
 

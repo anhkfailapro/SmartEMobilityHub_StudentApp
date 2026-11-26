@@ -206,6 +206,7 @@ public sealed partial class MainViewModel : ObservableObject
         UpdateHeader();
         RefreshActionFlags();
         RefreshHubsAndDispatch();
+        RefreshNetwork();
     }
 
     // ---------- Hành động UC-OP-03 ----------
@@ -553,7 +554,7 @@ public sealed partial class MainViewModel : ObservableObject
             TargetHubId = HubIds[1];
 
         foreach (var hub in _demo.Store.Hubs.OrderBy(h => h.Id, StringComparer.Ordinal))
-            Hubs.Add(new HubRow(hub));
+            Hubs.Add(new HubRow(hub, _demo.Store.Vehicles.Where(v => v.HubId == hub.Id).ToList()));
 
         var selectedOrderId = _selectedDispatchOrder?.OrderId;
         DispatchOrders.Clear();
@@ -567,9 +568,30 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(CanCompleteDispatch));
     }
 
+    /// <summary>Ngưỡng Hub nhận khi không có Hub nào thiếu xe rõ rệt (≤ 35%).</summary>
+    private const double RelaxedReceiverThreshold = 0.5;
+
     public string? SuggestAndCreateDispatch()
     {
-        var suggestions = _demo.Redistributor.GenerateDispatchSuggestions(_demo.Store.Hubs);
+        var redistributor = _demo.Redistributor;
+        var suggestions = redistributor.GenerateDispatchSuggestions(_demo.Store.Hubs);
+        var relaxed = false;
+        if (suggestions.Count == 0)
+        {
+            // Có Hub dư xe nhưng không Hub nào ≤ 35%: nới ngưỡng Hub nhận tới 50% để vẫn hạ tải được Hub đang quá tải.
+            var low = redistributor.LowLoadThreshold;
+            try
+            {
+                redistributor.LowLoadThreshold = RelaxedReceiverThreshold;
+                suggestions = redistributor.GenerateDispatchSuggestions(_demo.Store.Hubs);
+                relaxed = suggestions.Count > 0;
+            }
+            finally
+            {
+                redistributor.LowLoadThreshold = low;
+            }
+        }
+
         var first = suggestions.FirstOrDefault();
         if (first is null)
             return "Hiện chưa phát hiện cặp Hub lệch tải rõ rệt để gợi ý tự động.";
@@ -578,7 +600,10 @@ public sealed partial class MainViewModel : ObservableObject
         TargetHubId = first.TargetHubId;
         DispatchVehicleCountText = Math.Max(1, first.VehicleIds.Count).ToString();
 
-        return CreateDispatchOrder();
+        var error = CreateDispatchOrder();
+        if (error is null && relaxed)
+            Note(LastActionText + $" Không có Hub ≤ 35% nên đã chọn Hub nhận còn dưới {RelaxedReceiverThreshold:P0}.");
+        return error;
     }
 
     public string? CreateDispatchOrder()

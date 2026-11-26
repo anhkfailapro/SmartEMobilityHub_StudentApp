@@ -32,9 +32,10 @@ namespace SmartEMobilityHub.Screens
 
             var countdown = new System.Windows.Controls.Border
             {
-                Background = Theme.Primary,
-                CornerRadius = new CornerRadius(16),
+                Background = Theme.HeroGradient,
+                CornerRadius = new CornerRadius(24),
                 Padding = new Thickness(20),
+                Effect = Theme.SoftShadow(26, 6, 0.28, "#4F46E5"),
                 Child = Stack(8,
                     Centered(Text("Thời gian giữ xe còn lại", TextKind.Body, Theme.OnPrimary)),
                     Centered(Text($"{(int)left.TotalMinutes:00}:{left.Seconds:00}", TextKind.Huge, Theme.OnPrimary)),

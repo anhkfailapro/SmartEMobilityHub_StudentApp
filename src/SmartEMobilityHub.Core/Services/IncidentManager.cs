@@ -367,11 +367,22 @@ public sealed class IncidentManager
         if (incident.Status == next) return;
 
         if (!AllowedTransitions.TryGetValue(incident.Status, out var allowed) || !allowed.Contains(next))
-            throw new IllegalStateException($"Không thể chuyển sự cố {incident.IncidentId} từ {incident.Status} sang {next}.");
+            throw new IllegalStateException($"Không thể chuyển sự cố {incident.IncidentId} từ “{StatusLabel(incident.Status)}” sang “{StatusLabel(next)}”.");
 
         incident.Status = next;
-        AddLog(incident, $"Chuyển trạng thái sang {next}.", "Người vận hành");
+        AddLog(incident, $"Chuyển trạng thái sang “{StatusLabel(next)}”.", "Người vận hành");
     }
+
+    /// <summary>Tên trạng thái tiếng Việt cho nhật ký và thông báo lỗi (trước đây ghi tên enum tiếng Anh như “InRepair”).</summary>
+    public static string StatusLabel(IncidentStatus status) => status switch
+    {
+        IncidentStatus.New => "Mới",
+        IncidentStatus.UnderCheck => "Đang kiểm tra",
+        IncidentStatus.Locked => "Đã khoá",
+        IncidentStatus.InRepair => "Đang sửa",
+        IncidentStatus.Resolved => "Đã xử lý",
+        _ => "Đã đóng"
+    };
 
     private void NotifyUserSafely(string userId, string message)
     {

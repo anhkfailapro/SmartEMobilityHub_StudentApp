@@ -6,9 +6,28 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource CanvasBg}"
         Foreground="{DynamicResource Text}"
-        FontFamily="Segoe UI, Roboto, sans-serif"
+        FontFamily="Segoe UI Variable Text, Segoe UI, Roboto, sans-serif"
         TextOptions.TextFormattingMode="Display">
-    <Grid>
+    <Window.Resources>
+        <!-- Ô cổng sạc dùng ở trang Phương tiện & cổng sạc và trang Lịch sạc. -->
+        <DataTemplate x:Key="PortTileTemplate">
+            <Border Width="92" Height="58" CornerRadius="10" Margin="0,0,8,8" Padding="9,6"
+                    Background="{Binding Background}" ToolTip="{Binding ToolTipText}">
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Text="{Binding NumberText}" FontSize="12" FontWeight="Bold" Foreground="{Binding Foreground}" />
+                        <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="11"
+                                   Foreground="{Binding Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding Foreground}" Margin="0,2,0,0" />
+                    <TextBlock Text="{Binding DetailText}" FontSize="10" Foreground="{Binding Foreground}" Opacity="0.85"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Background="{DynamicResource CanvasBg}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -16,36 +35,67 @@
         </Grid.RowDefinitions>
 
         <!-- HEADER -->
-        <Border Grid.Row="0" Background="#0F172A" Padding="22,13">
+        <Border Grid.Row="0" Padding="20,12">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#0B1220" Offset="0" />
+                    <GradientStop Color="#0F172A" Offset="0.55" />
+                    <GradientStop Color="#172554" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
             <Grid>
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="38" Height="38" CornerRadius="10" Background="#2563EB">
-                        <TextBlock Text="⚡" FontSize="19" Foreground="White"
+                    <Border Width="40" Height="40" CornerRadius="12">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#3B82F6" Offset="0" />
+                                <GradientStop Color="#6366F1" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="White"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="Trung tâm điều hành" FontSize="18" FontWeight="SemiBold" Foreground="White" />
-                        <TextBlock Text="Smart E-Mobility Hub · Nhóm 21 · CO3001"
+                        <TextBlock Text="Smart E-Mobility Hub · Khu đô thị ĐHQG-HCM · Nhóm 21"
                                    FontSize="11.5" Foreground="#94A3B8" />
                     </StackPanel>
+                    <Border Background="#1A10B981" BorderBrush="#5510B981" BorderThickness="1" CornerRadius="11"
+                            Padding="9,3" Margin="18,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Đang giám sát" FontSize="11" Foreground="#6EE7B7" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Content="Mô phỏng What-if" Style="{StaticResource PrimaryButton}"
-                            Click="WhatIf_Click" Margin="0,0,12,0" />
-                    <StackPanel Margin="0,0,18,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding ClockText}" Foreground="White" FontSize="17"
-                                   FontWeight="SemiBold" HorizontalAlignment="Right" />
+                    <StackPanel Margin="0,0,14,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ClockText}" Foreground="White" FontSize="18"
+                                   FontWeight="SemiBold" HorizontalAlignment="Right" FontFamily="Segoe UI Variable Display, Segoe UI" />
                         <TextBlock Text="{Binding ScanText}" Foreground="#94A3B8" FontSize="11"
                                    HorizontalAlignment="Right" />
                     </StackPanel>
-                    <Button Content="Quét ngay" Style="{StaticResource PrimaryButton}" Click="Scan_Click" />
-                    <Border Width="1" Background="#334155" Margin="18,4,18,4" />
-                    <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
-                        <TextBlock x:Name="OperatorNameText" Foreground="White" FontSize="13"
-                                   FontWeight="SemiBold" HorizontalAlignment="Right" />
-                        <TextBlock x:Name="OperatorRoleText" Foreground="#94A3B8" FontSize="11"
-                                   HorizontalAlignment="Right" />
+                    <Button Style="{StaticResource PrimaryButton}" Click="Scan_Click" Margin="0,0,8,0" ToolTip="Chạy ngay một chu kỳ quét 6 bước">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Quét ngay" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource PrimaryButton}" Click="WhatIf_Click" Background="#6366F1">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE9D9;" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" Margin="0,0,7,0" />
+                            <TextBlock Text="Mô phỏng What-if" />
+                        </StackPanel>
+                    </Button>
+                    <Border Width="1" Background="#334155" Margin="16,4,16,4" />
+                    <Border Width="34" Height="34" CornerRadius="17" Background="#1E3A8A" Margin="0,0,10,0">
+                        <TextBlock Text="&#xE77B;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="#BFDBFE"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,14,0">
+                        <TextBlock x:Name="OperatorNameText" Foreground="White" FontSize="13" FontWeight="SemiBold" />
+                        <TextBlock x:Name="OperatorRoleText" Foreground="#94A3B8" FontSize="11" />
                     </StackPanel>
                     <Button x:Name="ThemeButton" Content="☾ Chế độ tối" Style="{StaticResource GhostButton}"
                             Click="Theme_Click" Margin="0,0,8,0" ToolTip="Đổi chế độ giao diện Sáng / Tối" />
@@ -54,48 +104,338 @@
             </Grid>
         </Border>
 
-        <!-- BODY -->
+        <!-- BODY: thanh bên + trang -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="385" />
+                <ColumnDefinition Width="236" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="365" />
             </Grid.ColumnDefinitions>
 
-            <!-- LEFT: danh sách sự cố -->
-            <Border Grid.Column="0" Style="{StaticResource Card}" Margin="16,14,8,14">
+            <!-- SIDEBAR -->
+            <Border Background="{DynamicResource Sidebar}" BorderBrush="{DynamicResource Border}" BorderThickness="0,0,1,0" Padding="14,18,14,14">
                 <DockPanel>
-                    <StackPanel DockPanel.Dock="Top">
-                        <Grid>
-                            <TextBlock Text="Sự cố &amp; Bảo trì" Style="{StaticResource H1}" />
-                            <Border HorizontalAlignment="Right" VerticalAlignment="Center"
-                                    Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
-                                    BorderThickness="1" CornerRadius="10" Padding="8,3">
-                                <TextBlock Text="{Binding VisibleCountText}" Style="{StaticResource Caption}" />
-                            </Border>
-                        </Grid>
+                    <Border DockPanel.Dock="Bottom" Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
+                            BorderThickness="1" CornerRadius="12" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="CHU KỲ QUÉT" Style="{StaticResource Overline}" />
+                            <TextBlock Text="{Binding ScanText}" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,4,0,8" />
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét (30 giây)" IsChecked="{Binding AutoScan}" FontSize="11.5" Margin="0,0,0,4" />
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="11.5" />
+                        </StackPanel>
+                    </Border>
 
-                        <ListBox ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedFilter}"
-                                 ItemContainerStyle="{StaticResource FilterItem}"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                 BorderThickness="0" Background="Transparent" Margin="0,10,0,6">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
+                    <StackPanel>
+                        <TextBlock Text="ĐIỀU HÀNH" Style="{StaticResource Overline}" Margin="12,0,0,8" />
+                        <ListBox ItemsSource="{Binding NavItems}" SelectedIndex="{Binding PageIndex, Mode=TwoWay}"
+                                 ItemContainerStyle="{StaticResource NavItem}" BorderThickness="0" Background="Transparent"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Label}" FontSize="12"
-                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="26" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource IconFont}" FontSize="15"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                        <Border Grid.Column="2" Background="{DynamicResource Primary}" CornerRadius="9" MinWidth="20" Padding="6,1"
+                                                Visibility="{Binding BadgeVisibility}" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Badge}" FontSize="10.5" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" />
+                                        </Border>
+                                    </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource SearchBox}" Margin="0,0,0,10" />
+                        <TextBlock Text="PHÂN TÍCH" Style="{StaticResource Overline}" Margin="12,14,0,8" />
+                        <Button Click="WhatIf_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="10" Padding="12,10">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceAlt}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="26" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="&#xE9D9;" FontFamily="{StaticResource IconFont}" FontSize="15" VerticalAlignment="Center" Foreground="{DynamicResource Text2}" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Mô phỏng What-if" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Text2}" />
+                                    <TextBlock Text="5 kịch bản · gợi ý điều phối" FontSize="10.5" Foreground="{DynamicResource Text2}" Opacity="0.8" />
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- PAGES -->
+            <Grid Grid.Column="1">
+
+                <!-- ===== Trang 0: Tổng quan mạng lưới ===== -->
+                <Grid Margin="22,18,22,16" Visibility="{Binding OverviewVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Tổng quan mạng lưới" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="{Binding NetworkSummaryText}" Style="{StaticResource PageSubtitle}" />
                     </StackPanel>
 
+                    <UniformGrid Grid.Row="1" Rows="1" Columns="6" Margin="0,16,-12,16">
+                        <Border Style="{StaticResource KpiTile}">
+                            <StackPanel>
+                                <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource SkySubtle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="&#xE80F;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{DynamicResource SkyText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="{Binding KpiHubsText}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
+                                <TextBlock Text="Hub đang hoạt động" FontSize="12" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding KpiHubsHint}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource KpiTile}">
+                            <StackPanel>
+                                <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource EmeraldSubtle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="&#xE804;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{DynamicResource EmeraldText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="{Binding KpiVehiclesText}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
+                                <TextBlock Text="Xe sẵn sàng" FontSize="12" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding KpiVehiclesHint}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource KpiTile}">
+                            <StackPanel>
+                                <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource VioletSubtle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{DynamicResource VioletText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="{Binding KpiPortsText}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
+                                <TextBlock Text="Cổng sạc trống" FontSize="12" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding KpiPortsHint}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource KpiTile}">
+                            <StackPanel>
+                                <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource RoseSubtle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="&#xE9D2;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{DynamicResource RoseText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="{Binding OverloadText}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
+                                <TextBlock Text="Hub quá tải (≥ 90%)" FontSize="12" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding AtRiskHint}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource KpiTile}">
+                            <StackPanel>
+                                <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AmberSubtle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="&#xE7BA;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{DynamicResource AmberText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="{Binding KpiOpenIncidents}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
+                                <TextBlock Text="Sự cố đang mở" FontSize="12" FontWeight="SemiBold" />
+                                <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
+                                    <Run Text="{Binding KpiNew, Mode=OneWay}" /><Run Text=" mới · " /><Run Text="{Binding KpiRepair, Mode=OneWay}" /><Run Text=" đang sửa" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource KpiTile}">
+                            <StackPanel>
+                                <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource AmberSubtle}" HorizontalAlignment="Left">
+                                    <TextBlock Text="&#xEA8F;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{DynamicResource AmberText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="{Binding AlertCountText}" FontSize="24" FontWeight="Bold" Margin="0,8,0,0" />
+                                <TextBlock Text="Cảnh báo gần đây" FontSize="12" FontWeight="SemiBold" />
+                                <TextBlock Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis">
+                                    <Run Text="KTV sẵn sàng " /><Run Text="{Binding TechText, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="360" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0" Padding="16,14,6,6">
+                            <DockPanel>
+                                <Grid DockPanel.Dock="Top" Margin="0,0,10,10">
+                                    <StackPanel>
+                                        <TextBlock Text="Mạng lưới Mobility Hub" Style="{StaticResource H1}" />
+                                        <TextBlock Text="Chỗ đỗ, cổng sạc và xe sẵn sàng tại từng Hub · bấm một Hub để xem chi tiết xe và cổng sạc" Style="{StaticResource Caption}" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <Ellipse Width="8" Height="8" Fill="#2563EB" Margin="0,0,5,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="&lt; 80%" Style="{StaticResource Caption}" Margin="0,0,10,0" />
+                                        <Ellipse Width="8" Height="8" Fill="#EA580C" Margin="0,0,5,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="80–89%" Style="{StaticResource Caption}" Margin="0,0,10,0" />
+                                        <Ellipse Width="8" Height="8" Fill="#DC2626" Margin="0,0,5,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="≥ 90%" Style="{StaticResource Caption}" />
+                                    </StackPanel>
+                                </Grid>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding Hubs}" Margin="0,0,10,0">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="3" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource CardButton}" Tag="{Binding HubId}" Click="HubCard_Click"
+                                                        BorderBrush="{Binding AccentBrush}" Margin="0,0,10,10">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Text}"
+                                                                       TextTrimming="CharacterEllipsis" Margin="0,0,80,0" />
+                                                            <Border Style="{StaticResource Pill}" Background="{Binding StatusBackground}" HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding StatusText}" FontSize="10.5" FontWeight="SemiBold" Foreground="{Binding StatusBrush}" />
+                                                            </Border>
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding FullName}" Style="{StaticResource Caption}" TextTrimming="CharacterEllipsis" />
+                                                        <Grid Margin="0,10,0,4">
+                                                            <TextBlock Text="Chỗ đỗ" FontSize="11.5" Foreground="{DynamicResource Text2}" />
+                                                            <TextBlock Text="{Binding ParkingText}" FontSize="11.5" FontWeight="SemiBold" Foreground="{Binding ParkingBrush}" HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                        <ProgressBar Style="{StaticResource Meter}" Value="{Binding ParkingPercent, Mode=OneWay}" Foreground="{Binding ParkingBrush}" />
+                                                        <Grid Margin="0,8,0,4">
+                                                            <TextBlock Text="Cổng đang sạc" FontSize="11.5" Foreground="{DynamicResource Text2}" />
+                                                            <TextBlock Text="{Binding ChargingText}" FontSize="11.5" FontWeight="SemiBold" Foreground="{Binding ChargingBrush}" HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                        <ProgressBar Style="{StaticResource Meter}" Value="{Binding ChargingPercent, Mode=OneWay}" Foreground="{Binding ChargingBrush}" />
+                                                        <Grid Margin="0,10,0,0">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="&#xE804;" FontFamily="{StaticResource IconFont}" FontSize="12" Foreground="{DynamicResource Text2}" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                                                <TextBlock Text="{Binding VehiclesText}" Style="{StaticResource Caption}" />
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding FreeChargersText}" Style="{StaticResource Caption}" HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock Text="Hub có nguy cơ quá tải" Style="{StaticResource H2}" />
+                                    <TextBlock Text="{Binding AtRiskHint}" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,0,8" />
+                                    <ItemsControl ItemsSource="{Binding AtRiskHubs}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource CardButton}" Tag="{Binding HubId}" Click="HubCard_Click"
+                                                        BorderBrush="{Binding AccentBrush}" Margin="0,0,0,8">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Text}" />
+                                                            <TextBlock Text="{Binding LoadText}" Style="{StaticResource Caption}" />
+                                                            <ProgressBar Style="{StaticResource Meter}" Value="{Binding ParkingPercent, Mode=OneWay}" Foreground="{Binding UtilizationBrush}" Margin="0,6,0,0" />
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding UtilizationText}" FontSize="18" FontWeight="Bold" Foreground="{Binding UtilizationBrush}" HorizontalAlignment="Right" />
+                                                            <TextBlock Text="{Binding RiskText}" FontSize="10.5" FontWeight="SemiBold" Foreground="{Binding UtilizationBrush}" HorizontalAlignment="Right" />
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <StackPanel Visibility="{Binding AtRiskEmptyVisibility}" Margin="0,4,0,4" HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE73E;" FontFamily="{StaticResource IconFont}" FontSize="20" Foreground="{DynamicResource Success}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Mạng lưới đang cân bằng" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="1" Style="{StaticResource Card}">
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Top" Text="Cảnh báo gần đây" Style="{StaticResource H2}" Margin="0,0,0,8" />
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Alerts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
+                                            BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding TimeText}" Style="{StaticResource Caption}"
+                                                           HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="11"
+                                                       Margin="0,3,0,0" Foreground="{DynamicResource Text2}" />
+                                            <TextBlock Text="{Binding DeliveryText}" FontSize="10.5"
+                                                       Foreground="{Binding DeliveryBrush}" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <!-- ===== Trang 1: Sự cố & bảo trì (UC-OP-03) ===== -->
+                <Grid Margin="22,18,22,16" Visibility="{Binding IncidentsVisibility}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="370" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="290" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource Card}" Margin="0,0,14,0">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top">
+                                <Grid>
+                                    <TextBlock Text="Sự cố &amp; Bảo trì" Style="{StaticResource H1}" />
+                                    <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                                            Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
+                                            BorderThickness="1" CornerRadius="10" Padding="8,3">
+                                        <TextBlock Text="{Binding VisibleCountText}" Style="{StaticResource Caption}" />
+                                    </Border>
+                                </Grid>
+
+                                <ListBox ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedFilter}"
+                                         Style="{StaticResource ChipList}" Margin="0,10,0,6">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Label}" FontSize="12"
+                                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Tìm mã, thiết bị, lỗi hoặc Hub…"
+                                         Style="{StaticResource SearchBox}" Margin="0,0,0,10" />
+                            </StackPanel>
                     <ListBox ItemsSource="{Binding Incidents}"
                              SelectedItem="{Binding SelectedIncident, Mode=TwoWay}"
                              ItemContainerStyle="{StaticResource IncidentItem}"
@@ -137,11 +477,11 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                </DockPanel>
-            </Border>
 
-            <!-- CENTER: chi tiết + hành động -->
-            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="8,14" Padding="18">
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource Card}" Padding="20" Margin="0,0,14,0">
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding DetailVisibility}">
                         <StackPanel>
@@ -261,79 +601,44 @@
                                    Style="{StaticResource Caption}" Margin="0,6,0,0" HorizontalAlignment="Center" />
                     </StackPanel>
                 </Grid>
-            </Border>
 
-            <!-- RIGHT: KPI, KTV, demo -->
-            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="8,14,16,14" Padding="14">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
-                        <TextBlock Text="Tình trạng vận hành" Style="{StaticResource H1}" />
+                    </Border>
 
-                        <Grid Margin="0,10,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
+                    <Border Grid.Column="2" Style="{StaticResource Card}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Tình trạng xử lý" Style="{StaticResource H2}" />
+                                <UniformGrid Columns="2" Margin="0,10,0,0">
+                                    <Border Background="{DynamicResource AmberSubtle}" CornerRadius="10" Padding="10" Margin="0,0,4,8">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding KpiNew}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource AmberText}" />
+                                            <TextBlock Text="Mới" FontSize="11" Foreground="{DynamicResource AmberText}" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="{DynamicResource SkySubtle}" CornerRadius="10" Padding="10" Margin="4,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding KpiCheck}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource SkyText}" />
+                                            <TextBlock Text="Kiểm tra / khoá" FontSize="11" Foreground="{DynamicResource SkyText}" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="{DynamicResource VioletSubtle}" CornerRadius="10" Padding="10" Margin="0,0,4,0">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding KpiRepair}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource VioletText}" />
+                                            <TextBlock Text="Đang sửa" FontSize="11" Foreground="{DynamicResource VioletText}" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="{DynamicResource EmeraldSubtle}" CornerRadius="10" Padding="10" Margin="4,0,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding KpiDone}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource EmeraldText}" />
+                                            <TextBlock Text="Đã xong" FontSize="11" Foreground="{DynamicResource EmeraldText}" />
+                                        </StackPanel>
+                                    </Border>
+                                </UniformGrid>
 
-                            <Border Grid.Row="0" Grid.Column="0" Background="#FEF3C7" CornerRadius="10"
-                                    Padding="10" Margin="0,0,4,4">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding KpiNew}" FontSize="20" FontWeight="Bold" Foreground="#B45309" />
-                                    <TextBlock Text="Mới" FontSize="11" Foreground="#92400E" />
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Row="0" Grid.Column="1" Background="#E0F2FE" CornerRadius="10"
-                                    Padding="10" Margin="4,0,0,4">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding KpiCheck}" FontSize="20" FontWeight="Bold" Foreground="#0369A1" />
-                                    <TextBlock Text="Kiểm tra / khoá" FontSize="11" Foreground="#075985" />
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Row="1" Grid.Column="0" Background="#EDE9FE" CornerRadius="10"
-                                    Padding="10" Margin="0,0,4,0">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding KpiRepair}" FontSize="20" FontWeight="Bold" Foreground="#6D28D9" />
-                                    <TextBlock Text="Đang sửa" FontSize="11" Foreground="#5B21B6" />
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Row="1" Grid.Column="1" Background="#D1FAE5" CornerRadius="10"
-                                    Padding="10" Margin="4,0,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding KpiDone}" FontSize="20" FontWeight="Bold" Foreground="#047857" />
-                                    <TextBlock Text="Đã xong" FontSize="11" Foreground="#065F46" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <Grid Margin="0,8,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
-                                    BorderThickness="1" CornerRadius="10" Padding="10" Margin="0,0,4,0">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding OverloadText}" FontSize="17" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource Danger}" />
-                                    <TextBlock Text="Hub quá tải" Style="{StaticResource Caption}" />
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="1" Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
-                                    BorderThickness="1" CornerRadius="10" Padding="10" Margin="4,0,0,0">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding AlertCountText}" FontSize="17" FontWeight="SemiBold"
-                                               Foreground="#B45309" />
-                                    <TextBlock Text="Cảnh báo" Style="{StaticResource Caption}" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <TextBlock Text="Kỹ thuật viên" Style="{StaticResource H2}" Margin="0,14,0,2" />
-                        <TextBlock Text="{Binding TechText}" Style="{StaticResource Caption}" Margin="0,0,0,6" />
+                                <TextBlock Text="Kỹ thuật viên" Style="{StaticResource H2}" Margin="0,16,0,2" />
+                                <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,8">
+                                    <Run Text="{Binding TechText, Mode=OneWay}" /><Run Text=" đang sẵn sàng · khoảng cách tới Hub của sự cố" />
+                                </TextBlock>
                         <ItemsControl ItemsSource="{Binding Technicians}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -358,15 +663,204 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- UC-OP-04: Quản lý lịch sạc thông minh -->
-                        <Grid Margin="0,14,0,6">
-                            <TextBlock Text="Lịch sạc thông minh" Style="{StaticResource H2}" VerticalAlignment="Center" />
-                            <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding HubIds}"
-                                      SelectedItem="{Binding ChargingHubId, Mode=TwoWay}"
-                                      Width="96" HorizontalAlignment="Right" />
-                        </Grid>
-                        <TextBlock Text="{Binding ChargingSummaryText}" Style="{StaticResource Caption}"
-                                   TextWrapping="Wrap" Margin="0,0,0,6" />
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+
+                <!-- ===== Trang 2: Phương tiện & cổng sạc ===== -->
+                <Grid Margin="22,18,22,16" Visibility="{Binding AssetsVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Phương tiện &amp; cổng sạc" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="{Binding AssetSummaryText}" Style="{StaticResource PageSubtitle}" />
+                    </StackPanel>
+
+                    <Grid Grid.Row="1" Margin="0,14,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="280" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding AssetHubOptions}"
+                                  SelectedItem="{Binding AssetHubFilter, Mode=TwoWay}" VerticalAlignment="Center" Height="34" FontSize="12.5" />
+                        <ListBox Grid.Column="1" ItemsSource="{Binding VehicleFilters}" SelectedItem="{Binding SelectedVehicleFilter}"
+                                 Style="{StaticResource ChipList}" Margin="12,6,12,0" VerticalAlignment="Center">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}" FontSize="12"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" />
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBox Grid.Column="2" Text="{Binding AssetSearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Tìm mã xe, mẫu xe, Hub…"
+                                 Style="{StaticResource SearchBox}" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="430" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0" Padding="0">
+                            <DockPanel>
+                                <Border DockPanel.Dock="Top" Padding="16,14,16,10">
+                                    <StackPanel>
+                                        <TextBlock Text="Giám sát phương tiện" Style="{StaticResource H1}" />
+                                        <TextBlock Text="Trạng thái, mức pin và thời điểm cập nhật cảm biến của từng xe (dữ liệu quá 10 phút được tô cam)" Style="{StaticResource Caption}" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                </Border>
+                                <Border DockPanel.Dock="Top" Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}" BorderThickness="0,1" Padding="16,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="150" />
+                                            <ColumnDefinition Width="118" />
+                                            <ColumnDefinition Width="96" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="MÃ XE" Style="{StaticResource Overline}" />
+                                        <TextBlock Grid.Column="1" Text="LOẠI · MẪU" Style="{StaticResource Overline}" />
+                                        <TextBlock Grid.Column="2" Text="HUB · VỊ TRÍ" Style="{StaticResource Overline}" />
+                                        <TextBlock Grid.Column="3" Text="MỨC PIN" Style="{StaticResource Overline}" />
+                                        <TextBlock Grid.Column="4" Text="TRẠNG THÁI" Style="{StaticResource Overline}" />
+                                        <TextBlock Grid.Column="5" Text="CẬP NHẬT" Style="{StaticResource Overline}" HorizontalAlignment="Right" />
+                                    </Grid>
+                                </Border>
+                                <Grid>
+                                    <ListBox ItemsSource="{Binding VehicleRows}" ItemContainerStyle="{StaticResource QueueItem}" BorderThickness="0"
+                                             Background="Transparent" HorizontalContentAlignment="Stretch" Padding="10,4"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="100" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="150" />
+                                                        <ColumnDefinition Width="150" />
+                                                        <ColumnDefinition Width="118" />
+                                                        <ColumnDefinition Width="96" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding ConnectionGlyph}" FontFamily="{StaticResource IconFont}" FontSize="11"
+                                                                   Foreground="{Binding ConnectionBrush}" ToolTip="{Binding ConnectionText}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                                        <TextBlock Text="{Binding Code}" FontSize="12.5" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding TypeText}" FontSize="12" Foreground="{DynamicResource Text2}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" />
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding HubText}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding SlotText}" Style="{StaticResource Caption}" FontSize="10.5" />
+                                                    </StackPanel>
+                                                    <Grid Grid.Column="3" VerticalAlignment="Center" Margin="0,0,14,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="40" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <ProgressBar Style="{StaticResource Meter}" Value="{Binding Battery, Mode=OneWay}" Foreground="{Binding BatteryBrush}" VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding BatteryText}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                                                    </Grid>
+                                                    <Border Grid.Column="4" Style="{StaticResource Pill}" Background="{Binding StatusBackground}" HorizontalAlignment="Left">
+                                                        <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding StatusForeground}" />
+                                                    </Border>
+                                                    <TextBlock Grid.Column="5" Text="{Binding UpdatedText}" FontSize="11.5" Foreground="{Binding UpdatedBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <TextBlock Text="Không có xe nào khớp bộ lọc." Style="{StaticResource Caption}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Visibility="{Binding VehicleEmptyVisibility}" />
+                                </Grid>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Style="{StaticResource Card}" Padding="16,14,6,6">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Top" Margin="0,0,10,10">
+                                    <TextBlock Text="Cổng sạc theo Hub" Style="{StaticResource H1}" />
+                                    <WrapPanel Margin="0,6,0,0">
+                                        <Border Style="{StaticResource Pill}" Background="{DynamicResource EmeraldSubtle}" Margin="0,0,6,4"><TextBlock Text="Trống" FontSize="10.5" Foreground="{DynamicResource EmeraldText}" /></Border>
+                                        <Border Style="{StaticResource Pill}" Background="{DynamicResource VioletSubtle}" Margin="0,0,6,4"><TextBlock Text="Đang sạc" FontSize="10.5" Foreground="{DynamicResource VioletText}" /></Border>
+                                        <Border Style="{StaticResource Pill}" Background="{DynamicResource SkySubtle}" Margin="0,0,6,4"><TextBlock Text="Đã cấp / kiểm tra" FontSize="10.5" Foreground="{DynamicResource SkyText}" /></Border>
+                                        <Border Style="{StaticResource Pill}" Background="{DynamicResource RoseSubtle}" Margin="0,0,6,4"><TextBlock Text="Lỗi / khoá" FontSize="10.5" Foreground="{DynamicResource RoseText}" /></Border>
+                                        <Border Style="{StaticResource Pill}" Background="{DynamicResource SurfaceAlt}" Margin="0,0,6,4"><TextBlock Text="Offline" FontSize="10.5" Foreground="{DynamicResource Text2}" /></Border>
+                                    </WrapPanel>
+                                </StackPanel>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding PortGroups}" Margin="0,0,10,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,0,0,12">
+                                                    <Grid Margin="0,0,0,6">
+                                                        <TextBlock Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" />
+                                                        <TextBlock Text="{Binding SummaryText}" FontSize="11" Foreground="{Binding SummaryBrush}" HorizontalAlignment="Right" />
+                                                    </Grid>
+                                                    <ItemsControl ItemsSource="{Binding Ports}" ItemTemplate="{StaticResource PortTileTemplate}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ===== Trang 3: Lịch sạc thông minh (UC-SYS-01 / UC-OP-04) ===== -->
+                <Grid Margin="22,18,22,16" Visibility="{Binding ChargingVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,14">
+                        <TextBlock Text="Lịch sạc thông minh" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Ưu tiên xe pin thấp và xe sắp cần dùng, trong giới hạn công suất của Hub; cổng lỗi được tự chuyển xe sang cổng khác." Style="{StaticResource PageSubtitle}" />
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="380" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <Grid>
+                                        <StackPanel>
+                                            <TextBlock Text="Hàng chờ sạc" Style="{StaticResource H1}" />
+                                            <TextBlock Text="{Binding ChargingSummaryText}" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,2,140,0" />
+                                        </StackPanel>
+                                        <ComboBox Style="{StaticResource ThemedComboBox}" ItemsSource="{Binding HubIds}"
+                                                  SelectedItem="{Binding ChargingHubId, Mode=TwoWay}"
+                                                  Width="130" Height="32" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="12.5" />
+                                    </Grid>
+                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="8" Padding="12,7" Margin="0,12,0,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="24" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="38" />
+                                                <ColumnDefinition Width="40" />
+                                                <ColumnDefinition Width="66" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="#" Style="{StaticResource Overline}" />
+                                            <TextBlock Grid.Column="1" Text="XE" Style="{StaticResource Overline}" />
+                                            <TextBlock Grid.Column="2" Text="PIN" Style="{StaticResource Overline}" />
+                                            <TextBlock Grid.Column="3" Text="ĐIỂM" Style="{StaticResource Overline}" />
+                                            <TextBlock Grid.Column="4" Text="CỔNG" Style="{StaticResource Overline}" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </Border>
                         <ListBox ItemsSource="{Binding ChargingQueue}"
                                  SelectedItem="{Binding SelectedQueueRow, Mode=TwoWay}"
                                  ItemContainerStyle="{StaticResource QueueItem}"
@@ -399,17 +893,36 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <WrapPanel Margin="0,6,0,0">
-                            <Button Content="▲ Ghim lên" Style="{StaticResource GhostButton}" Click="QueueUp_Click"
-                                    IsEnabled="{Binding CanMoveQueueUp}" Margin="0,0,6,6" />
-                            <Button Content="▼ Ghim xuống" Style="{StaticResource GhostButton}" Click="QueueDown_Click"
-                                    IsEnabled="{Binding CanMoveQueueDown}" Margin="0,0,6,6" />
-                            <Button Content="Lập lịch lại" Style="{StaticResource GhostButton}" Click="Reschedule_Click"
-                                    Margin="0,0,6,6" />
-                            <Button Content="Thêm 3 yêu cầu sạc (HUB-08)" Style="{StaticResource GhostButton}"
-                                    Click="ChargeDemo_Click" Margin="0,0,0,6" />
-                        </WrapPanel>
 
+                                    <WrapPanel Margin="0,10,0,0">
+                                        <Button Content="▲ Ghim lên" Style="{StaticResource GhostButton}" Click="QueueUp_Click"
+                                                IsEnabled="{Binding CanMoveQueueUp}" Margin="0,0,6,6" />
+                                        <Button Content="▼ Ghim xuống" Style="{StaticResource GhostButton}" Click="QueueDown_Click"
+                                                IsEnabled="{Binding CanMoveQueueDown}" Margin="0,0,6,6" />
+                                        <Button Content="Lập lịch lại" Style="{StaticResource PrimaryButton}" Click="Reschedule_Click"
+                                                Margin="0,0,6,6" />
+                                        <Button Content="Thêm 3 yêu cầu sạc (HUB-08)" Style="{StaticResource GhostButton}"
+                                                Click="ChargeDemo_Click" Margin="0,0,0,6" />
+                                    </WrapPanel>
+
+                                    <TextBlock Text="Cổng sạc của Hub" Style="{StaticResource H2}" Margin="0,14,0,4" />
+                                    <TextBlock Text="{Binding ChargingHubPorts.SummaryText}" Style="{StaticResource Caption}" Margin="0,0,0,8" />
+                                    <ItemsControl ItemsSource="{Binding ChargingHubPorts.Ports}" ItemTemplate="{StaticResource PortTileTemplate}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <Border Grid.Column="1" Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Quy tắc ưu tiên" Style="{StaticResource H1}" />
+                                <TextBlock Text="Điểm ưu tiên = pin thấp × w₁ + sắp cần xe × w₂ + cao điểm × w₃ (thang 0–100). Tổng trọng số phải bằng 1; giá trị sai bị từ chối và giữ trọng số cũ."
+                                           Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,4,0,12" />
                         <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                 BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,2,0,0">
                             <StackPanel>
@@ -449,91 +962,76 @@
                             </StackPanel>
                         </Border>
 
-                        <TextBlock Text="Cảnh báo gần đây" Style="{StaticResource H2}" Margin="0,14,0,6" />
-                        <ItemsControl ItemsSource="{Binding Alerts}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
-                                            BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
-                                        <StackPanel>
-                                            <Grid>
-                                                <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding TimeText}" Style="{StaticResource Caption}"
-                                                           HorizontalAlignment="Right" />
-                                            </Grid>
-                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="11"
-                                                       Margin="0,3,0,0" Foreground="{DynamicResource Text2}" />
-                                            <TextBlock Text="{Binding DeliveryText}" FontSize="10.5"
-                                                       Foreground="{Binding DeliveryBrush}" Margin="0,2,0,0" />
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
 
-                        <TextBlock Text="Kịch bản demo" Style="{StaticResource H2}" Margin="0,14,0,6" />
-                        <WrapPanel>
-                            <Button Content="Cổng CS-08-08 lỗi" Style="{StaticResource GhostButton}"
-                                    Click="BreakPort_Click" Margin="0,0,6,6" />
-                            <Button Content="Mất kết nối HUB-03" Style="{StaticResource GhostButton}"
-                                    Click="DisconnectHub_Click" Margin="0,0,6,6" />
-                            <Button Content="Dữ liệu cũ HUB-08" Style="{StaticResource GhostButton}"
-                                    Click="Stale_Click" Margin="0,0,6,6" />
-                            <Button Content="Mạng cảnh báo lỗi" Style="{StaticResource GhostButton}"
-                                    Click="BreakChannel_Click" Margin="0,0,6,6" />
-                            <Button Content="Khôi phục &amp; gửi lại" Style="{StaticResource GhostButton}"
-                                    Click="RestoreChannel_Click" Margin="0,0,6,6" />
-                            <Button Content="Sự cố mở khoá" Style="{StaticResource GhostButton}"
-                                    Click="Unlock_Click" Margin="0,0,6,6" />
-                        </WrapPanel>
+                                <Border Background="{DynamicResource PrimarySubtle}" CornerRadius="10" Padding="12" Margin="0,12,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Mẹo vận hành" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Text}" />
+                                        <TextBlock Text="• Chọn một yêu cầu đang chờ rồi Ghim lên/xuống để cố định thứ tự; yêu cầu đã ghim giữ chỗ khi lập lịch lại.&#x0a;• Cổng lỗi/offline không được cấp; xe đang sạc ở cổng lỗi được chuyển sang cổng khác."
+                                                   Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
 
-                        <WrapPanel Margin="0,2,0,0">
-                            <Button Content="+1 phút" Style="{StaticResource GhostButton}"
-                                    Click="Plus1_Click" Margin="0,0,6,6" />
-                            <Button Content="+5 phút" Style="{StaticResource GhostButton}"
-                                    Click="Plus5_Click" Margin="0,0,6,6" />
-                            <Button Content="+15 phút" Style="{StaticResource GhostButton}"
-                                    Click="Plus15_Click" Margin="0,0,6,6" />
-                            <Button Content="Đặt lại demo" Style="{StaticResource GhostButton}"
-                                    Click="Reset_Click" Margin="0,0,6,6" />
-                        </WrapPanel>
+                <!-- ===== Trang 4: Điều phối phương tiện ===== -->
+                <Grid Margin="22,18,22,16" Visibility="{Binding DispatchVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,14">
+                        <TextBlock Text="Điều phối phương tiện" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Phát hiện Hub dư xe (≥ 85%) và thiếu xe (≤ 35%), gợi ý lệnh điều chuyển về mức mục tiêu 65%; chỉ dùng xe thật đang sẵn sàng." Style="{StaticResource PageSubtitle}" />
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="420" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0" Padding="16,14,6,6">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Cân bằng tải giữa các Hub" Style="{StaticResource H1}" Margin="0,0,0,10" />
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding Hubs}" Margin="0,0,10,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}" BorderThickness="1" CornerRadius="10" Padding="10,8" Margin="0,0,0,6">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <TextBlock Text="{Binding Name}" FontSize="12.5" FontWeight="SemiBold" />
+                                                            <Border Style="{StaticResource Pill}" Background="{Binding ImbalanceBackground}" HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding ImbalanceTag}" FontSize="10.5" FontWeight="SemiBold" Foreground="{Binding ImbalanceBrush}" />
+                                                            </Border>
+                                                        </Grid>
+                                                        <Grid Margin="0,6,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <ProgressBar Style="{StaticResource Meter}" Value="{Binding ParkingPercent, Mode=OneWay}" Foreground="{Binding ParkingBrush}" VerticalAlignment="Center" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding ParkingText}" FontSize="11" Foreground="{DynamicResource Text2}" Margin="10,0,0,0" />
+                                                        </Grid>
+                                                        <Grid Margin="0,4,0,0">
+                                                            <TextBlock Text="{Binding VehiclesText}" Style="{StaticResource Caption}" />
+                                                            <TextBlock Text="{Binding FreeSlotsText}" Style="{StaticResource Caption}" HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét" IsChecked="{Binding AutoScan}" FontSize="11.5"
-                                      VerticalAlignment="Center" Margin="0,0,14,0" />
-                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="11.5"
-                                      VerticalAlignment="Center" />
-                        </StackPanel>
-
-                        <TextBlock Text="Giám sát mạng lưới Hub" Style="{StaticResource H2}" Margin="0,14,0,6" />
-                        <ItemsControl ItemsSource="{Binding Hubs}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
-                                        BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
-                                        <StackPanel>
-                                            <Grid>
-                                                <TextBlock Text="{Binding Name}" FontSize="11.5" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold"
-                                                    Foreground="{Binding StatusBrush}" HorizontalAlignment="Right" />
-                                            </Grid>
-                                            <Grid Margin="0,3,0,0">
-                                                <TextBlock Text="{Binding LoadText}" Style="{StaticResource Caption}" />
-                                                <TextBlock Text="{Binding UtilizationText}" FontSize="11" FontWeight="SemiBold"
-                                                    Foreground="{Binding UtilizationBrush}" HorizontalAlignment="Right" />
-                                            </Grid>
-                                            <Grid Margin="0,2,0,0">
-                                                <TextBlock Text="{Binding FreeSlotsText}" Style="{StaticResource Caption}" />
-                                                <TextBlock Text="{Binding FreeChargersText}" Style="{StaticResource Caption}"
-                                                    HorizontalAlignment="Right" />
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <TextBlock Text="Điều phối phương tiện" Style="{StaticResource H2}" Margin="0,14,0,6" />    
+                        <Border Grid.Column="1" Style="{StaticResource Card}">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Top">
+                                    <TextBlock Text="Lệnh điều phối" Style="{StaticResource H1}" Margin="0,0,0,10" />
+                                </StackPanel>
+<ScrollViewer VerticalScrollBarVisibility="Auto">
                         <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
                                 BorderThickness="1" CornerRadius="8" Padding="8">
                             <StackPanel>
@@ -570,11 +1068,11 @@
                                 </Grid>
 
                                 <WrapPanel Margin="0,8,0,0">
-                                    <Button Content="Gợi ý &amp; tạo" Style="{StaticResource GhostButton}"
+                                    <Button Content="Gợi ý tự động" Style="{StaticResource GhostButton}"
                                             Click="SuggestDispatch_Click" Margin="0,0,6,6" />
-                                    <Button Content="Gửi lệnh" Style="{StaticResource PrimaryButton}"
+                                    <Button Content="Tạo lệnh" Style="{StaticResource PrimaryButton}"
                                             Click="CreateDispatch_Click" Margin="0,0,6,6" />
-                                    <Button Content="Bắt đầu" Style="{StaticResource GhostButton}"
+                                    <Button Content="Xuất phát" Style="{StaticResource GhostButton}"
                                             Click="ExecuteDispatch_Click" IsEnabled="{Binding CanExecuteDispatch}" Margin="0,0,6,6" />
                                     <Button Content="Hoàn tất" Style="{StaticResource GhostButton}"
                                             Click="CompleteDispatch_Click" IsEnabled="{Binding CanCompleteDispatch}" Margin="0,0,0,6" />
@@ -583,7 +1081,7 @@
                                 <ListBox ItemsSource="{Binding DispatchOrders}"
                                         SelectedItem="{Binding SelectedDispatchOrder, Mode=TwoWay}"
                                         HorizontalContentAlignment="Stretch"
-                                        BorderThickness="0" Background="Transparent" MaxHeight="140">
+                                        BorderThickness="0" Background="Transparent">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Border Background="{DynamicResource Surface}" BorderBrush="{DynamicResource Border}"
@@ -611,28 +1109,120 @@
                             </StackPanel>
                         </Border>
 
-                        <TextBlock Text="Nhật ký hệ thống" Style="{StaticResource H2}" Margin="0,14,0,6" />
-                        <Border Background="#0F172A" CornerRadius="8" Padding="8" MaxHeight="130">
+
+</ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ===== Trang 5: Kịch bản demo & nhật ký ===== -->
+                <Grid Margin="22,18,22,16" Visibility="{Binding DemoVisibility}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="0,0,0,14">
+                        <TextBlock Text="Kịch bản demo &amp; nhật ký" Style="{StaticResource PageTitle}" />
+                        <TextBlock Text="Giả lập sự kiện IoT và vận hành (không thuộc sản phẩm thật) để trình diễn các luồng ngoại lệ." Style="{StaticResource PageSubtitle}" />
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding Logs}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}" FontFamily="Consolas" FontSize="10"
-                                                       Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,2" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                <StackPanel>
+                                    <TextBlock Text="Sự kiện thiết bị &amp; mạng" Style="{StaticResource H2}" Margin="0,0,0,8" />
+                                    <UniformGrid Columns="2">
+                                        <Button Style="{StaticResource GhostButton}" Click="BreakPort_Click" Margin="0,0,6,6" HorizontalContentAlignment="Left">
+                                            <StackPanel><TextBlock Text="Cổng CS-08-08 lỗi" FontWeight="SemiBold" /><TextBlock Text="Cảm biến báo lỗi → sự cố + cảnh báo" Style="{StaticResource Caption}" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource GhostButton}" Click="DisconnectHub_Click" Margin="0,0,0,6" HorizontalContentAlignment="Left">
+                                            <StackPanel><TextBlock Text="Mất kết nối HUB-03" FontWeight="SemiBold" /><TextBlock Text="Hub và 4 cổng chuyển Offline" Style="{StaticResource Caption}" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource GhostButton}" Click="Stale_Click" Margin="0,0,6,6" HorizontalContentAlignment="Left">
+                                            <StackPanel><TextBlock Text="Dữ liệu cũ HUB-08" FontWeight="SemiBold" /><TextBlock Text="Dữ liệu 14 phút → cảnh báo STALE" Style="{StaticResource Caption}" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource GhostButton}" Click="Unlock_Click" Margin="0,0,0,6" HorizontalContentAlignment="Left">
+                                            <StackPanel><TextBlock Text="Sự cố mở khoá" FontWeight="SemiBold" /><TextBlock Text="XE-121 không xác nhận mở khoá" Style="{StaticResource Caption}" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource GhostButton}" Click="BreakChannel_Click" Margin="0,0,6,6" HorizontalContentAlignment="Left">
+                                            <StackPanel><TextBlock Text="Mạng cảnh báo lỗi" FontWeight="SemiBold" /><TextBlock Text="Cảnh báo vào hàng đợi gửi lại" Style="{StaticResource Caption}" /></StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource GhostButton}" Click="RestoreChannel_Click" Margin="0,0,0,6" HorizontalContentAlignment="Left">
+                                            <StackPanel><TextBlock Text="Khôi phục &amp; gửi lại" FontWeight="SemiBold" /><TextBlock Text="Sau 30 giây gửi lại cảnh báo" Style="{StaticResource Caption}" /></StackPanel>
+                                        </Button>
+                                    </UniformGrid>
+
+                                    <TextBlock Text="Thời gian mô phỏng" Style="{StaticResource H2}" Margin="0,14,0,8" />
+                                    <WrapPanel>
+                                        <Button Content="+1 phút" Style="{StaticResource GhostButton}" Click="Plus1_Click" Margin="0,0,6,6" />
+                                        <Button Content="+5 phút" Style="{StaticResource GhostButton}" Click="Plus5_Click" Margin="0,0,6,6" />
+                                        <Button Content="+15 phút" Style="{StaticResource GhostButton}" Click="Plus15_Click" Margin="0,0,6,6" />
+                                        <Button Content="Đặt lại demo" Style="{StaticResource GhostButton}" Foreground="{DynamicResource Danger}" Click="Reset_Click" Margin="0,0,6,6" />
+                                    </WrapPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét" IsChecked="{Binding AutoScan}" FontSize="12" Margin="0,0,16,0" />
+                                        <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="12" />
+                                    </StackPanel>
+
+                                    <TextBlock Text="Cảnh báo gần đây" Style="{StaticResource H2}" Margin="0,16,0,8" />
+                        <ItemsControl ItemsSource="{Binding Alerts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
+                                            BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding TimeText}" Style="{StaticResource Caption}"
+                                                           HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="11"
+                                                       Margin="0,3,0,0" Foreground="{DynamicResource Text2}" />
+                                            <TextBlock Text="{Binding DeliveryText}" FontSize="10.5"
+                                                       Foreground="{Binding DeliveryBrush}" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+
+                                </StackPanel>
                             </ScrollViewer>
                         </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
+                        <Border Grid.Column="1" Style="{StaticResource Card}">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Nhật ký hệ thống" Style="{StaticResource H2}" Margin="0,0,0,8" />
+                                <Border Background="{DynamicResource LogBg}" CornerRadius="10" Padding="12">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <ItemsControl ItemsSource="{Binding Logs}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" FontFamily="Cascadia Mono, Consolas" FontSize="11"
+                                                               Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,3" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
 
         <!-- STATUS BAR -->
         <Border Grid.Row="2" Background="#0F172A" Padding="18,7">
             <Grid>
-                <TextBlock Text="{Binding LastActionText}" Foreground="#E2E8F0" FontSize="11.5" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE946;" FontFamily="{StaticResource IconFont}" FontSize="11" Foreground="#60A5FA" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="{Binding LastActionText}" Foreground="#E2E8F0" FontSize="11.5" />
+                </StackPanel>
                 <TextBlock Text="Nhóm 21 · CO3001 · Dữ liệu mô phỏng" Foreground="#64748B" FontSize="11"
                            HorizontalAlignment="Right" />
             </Grid>

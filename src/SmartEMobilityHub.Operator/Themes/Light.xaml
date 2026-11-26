@@ -17,4 +17,21 @@
     <SolidColorBrush x:Key="FilterText" Color="#334155" />
     <SolidColorBrush x:Key="ChipHover" Color="#E2E8F0" />
     <SolidColorBrush x:Key="SelectedBorder" Color="#93C5FD" />
+
+    <!-- Thanh bên + thẻ KPI (bản nâng cấp giao diện). -->
+    <SolidColorBrush x:Key="Sidebar" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="NavSelected" Color="#EFF6FF" />
+    <SolidColorBrush x:Key="NavSelectedText" Color="#1D4ED8" />
+    <SolidColorBrush x:Key="Track" Color="#E2E8F0" />
+    <SolidColorBrush x:Key="AmberSubtle" Color="#FEF3C7" />
+    <SolidColorBrush x:Key="AmberText" Color="#B45309" />
+    <SolidColorBrush x:Key="SkySubtle" Color="#E0F2FE" />
+    <SolidColorBrush x:Key="SkyText" Color="#0369A1" />
+    <SolidColorBrush x:Key="VioletSubtle" Color="#EDE9FE" />
+    <SolidColorBrush x:Key="VioletText" Color="#6D28D9" />
+    <SolidColorBrush x:Key="EmeraldSubtle" Color="#D1FAE5" />
+    <SolidColorBrush x:Key="EmeraldText" Color="#047857" />
+    <SolidColorBrush x:Key="RoseSubtle" Color="#FFE4E6" />
+    <SolidColorBrush x:Key="RoseText" Color="#BE123C" />
+    <SolidColorBrush x:Key="LogBg" Color="#0F172A" />
 </ResourceDictionary>

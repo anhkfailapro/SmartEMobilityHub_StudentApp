@@ -18,13 +18,22 @@ internal static class Texts
 
     public static (Brush Background, Brush Foreground) StatusTone(IncidentStatus status) => status switch
     {
-        IncidentStatus.New => (Brush("#FEF3C7"), Brush("#B45309")),
-        IncidentStatus.UnderCheck => (Brush("#E0F2FE"), Brush("#0369A1")),
-        IncidentStatus.Locked => (Brush("#FEE2E2"), Brush("#B91C1C")),
-        IncidentStatus.InRepair => (Brush("#EDE9FE"), Brush("#6D28D9")),
-        IncidentStatus.Resolved => (Brush("#D1FAE5"), Brush("#047857")),
-        _ => (Brush("#F1F5F9"), Brush("#64748B"))
+        IncidentStatus.New => Tone("#FEF3C7", "#B45309", "#FCD34D"),
+        IncidentStatus.UnderCheck => Tone("#E0F2FE", "#0369A1", "#7DD3FC"),
+        IncidentStatus.Locked => Tone("#FEE2E2", "#B91C1C", "#FCA5A5"),
+        IncidentStatus.InRepair => Tone("#EDE9FE", "#6D28D9", "#C4B5FD"),
+        IncidentStatus.Resolved => Tone("#D1FAE5", "#047857", "#6EE7B7"),
+        _ => Tone("#F1F5F9", "#64748B", "#94A3B8")
     };
+
+    /// <summary>
+    /// Cặp màu nền/chữ cho nhãn trạng thái theo chế độ Sáng/Tối. Chế độ tối dùng nền là màu chữ trong suốt 15%,
+    /// tránh nhãn nền sáng chói trên giao diện tối (lỗi cũ: màu nhãn cố định theo chế độ sáng).
+    /// </summary>
+    public static (Brush Background, Brush Foreground) Tone(string lightBg, string lightFg, string darkFg) =>
+        Themes.OperatorTheme.IsDark
+            ? (Brush("#26" + darkFg.TrimStart('#')), Brush(darkFg))
+            : (Brush(lightBg), Brush(lightFg));
 
     public static string Priority(PriorityLevel priority) => priority switch
     {
@@ -255,47 +264,6 @@ public sealed class FilterOption
 
     public bool Matches(IncidentStatus status) => Statuses.Count == 0 || Statuses.Contains(status);
 }
-public sealed class HubRow
-{
-    public string HubId { get; }
-    public string Name { get; }
-    public string StatusText { get; }
-    public Brush StatusBrush { get; }
-    public string LoadText { get; }
-    public string UtilizationText { get; }
-    public Brush UtilizationBrush { get; }
-    public string FreeSlotsText { get; }
-    public string FreeChargersText { get; }
-    public string ImbalanceTag { get; }
-
-    public HubRow(MobilityHub hub)
-    {
-        HubId = hub.Id;
-        Name = string.IsNullOrWhiteSpace(hub.ShortName) ? hub.Name : $"{hub.Id} · {hub.ShortName}";
-
-        var isOnline = hub.Status == HubStatus.Online && hub.Connection == ConnectionStatus.Online;
-        StatusText = hub.Status == HubStatus.Suspended
-            ? "Tạm dừng"
-            : isOnline ? "Hoạt động" : "Mất kết nối / Offline";
-        StatusBrush = Texts.Brush(hub.Status == HubStatus.Suspended ? "#DC2626" : isOnline ? "#10B981" : "#F59E0B");
-
-        LoadText = $"{hub.OccupiedParkingSlots}/{hub.ParkingCapacity} chỗ";
-        var utilPct = hub.MaxUtilization * 100.0;
-        UtilizationText = $"{utilPct:0}%";
-        UtilizationBrush = Texts.Brush(utilPct >= 90 ? "#DC2626" : utilPct >= 80 ? "#EA580C" : "#0284C7");
-
-        FreeSlotsText = $"Trống {hub.FreeParkingSlots} chỗ";
-        var freeChargers = hub.ChargingPoints.Count(p => p.Status == DeviceStatus.Available);
-        FreeChargersText = $"{freeChargers}/{hub.UsableChargingPorts} sạc trống";
-
-        ImbalanceTag = hub.ParkingUtilization >= 0.85
-            ? "Dư xe / Cao"
-            : hub.ParkingUtilization <= 0.35
-                ? "Thiếu xe"
-                : "Cân bằng";
-    }
-}
-
 public sealed class DispatchOrderRow
 {
     public string OrderId { get; }

@@ -23,11 +23,14 @@ namespace SmartEMobilityHub.Ui
 
             sp.Children.Add(Heading("Liên thông Trung tâm điều hành"));
             sp.Children.Add(Note("Mở bảng điều khiển của người vận hành dùng chung dữ liệu với app này: đặt / nhận / trả xe, báo lỗi, yêu cầu sạc hiện ngay bên Operator; Operator tạm dừng Hub, khoá xe, điều phối xe thì app Sinh viên cập nhật theo. Tài khoản Operator demo: op01 / op123456."));
-            sp.Children.Add(Btn("Mở Trung tâm điều hành (dùng chung dữ liệu)", () =>
+            var open = Btn("Mở Trung tâm điều hành (dùng chung dữ liệu)", () =>
             {
                 DemoApp.Link.OpenOperatorDashboard();
                 SetStatus("Đăng nhập Operator để mở bảng điều khiển liên thông.");
-            }, true));
+            }, true);
+            if (Application.Current.TryFindResource("DemoPrimaryButton") is Style primary) open.Style = primary;
+            open.Padding = new Thickness(12, 9, 12, 9);
+            sp.Children.Add(open);
 
             sp.Children.Add(Heading("Thời gian demo"));
             _clock = Note("");
@@ -99,13 +102,15 @@ namespace SmartEMobilityHub.Ui
             if (_status != null) _status.Text = text;
         }
 
-        private static TextBlock Heading(string text) => new()
+        private static UIElement Heading(string text)
         {
-            Text = text,
-            FontSize = 14,
-            FontWeight = FontWeights.Bold,
-            Margin = new Thickness(0, 14, 0, 6)
-        };
+            var bar = new Border { Width = 4, Height = 16, CornerRadius = new CornerRadius(2), Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            bar.Background = new LinearGradientBrush((Color)ColorConverter.ConvertFromString("#2563EB"), (Color)ColorConverter.ConvertFromString("#7C3AED"), 90);
+            var sp = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 16, 0, 8) };
+            sp.Children.Add(bar);
+            sp.Children.Add(new TextBlock { Text = text, FontSize = 14, FontWeight = FontWeights.Bold, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F172A")) });
+            return sp;
+        }
 
         private static TextBlock Note(string text) => new()
         {
@@ -121,8 +126,9 @@ namespace SmartEMobilityHub.Ui
             var b = new Button
             {
                 Content = new TextBlock { Text = label, TextWrapping = TextWrapping.Wrap },
-                Padding = new Thickness(8, 4, 8, 4),
+                Padding = new Thickness(10, 6, 10, 6),
                 Margin = new Thickness(0, 0, 6, 6),
+                Style = Application.Current.TryFindResource("DemoButton") as Style,
                 HorizontalAlignment = stretch ? HorizontalAlignment.Stretch : HorizontalAlignment.Left,
                 HorizontalContentAlignment = HorizontalAlignment.Left
             };

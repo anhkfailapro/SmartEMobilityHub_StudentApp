@@ -40,6 +40,9 @@ namespace SmartEMobilityHub.Capture
             await ShotKit.Settle();
         }
 
+        private static bool Visible(string text) =>
+            ShotKit.Flatten(_phone).OfType<System.Windows.Controls.TextBlock>().Any(t => t.IsVisible && t.Text == text);
+
         private static async Task T(int index, string text)
         {
             _kit.Type(_phone, index, text);
@@ -344,7 +347,8 @@ namespace SmartEMobilityHub.Capture
             toggles.AnotherStudentReservesFirst = true;
             await C("EB-1040");
             await C("Đặt trước");
-            await C("Xác nhận đặt");
+            // Xung đột có thể được phát hiện ngay khi bấm "Đặt trước" (hộp thoại hiện luôn) — chỉ bấm "Xác nhận đặt" nếu màn hình xác nhận còn hiện.
+            if (Visible("Xác nhận đặt")) await C("Xác nhận đặt");
             await Dialog("Ngoại lệ 2a – Xe vừa được sinh viên khác đặt",
                 "Hai sinh viên cùng đặt một xe: người xác nhận sau nhận thông báo xe đã được đặt và quay về danh sách để chọn xe khác.");
             toggles.AnotherStudentReservesFirst = false;
@@ -380,6 +384,19 @@ namespace SmartEMobilityHub.Capture
             await Tab(NavTab.Account);
             await Shot("Tài khoản",
                 "Màn hình Tài khoản của sinh viên (vai trò Sinh viên và Chủ xe điện cá nhân) với tùy chọn Chế độ tối.");
+
+            // ===== Tùy chỉnh chế độ giao diện =====
+            _kit.Section = "Tùy chỉnh chế độ giao diện";
+            Theme.IsDark = true;
+            Shell.Refresh();
+            await ShotKit.Settle();
+            await Shot("Chế độ tối – Tài khoản",
+                "Bật “Chế độ tối” trong Tài khoản: toàn bộ ứng dụng chuyển sang bảng màu tối ngay lập tức.");
+            await Tab(NavTab.Home);
+            await Shot("Chế độ tối – Trang chủ",
+                "Trang chủ ở chế độ tối: thẻ tìm điểm đến, bản đồ mini và danh sách Hub dùng bảng màu tối.");
+            Theme.IsDark = false;
+            Shell.Refresh();
         }
     }
 }

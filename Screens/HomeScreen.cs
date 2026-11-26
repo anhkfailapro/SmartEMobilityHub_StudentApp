@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media;
 using SmartEMobilityHub.Data;
 using SmartEMobilityHub.Models;
 using SmartEMobilityHub.Services;
@@ -17,9 +18,23 @@ namespace SmartEMobilityHub.Screens
         public override UIElement BuildContent()
         {
             var store = DemoApp.Store;
-            var root = Stack(16, Stack(4,
-                Text($"Xin chào, {store.StudentName}", TextKind.Body, Theme.Text2),
-                Text("Bạn muốn đi đâu hôm nay?", TextKind.Title)));
+
+            // Thẻ tiêu đề gradient: lời chào, ô tìm điểm đến và tóm tắt mạng lưới gần thời gian thực.
+            var go = Button("Tìm", ButtonVariant.Secondary, Search, true, Icons.Search);
+            if (!Theme.IsDark) go.Background = Brushes.White;
+            var available = store.Vehicles.Count(v => v.Status == VehicleStatus.Available);
+            var freePoints = store.Hubs.Sum(h => h.FreePoints);
+            var openHubs = store.Hubs.Count(h => !h.IsSuspended);
+            var hello = Text($"Xin chào, {store.StudentName}", TextKind.Body, Theme.OnHero2);
+            var title = Text("Bạn muốn đi đâu hôm nay?", TextKind.Title, Brushes.White);
+            var stats = Columns(8,
+                HeroStat(available.ToString(), "xe sẵn sàng"),
+                HeroStat(openHubs.ToString(), "Hub hoạt động"),
+                HeroStat(freePoints.ToString(), "cổng sạc trống"));
+            var root = Stack(16, Hero(Stack(14,
+                Stack(4, hello, title),
+                Split(InputBox("Nhập điểm đến (VD: Thư viện Trung tâm)", _destination, v => _destination = v, false, Search), go),
+                stats)));
 
             var trip = store.ActiveTrip;
             if (trip != null)
@@ -28,8 +43,7 @@ namespace SmartEMobilityHub.Screens
             if (held != null)
                 Add(root, OnClick(Banner(Tone.Warning, $"Đang giữ xe {held.VehicleCode} đến {DemoConfig.Time(held.HoldUntil)}. Nhấn để xem mã nhận xe."), () => Shell.Navigate(new ReservationScreen())), 16);
 
-            var go = Button("Tìm", ButtonVariant.Primary, Search, true, Icons.Search);
-            Add(root, Split(InputBox("Nhập điểm đến (VD: Thư viện Trung tâm)", _destination, v => _destination = v), go), 16);
+            Add(root, Section("Điểm đến phổ biến"), 4);
             Add(root, ChipGroup(JourneyPlanner.Destinations.Select(d => d.Name), "", n => n, n =>
             {
                 _destination = n;
@@ -66,6 +80,18 @@ namespace SmartEMobilityHub.Screens
                 return;
             }
             Shell.Navigate(new JourneyResultScreen(_destination));
+        }
+
+        private static UIElement HeroStat(string value, string label)
+        {
+            var b = new System.Windows.Controls.Border
+            {
+                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(38, 255, 255, 255)),
+                CornerRadius = new CornerRadius(14),
+                Padding = new Thickness(10, 8, 10, 8),
+                Child = Stack(0, Text(value, TextKind.Heading, Brushes.White, false), Text(label, TextKind.Caption, Theme.OnHero2, false))
+            };
+            return b;
         }
 
         private static UIElement QuickAction(string glyph, string label, Tone tone, Action action)

@@ -42,6 +42,53 @@ namespace SmartEMobilityHub.Ui
         public static SolidColorBrush Sky => B("#0EA5E9", "#0EA5E9");
         public static SolidColorBrush SkySubtle => B("#E0F2FE", "#0C4A6E");
 
+        // ===== Bản nâng cấp giao diện: gradient + đổ bóng mềm =====
+        private static readonly Dictionary<string, Brush> GradientCache = new();
+
+        private static Brush Gradient(string key, double angleX, double angleY, params string[] stops)
+        {
+            if (GradientCache.TryGetValue(key, out var cached)) return cached;
+            var g = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(angleX, angleY) };
+            for (var i = 0; i < stops.Length; i++)
+                g.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(stops[i]), stops.Length == 1 ? 0 : (double)i / (stops.Length - 1)));
+            g.Freeze();
+            GradientCache[key] = g;
+            return g;
+        }
+
+        /// <summary>Nút chính và chip đang chọn.</summary>
+        public static Brush PrimaryGradient => IsDark
+            ? Gradient("pg-d", 1, 0, "#3B82F6", "#6366F1")
+            : Gradient("pg-l", 1, 0, "#2563EB", "#4F46E5");
+
+        /// <summary>Thẻ tiêu đề lớn (Trang chủ, chuyến đi, giữ xe).</summary>
+        public static Brush HeroGradient => IsDark
+            ? Gradient("hg-d", 1, 1, "#1E3A8A", "#312E81", "#4C1D95")
+            : Gradient("hg-l", 1, 1, "#2563EB", "#4F46E5", "#7C3AED");
+
+        public static Brush MapGradient => IsDark
+            ? Gradient("mg-d", 1, 1, "#0C4A6E", "#1E293B")
+            : Gradient("mg-l", 1, 1, "#E0F2FE", "#EEF2FF");
+
+        public static SolidColorBrush Park => B("#BBF7D0", "#14532D");
+        public static SolidColorBrush OnHero2 => B("#DBEAFE", "#C7D2FE");
+
+        /// <summary>Bóng đổ mềm cho thẻ (tắt ở chế độ tối vì nền tối không cần bóng).</summary>
+        public static System.Windows.Media.Effects.Effect? SoftShadow(double blur = 22, double depth = 3, double opacity = 0.07, string color = "#0F172A")
+        {
+            if (IsDark) return null;
+            var e = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                BlurRadius = blur,
+                ShadowDepth = depth,
+                Direction = 270,
+                Opacity = opacity,
+                Color = (Color)ColorConverter.ConvertFromString(color)
+            };
+            e.Freeze();
+            return e;
+        }
+
         public static (SolidColorBrush Background, SolidColorBrush Foreground) ToneBrushes(Tone tone) => tone switch
         {
             Tone.Success => (SuccessSubtle, Success),

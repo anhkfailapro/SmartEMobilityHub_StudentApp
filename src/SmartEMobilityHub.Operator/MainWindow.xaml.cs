@@ -9,6 +9,9 @@ namespace SmartEMobilityHub.Operator;
 public partial class MainWindow : Window
 {
     private OperatorDemo _demo = null!;
+
+    /// <summary>Mạng lưới đang gắn với cửa sổ (dùng cho kịch bản chụp màn hình).</summary>
+    internal OperatorDemo Demo => _demo;
     private MainViewModel _viewModel = null!;
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(1) };
 
@@ -28,8 +31,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         UpdateThemeButton();
         FitToWorkArea(this);
-        OperatorTheme.Changed += UpdateThemeButton;
-        Closed += (_, _) => OperatorTheme.Changed -= UpdateThemeButton;
+        OperatorTheme.Changed += OnThemeChanged;
+        Closed += (_, _) => OperatorTheme.Changed -= OnThemeChanged;
 
         _linked = sharedDemo is not null;
         if (sharedDemo is null) ResetDemo();
@@ -71,10 +74,19 @@ public partial class MainWindow : Window
         OperatorRoleText.Text = op is null ? account.LinkedId : $"{op.Role} · {op.ShiftLabel}";
     }
 
-    private void Theme_Click(object sender, RoutedEventArgs e)
+    private void Theme_Click(object sender, RoutedEventArgs e) => OperatorTheme.Toggle();
+
+    /// <summary>Đổi Sáng/Tối: cập nhật nút và dựng lại các dòng có màu nhãn theo chế độ (nhãn trạng thái, thẻ Hub…).</summary>
+    private void OnThemeChanged()
     {
-        OperatorTheme.Toggle();
         UpdateThemeButton();
+        _viewModel?.Refresh();
+    }
+
+    /// <summary>Bấm thẻ Hub (trang Tổng quan): mở trang Phương tiện &amp; cổng sạc lọc theo Hub.</summary>
+    private void HubCard_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string hubId }) _viewModel.OpenHubAssets(hubId);
     }
 
     private void UpdateThemeButton() =>

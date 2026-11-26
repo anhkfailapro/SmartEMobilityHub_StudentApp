@@ -6,17 +6,38 @@
         xmlns:local="clr-namespace:SmartEMobilityHub"
         mc:Ignorable="d"
         Title="Smart E-Mobility Hub – Student App (Demo)" Height="940" Width="900"
-        WindowStartupLocation="CenterScreen" Background="#E2E8F0">
+        WindowStartupLocation="CenterScreen">
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E0E7FF" Offset="0" />
+            <GradientStop Color="#F1F5F9" Offset="0.55" />
+            <GradientStop Color="#E0F2FE" Offset="1" />
+        </LinearGradientBrush>
+    </Window.Background>
     <Viewbox Stretch="Uniform">
         <Grid Width="840" Height="900" Margin="16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Width="410" Height="868" CornerRadius="44" Background="#0F172A" Padding="10" VerticalAlignment="Top">
-                <Border x:Name="PhoneHost" Width="390" Height="848" CornerRadius="34" ClipToBounds="True" Background="White"/>
+            <!-- Khung điện thoại: viền kim loại tối + bóng đổ. -->
+            <Border Width="410" Height="868" CornerRadius="48" Padding="10" VerticalAlignment="Top">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#1E293B" Offset="0" />
+                        <GradientStop Color="#0F172A" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" ShadowDepth="12" Direction="270" Opacity="0.28" Color="#1E1B4B" />
+                </Border.Effect>
+                <Border x:Name="PhoneHost" Width="390" Height="848" CornerRadius="38" ClipToBounds="True" Background="White"/>
             </Border>
-            <Border x:Name="DemoPanelHost" Grid.Column="1" Margin="16,0,0,0" Background="White" CornerRadius="12" Padding="14"/>
+            <Border x:Name="DemoPanelHost" Grid.Column="1" Margin="18,0,0,0" Background="White" CornerRadius="20" Padding="16">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30" ShadowDepth="6" Direction="270" Opacity="0.10" Color="#0F172A" />
+                </Border.Effect>
+            </Border>
         </Grid>
     </Viewbox>
 </Window>

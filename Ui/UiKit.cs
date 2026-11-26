@@ -123,12 +123,32 @@ namespace SmartEMobilityHub.Ui
         public static Border Panel(UIElement child, Brush? background = null) => new()
         {
             Background = background ?? Theme.Surface,
-            BorderBrush = Theme.Border,
+            BorderBrush = Theme.IsDark ? Theme.Border : Theme.SurfaceAlt,
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(16),
+            CornerRadius = new CornerRadius(18),
             Padding = new Thickness(16),
-            Child = child
+            Child = child,
+            Effect = Theme.SoftShadow()
         };
+
+        /// <summary>Thẻ nền gradient (tiêu đề Trang chủ, đồng hồ chuyến đi…).</summary>
+        public static Border Hero(UIElement child) => new()
+        {
+            Background = Theme.HeroGradient,
+            CornerRadius = new CornerRadius(24),
+            Padding = new Thickness(18),
+            Child = child,
+            Effect = Theme.SoftShadow(26, 6, 0.28, "#4F46E5")
+        };
+
+        /// <summary>Hiệu ứng rê chuột: hơi mờ khi hover, đậm lại khi rời (WPF không có hover mặc định cho Border).</summary>
+        public static T Hover<T>(T element) where T : UIElement
+        {
+            var baseOpacity = element.Opacity;
+            element.MouseEnter += (_, _) => element.Opacity = baseOpacity * 0.88;
+            element.MouseLeave += (_, _) => element.Opacity = baseOpacity;
+            return element;
+        }
 
         public static Border Card(params UIElement?[] children) => Panel(Stack(12, children));
 
@@ -178,9 +198,9 @@ namespace SmartEMobilityHub.Ui
             Brush bg, fg, border;
             switch (variant)
             {
-                case ButtonVariant.Primary: bg = Theme.Primary; fg = Theme.OnPrimary; border = Theme.Primary; break;
+                case ButtonVariant.Primary: bg = Theme.PrimaryGradient; fg = Theme.OnPrimary; border = Brushes.Transparent; break;
                 case ButtonVariant.Secondary: bg = Theme.PrimarySubtle; fg = Theme.Primary; border = Theme.PrimarySubtle; break;
-                case ButtonVariant.Danger: bg = Theme.Danger; fg = Theme.OnPrimary; border = Theme.Danger; break;
+                case ButtonVariant.Danger: bg = Theme.Danger; fg = Theme.OnPrimary; border = Brushes.Transparent; break;
                 case ButtonVariant.DangerSubtle: bg = Theme.DangerSubtle; fg = Theme.Danger; border = Theme.DangerSubtle; break;
                 case ButtonVariant.DangerOutline: bg = Theme.Surface; fg = Theme.Danger; border = Theme.Danger; break;
                 case ButtonVariant.Charging: bg = Theme.ChargingSubtle; fg = Theme.Charging; border = Theme.ChargingSubtle; break;
@@ -204,13 +224,19 @@ namespace SmartEMobilityHub.Ui
                 Background = bg,
                 BorderBrush = border,
                 BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(12),
+                CornerRadius = new CornerRadius(14),
                 MinHeight = 48,
                 Padding = new Thickness(12, 8, 12, 8),
                 Child = content,
                 Opacity = enabled ? 1 : 0.4
             };
-            if (enabled && onClick != null) OnClick(b, onClick);
+            if (enabled && variant is ButtonVariant.Primary or ButtonVariant.Danger)
+                b.Effect = Theme.SoftShadow(16, 4, 0.22, variant == ButtonVariant.Primary ? "#2563EB" : "#DC2626");
+            if (enabled && onClick != null)
+            {
+                OnClick(b, onClick);
+                Hover(b);
+            }
             return b;
         }
 
@@ -218,8 +244,8 @@ namespace SmartEMobilityHub.Ui
         {
             var b = new Border
             {
-                Background = selected ? Theme.Primary : Theme.Surface,
-                BorderBrush = selected ? Theme.Primary : Theme.Border,
+                Background = selected ? Theme.PrimaryGradient : Theme.Surface,
+                BorderBrush = selected ? Brushes.Transparent : Theme.Border,
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(18),
                 Padding = new Thickness(14, 8, 14, 8),
@@ -253,12 +279,13 @@ namespace SmartEMobilityHub.Ui
                     CornerRadius = new CornerRadius(10),
                     Padding = new Thickness(6, 8, 6, 8),
                     Background = on ? Theme.Surface : Brushes.Transparent,
-                    Child = Centered(Text(options[i], TextKind.Subtitle, on ? Theme.Primary : Theme.Text2))
+                    Child = Centered(Text(options[i], TextKind.Subtitle, on ? Theme.Primary : Theme.Text2)),
+                    Effect = on ? Theme.SoftShadow(8, 1, 0.08) : null
                 };
                 OnClick(item, () => onSelect(index));
                 g.Children.Add(item);
             }
-            return new Border { Background = Theme.SurfaceAlt, CornerRadius = new CornerRadius(12), Padding = new Thickness(4), Child = g };
+            return new Border { Background = Theme.SurfaceAlt, CornerRadius = new CornerRadius(14), Padding = new Thickness(4), Child = g };
         }
 
         public static Border Badge(string label, Tone tone)
@@ -286,7 +313,7 @@ namespace SmartEMobilityHub.Ui
             {
                 Width = size,
                 Height = size,
-                CornerRadius = new CornerRadius(12),
+                CornerRadius = new CornerRadius(size * 0.32),
                 Background = bg,
                 Child = Icon(glyph, size * 0.45, fg),
                 VerticalAlignment = VerticalAlignment.Center
@@ -332,15 +359,7 @@ namespace SmartEMobilityHub.Ui
             var grid = new Grid();
             grid.Children.Add(hint);
             grid.Children.Add(tb);
-            return new Border
-            {
-                Background = Theme.Surface,
-                BorderBrush = Theme.Border,
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(12),
-                Padding = new Thickness(12, 10, 12, 10),
-                Child = grid
-            };
+            return FocusFrame(grid, tb);
         }
 
         /// <summary>Ô nhập mật khẩu (ẩn ký tự), cùng kiểu dáng với <see cref="InputBox"/>.</summary>
@@ -377,15 +396,24 @@ namespace SmartEMobilityHub.Ui
             var grid = new Grid();
             grid.Children.Add(hint);
             grid.Children.Add(pb);
-            return new Border
+            return FocusFrame(grid, pb);
+        }
+
+        /// <summary>Khung ô nhập: bo tròn, viền chuyển màu chính khi đang nhập.</summary>
+        private static Border FocusFrame(UIElement content, Control input)
+        {
+            var frame = new Border
             {
                 Background = Theme.Surface,
-                BorderBrush = Theme.Border,
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(12),
-                Padding = new Thickness(12, 10, 12, 10),
-                Child = grid
+                BorderBrush = Theme.BorderStrong,
+                BorderThickness = new Thickness(1.2),
+                CornerRadius = new CornerRadius(14),
+                Padding = new Thickness(14, 11, 14, 11),
+                Child = content
             };
+            input.GotKeyboardFocus += (_, _) => frame.BorderBrush = Theme.Primary;
+            input.LostKeyboardFocus += (_, _) => frame.BorderBrush = Theme.BorderStrong;
+            return frame;
         }
 
         public static Grid Toggle(string label, bool value, Action<bool> onChange)
@@ -403,7 +431,7 @@ namespace SmartEMobilityHub.Ui
                 Width = 44,
                 Height = 24,
                 CornerRadius = new CornerRadius(12),
-                Background = value ? Theme.Primary : Theme.BorderStrong,
+                Background = value ? Theme.PrimaryGradient : Theme.BorderStrong,
                 Child = knob
             };
             OnClick(track, () => onChange(!value));
@@ -513,36 +541,56 @@ namespace SmartEMobilityHub.Ui
 
         public static Border MapPreview(IEnumerable<Hub> hubs, Action<Hub>? onHub)
         {
-            var canvas = new Canvas { Height = 180, ClipToBounds = true };
-            void Road(double x, double y, double w, double h)
+            var canvas = new Canvas { Height = 184, ClipToBounds = true };
+            void Shape(System.Windows.Shapes.Shape r, double x, double y)
             {
-                var r = new System.Windows.Shapes.Rectangle { Width = w, Height = h, Fill = Theme.Surface, RadiusX = 3, RadiusY = 3 };
                 Canvas.SetLeft(r, x);
                 Canvas.SetTop(r, y);
                 canvas.Children.Add(r);
             }
+            // Khu cây xanh / hồ (trang trí, không phải bản đồ thật).
+            Shape(new System.Windows.Shapes.Ellipse { Width = 120, Height = 70, Fill = Theme.Park, Opacity = 0.7 }, -20, 100);
+            Shape(new System.Windows.Shapes.Ellipse { Width = 90, Height = 60, Fill = Theme.Park, Opacity = 0.6 }, 290, 8);
+            Shape(new System.Windows.Shapes.Ellipse { Width = 70, Height = 40, Fill = Theme.Sky, Opacity = 0.18 }, 190, 120);
+            void Road(double x, double y, double w, double h) =>
+                Shape(new System.Windows.Shapes.Rectangle { Width = w, Height = h, Fill = Theme.Surface, RadiusX = 4, RadiusY = 4, Opacity = 0.95 }, x, y);
             Road(0, 70, 400, 14);
-            Road(150, 0, 14, 180);
-            Road(40, 130, 360, 10);
-            Road(260, 0, 10, 180);
+            Road(150, 0, 14, 184);
+            Road(40, 132, 360, 10);
+            Road(260, 0, 10, 184);
+            // Tuyến Metro số 1 (nét đứt).
+            var metro = new System.Windows.Shapes.Line { X1 = 0, Y1 = 30, X2 = 400, Y2 = 52, Stroke = Theme.Charging, StrokeThickness = 3, StrokeDashArray = new DoubleCollection { 3, 2 }, Opacity = 0.55 };
+            canvas.Children.Add(metro);
             foreach (var h in hubs)
             {
                 var hub = h;
-                var pin = new Border { Width = 28, Height = 28, CornerRadius = new CornerRadius(14), Background = Theme.Surface, Child = Icon(Icons.Pin, 14, Theme.Primary), ToolTip = hub.Name };
+                var free = hub.IsSuspended ? Theme.Text2 : hub.FreeSlots == 0 ? Theme.Danger : Theme.Primary;
+                var pin = new Border
+                {
+                    Width = 30,
+                    Height = 30,
+                    CornerRadius = new CornerRadius(15),
+                    Background = free,
+                    BorderBrush = Brushes.White,
+                    BorderThickness = new Thickness(2.5),
+                    Child = Icon(Icons.Pin, 13, Brushes.White),
+                    ToolTip = hub.Name,
+                    Effect = Theme.SoftShadow(8, 2, 0.25)
+                };
                 if (onHub != null) OnClick(pin, () => onHub(hub));
-                Canvas.SetLeft(pin, Math.Clamp(157 + hub.X * 120 - 14, 4, 320));
-                Canvas.SetTop(pin, Math.Clamp(77 - hub.Y * 60 - 14, 4, 148));
+                Canvas.SetLeft(pin, Math.Clamp(157 + hub.X * 120 - 15, 4, 320));
+                Canvas.SetTop(pin, Math.Clamp(77 - hub.Y * 60 - 15, 4, 148));
                 canvas.Children.Add(pin);
             }
+            var halo = new System.Windows.Shapes.Ellipse { Width = 34, Height = 34, Fill = Theme.Primary, Opacity = 0.18 };
+            Shape(halo, 140, 60);
             var me = new System.Windows.Shapes.Ellipse { Width = 16, Height = 16, Fill = Theme.Primary, Stroke = Brushes.White, StrokeThickness = 3 };
-            Canvas.SetLeft(me, 149);
-            Canvas.SetTop(me, 69);
-            canvas.Children.Add(me);
-            var you = new Border { Background = Theme.Surface, CornerRadius = new CornerRadius(12), Padding = new Thickness(10, 4, 10, 4), Child = HStack(6, Icon(Icons.Pin, 12, Theme.Primary), Text("Vị trí của bạn", TextKind.Caption, null, false)) };
+            Shape(me, 149, 69);
+            var you = new Border { Background = Theme.Surface, CornerRadius = new CornerRadius(12), Padding = new Thickness(10, 4, 10, 4), Effect = Theme.SoftShadow(8, 1, 0.12), Child = HStack(6, Icon(Icons.Pin, 12, Theme.Primary), Text("Vị trí của bạn", TextKind.Caption, null, false)) };
             Canvas.SetLeft(you, 12);
-            Canvas.SetTop(you, 144);
+            Canvas.SetTop(you, 148);
             canvas.Children.Add(you);
-            return new Border { CornerRadius = new CornerRadius(16), Background = Theme.SkySubtle, Child = canvas, ClipToBounds = true };
+            return new Border { CornerRadius = new CornerRadius(20), Background = Theme.MapGradient, Child = canvas, ClipToBounds = true, BorderBrush = Theme.IsDark ? Theme.Border : Theme.SurfaceAlt, BorderThickness = new Thickness(1) };
         }
     }
 }

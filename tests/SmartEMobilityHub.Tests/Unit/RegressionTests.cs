@@ -224,6 +224,16 @@ public static class RegressionTests
             Assert.Equal(PriorityLevel.High, incident.Priority, "Vượt công suất là HIGH, quá tải chỗ đỗ mới là CRITICAL");
         });
 
+        runner.Add("REG-15", "Nhật ký sự cố ghi trạng thái bằng tiếng Việt, không lộ tên enum (Locked, InRepair…)", () =>
+        {
+            var world = TestWorld.Create();
+            Assert.True(world.Incidents.LockDevice("SC-1017"), "Khoá được xe XE-087");
+            var logs = world.Store.GetIncident("SC-1017").Logs.Select(l => l.Message).ToList();
+            Assert.True(logs.Any(m => m.Contains("“Đã khoá”")), "Nhật ký có dòng chuyển sang “Đã khoá”");
+            Assert.False(logs.Any(m => m.Contains("Locked") || m.Contains("UnderCheck") || m.Contains("InRepair")),
+                "Không còn tên enum tiếng Anh trong nhật ký");
+        });
+
         runner.Add("REG-14", "Snapshot tìm xe không phân biệt hoa thường như NetworkStore", () =>
         {
             var world = TestWorld.Create();

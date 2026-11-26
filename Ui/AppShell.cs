@@ -84,8 +84,8 @@ namespace SmartEMobilityHub.Ui
                     act.OnClick?.Invoke();
                 }), 8);
             }
-            var card = new Border { Background = Theme.Surface, CornerRadius = new CornerRadius(16), Padding = new Thickness(20), Margin = new Thickness(24), VerticalAlignment = VerticalAlignment.Center, Child = stack };
-            var overlay = new Grid { Background = new SolidColorBrush(Color.FromArgb(115, 15, 23, 42)) };
+            var card = new Border { Background = Theme.Surface, CornerRadius = new CornerRadius(24), Padding = new Thickness(22), Margin = new Thickness(22), VerticalAlignment = VerticalAlignment.Center, Child = stack, Effect = Theme.SoftShadow(40, 10, 0.25) };
+            var overlay = new Grid { Background = new SolidColorBrush(Color.FromArgb(130, 15, 23, 42)) };
             overlay.Children.Add(card);
             DropDialog();
             _dialog = overlay;
@@ -128,10 +128,12 @@ namespace SmartEMobilityHub.Ui
                 Place(root, new Border
                 {
                     Background = Theme.Surface,
-                    BorderBrush = Theme.Border,
+                    BorderBrush = Theme.IsDark ? Theme.Border : Theme.SurfaceAlt,
                     BorderThickness = new Thickness(0, 1, 0, 0),
-                    Padding = new Thickness(16, 12, 16, 16),
-                    Child = actions
+                    CornerRadius = new CornerRadius(22, 22, 0, 0),
+                    Padding = new Thickness(16, 14, 16, 16),
+                    Child = actions,
+                    Effect = Theme.SoftShadow(20, -2, 0.06)
                 }, 3);
             }
             if (screen.Tab.HasValue) Place(root, BuildBottomNav(screen.Tab.Value), 4);
@@ -176,17 +178,20 @@ namespace SmartEMobilityHub.Ui
                 {
                     Width = 40,
                     Height = 40,
-                    CornerRadius = new CornerRadius(20),
-                    Background = Theme.SurfaceAlt,
-                    Child = UiKit.Icon(Icons.Back, 16),
+                    CornerRadius = new CornerRadius(14),
+                    Background = Theme.Surface,
+                    BorderBrush = Theme.Border,
+                    BorderThickness = new Thickness(1),
+                    Child = UiKit.Icon(Icons.Back, 15),
                     Margin = new Thickness(0, 0, 12, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 UiKit.OnClick(back, screen.OnBack);
+                UiKit.Hover(back);
                 sp.Children.Add(back);
             }
             sp.Children.Add(UiKit.Text(screen.Title ?? "", TextKind.Heading, null, false));
-            return new Border { Background = Theme.Surface, BorderBrush = Theme.Border, BorderThickness = new Thickness(0, 0, 0, 1), Child = sp };
+            return new Border { Background = Theme.CanvasBg, Child = sp };
         }
 
         private static UIElement BuildBottomNav(NavTab active)
@@ -199,18 +204,58 @@ namespace SmartEMobilityHub.Ui
                 (NavTab.Notify, Icons.Bell, "Thông báo"),
                 (NavTab.Account, Icons.Person, "Tài khoản")
             };
-            var g = new UniformGrid { Rows = 1, Columns = items.Length, Height = 64 };
+            var g = new UniformGrid { Rows = 1, Columns = items.Length, Height = 66 };
             foreach (var it in items)
             {
                 var item = it;
-                var color = item.Tab == active ? Theme.Primary : Theme.Text2;
+                var on = item.Tab == active;
+                var color = on ? Theme.Primary : Theme.Text2;
                 var label = item.Label;
-                if (item.Tab == NavTab.Notify && DemoApp.Notifications.UnreadCount > 0) label += $" ({DemoApp.Notifications.UnreadCount})";
-                var cell = new Border { Child = UiKit.Stack(4, UiKit.Icon(item.Glyph, 20, color), UiKit.Centered(UiKit.Text(label, TextKind.Caption, color, false))), Padding = new Thickness(0, 10, 0, 0) };
+                var unread = item.Tab == NavTab.Notify ? DemoApp.Notifications.UnreadCount : 0;
+
+                // Biểu tượng nằm trong "viên thuốc" khi tab đang chọn; thông báo chưa đọc có chấm đỏ.
+                var iconHost = new Grid { HorizontalAlignment = HorizontalAlignment.Center };
+                iconHost.Children.Add(new Border
+                {
+                    Width = 54,
+                    Height = 30,
+                    CornerRadius = new CornerRadius(15),
+                    Background = on ? Theme.PrimarySubtle : Brushes.Transparent,
+                    Child = UiKit.Icon(item.Glyph, 19, color)
+                });
+                if (unread > 0)
+                {
+                    iconHost.Children.Add(new Border
+                    {
+                        MinWidth = 16,
+                        Height = 16,
+                        CornerRadius = new CornerRadius(8),
+                        Background = Theme.Danger,
+                        BorderBrush = Theme.Surface,
+                        BorderThickness = new Thickness(2),
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Margin = new Thickness(0, -3, 6, 0),
+                        Padding = new Thickness(3, 0, 3, 0),
+                        Child = UiKit.Centered(UiKit.Text(unread > 9 ? "9+" : unread.ToString(), TextKind.Caption, Brushes.White, false))
+                    });
+                    ((TextBlock)((Border)iconHost.Children[1]).Child).FontSize = 9;
+                }
+                var caption = UiKit.Centered(UiKit.Text(label, TextKind.Caption, color, false));
+                caption.FontSize = 11;
+                if (on) caption.FontWeight = FontWeights.SemiBold;
+                var cell = new Border { Child = UiKit.Stack(3, iconHost, caption), Padding = new Thickness(0, 8, 0, 0) };
                 UiKit.OnClick(cell, () => DemoApp.GoTab(item.Tab));
                 g.Children.Add(cell);
             }
-            return new Border { Background = Theme.Surface, BorderBrush = Theme.Border, BorderThickness = new Thickness(0, 1, 0, 0), Child = g };
+            return new Border
+            {
+                Background = Theme.Surface,
+                BorderBrush = Theme.IsDark ? Theme.Border : Theme.SurfaceAlt,
+                BorderThickness = new Thickness(0, 1, 0, 0),
+                Child = g,
+                Effect = Theme.SoftShadow(18, -2, 0.06)
+            };
         }
     }
 }
