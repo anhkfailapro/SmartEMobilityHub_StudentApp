@@ -7,6 +7,10 @@ namespace SmartEMobilityHub.Screens
 {
     public class ManualCodeScreen : Screen
     {
+        public ManualCodeScreen(DemoApp app) : base(app)
+        {
+        }
+
         private string _vehicleCode = "";
         private string _pickUpCode = "";
 
@@ -14,7 +18,7 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var r = DemoApp.Reservations.ActiveVehicleReservation;
+            var r = App.Reservations.ActiveVehicleReservation;
             var root = Stack(16,
                 Banner(Tone.Info, "Dùng khi mã QR trên xe bị hỏng. Nhập mã xe (dán trên thân xe) và mã nhận xe của bạn."),
                 Labeled("Mã xe", InputBox("VD: EB-1024", _vehicleCode, v => _vehicleCode = v)),
@@ -31,7 +35,7 @@ namespace SmartEMobilityHub.Screens
                 Shell.ShowDialog(Tone.Info, "Thiếu thông tin", "Vui lòng nhập cả mã xe và mã nhận xe.");
                 return;
             }
-            PickUpFlow.Verify(_vehicleCode, _pickUpCode);
+            PickUpFlow.Verify(App, _vehicleCode, _pickUpCode);
         });
     }
 }

@@ -10,7 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly string _requestId;
 
-        public ChargingQueuedScreen(string requestId)
+        public ChargingQueuedScreen(DemoApp app, string requestId) : base(app)
         {
             _requestId = requestId;
         }
@@ -20,8 +20,8 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var r = DemoApp.Store.ChargingRequests.First(x => x.Id == _requestId);
-            var hub = DemoApp.Store.GetHub(r.HubId);
+            var r = App.Store.ChargingRequests.First(x => x.Id == _requestId);
+            var hub = App.Store.GetHub(r.HubId);
             var assigned = r.State == ChargingRequestState.Assigned;
             var cancelled = r.State == ChargingRequestState.Cancelled;
             var tile = IconTile(Icons.Bolt, cancelled ? Tone.Neutral : assigned ? Tone.Success : Tone.Charging, 72);
@@ -44,10 +44,10 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement? BuildActions()
         {
-            var inTrip = DemoApp.Billing.ActiveTrip != null;
+            var inTrip = App.Billing.ActiveTrip != null;
             return Columns(12,
-                Button(inTrip ? "Về chuyến đi" : "Về trang chủ", ButtonVariant.Outline, () => DemoApp.GoTab(inTrip ? NavTab.Trip : NavTab.Home)),
-                Button("Đặt chỗ của tôi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Booking)));
+                Button(inTrip ? "Về chuyến đi" : "Về trang chủ", ButtonVariant.Outline, () => App.GoTab(inTrip ? NavTab.Trip : NavTab.Home)),
+                Button("Đặt chỗ của tôi", ButtonVariant.Primary, () => App.GoTab(NavTab.Booking)));
         }
     }
 }

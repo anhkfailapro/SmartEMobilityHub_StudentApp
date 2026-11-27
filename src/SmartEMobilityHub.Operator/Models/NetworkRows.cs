@@ -1,3 +1,4 @@
+using SmartEMobilityHub.Core.Store;
 using System.Windows;
 using System.Windows.Media;
 using SmartEMobilityHub.Core.Domain;
@@ -54,6 +55,13 @@ internal static class DeviceTexts
 /// <summary>Thẻ Hub ở trang Tổng quan / Điều phối: chỗ đỗ, sạc, xe sẵn sàng, mức cân bằng.</summary>
 public sealed class HubRow
 {
+    /// <summary>Một dòng cho mỗi Hub của mạng lưới, theo mã Hub (thẻ Hub ở Tổng quan và cột tải ở Điều phối).</summary>
+    public static IEnumerable<HubRow> ForNetwork(NetworkStore store) =>
+        store.Hubs
+            .OrderBy(h => h.Id, StringComparer.Ordinal)
+            .Select(hub => new HubRow(hub, store.Vehicles.Where(v => v.HubId == hub.Id).ToList()))
+            .ToList();
+
     public string HubId { get; }
     public string Name { get; }
     public string FullName { get; }
@@ -125,7 +133,7 @@ public sealed class HubRow
             ? Texts.Brush("#F59E0B")
             : hub.MaxUtilization >= 0.9
                 ? Texts.Brush("#F87171")
-                : (Brush)Application.Current.TryFindResource("Border") ?? Texts.Brush("#E2E8F0");
+                : (Brush?)Application.Current?.TryFindResource("Border") ?? Texts.Brush("#E2E8F0");
 
         ImbalanceTag = hub.ParkingUtilization >= 0.85
             ? "Dư xe / Cao"
@@ -175,7 +183,7 @@ public sealed class VehicleRow
         var age = now - vehicle.LastUpdatedAt;
         var stale = vehicle.LastUpdatedAt != default && age.TotalMinutes > ServiceConstants.StaleThresholdMinutes;
         UpdatedText = vehicle.LastUpdatedAt == default ? "—" : Texts.Ago(vehicle.LastUpdatedAt, now);
-        UpdatedBrush = stale ? Texts.Brush("#EA580C") : (Brush)(Application.Current.TryFindResource("Text2") ?? Texts.Brush("#64748B"));
+        UpdatedBrush = stale ? Texts.Brush("#EA580C") : (Brush)(Application.Current?.TryFindResource("Text2") ?? Texts.Brush("#64748B"));
 
         var online = vehicle.Connection == ConnectionStatus.Online;
         ConnectionGlyph = online ? "" : "";

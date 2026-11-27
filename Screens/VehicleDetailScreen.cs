@@ -10,7 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly string _code;
 
-        public VehicleDetailScreen(string code)
+        public VehicleDetailScreen(DemoApp app, string code) : base(app)
         {
             _code = code;
         }
@@ -19,12 +19,12 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var v = DemoApp.Vehicles.GetDetails(_code)!;
-            var now = DemoApp.Clock.Now;
+            var v = App.Vehicles.GetDetails(_code)!;
+            var now = App.Clock.Now;
             var stale = v.IsStale(now);
-            var readOnly = DemoApp.Vehicles.IsReadOnly(v);
+            var readOnly = App.Vehicles.IsReadOnly(v);
             var (label, tone) = DemoConfig.VehicleStatusLabel(v.Status);
-            var hubName = v.HubId != null ? DemoApp.Store.GetHub(v.HubId).Name : "Đang di chuyển";
+            var hubName = v.HubId != null ? App.Store.GetHub(v.HubId).Name : "Đang di chuyển";
 
             var root = Stack(16);
             if (stale)
@@ -48,28 +48,28 @@ namespace SmartEMobilityHub.Screens
             if (v.HubId != null && v.Battery < 50 && v.Status != VehicleStatus.UnderCheck)
             {
                 var hubId = v.HubId;
-                Add(root, Button("Yêu cầu sạc cho xe này", ButtonVariant.Charging, () => Shell.Navigate(new ChargingRequestScreen(_code, hubId)), true, Icons.Bolt), 16);
+                Add(root, Button("Yêu cầu sạc cho xe này", ButtonVariant.Charging, () => Shell.Navigate(new ChargingRequestScreen(App, _code, hubId)), true, Icons.Bolt), 16);
             }
             return root;
         }
 
         public override UIElement? BuildActions()
         {
-            var v = DemoApp.Vehicles.GetDetails(_code)!;
+            var v = App.Vehicles.GetDetails(_code)!;
             return Columns(12,
                 Button("Quay lại", ButtonVariant.Outline, Shell.Back),
-                Button("Đặt trước", ButtonVariant.Primary, Reserve, !DemoApp.Vehicles.IsReadOnly(v)));
+                Button("Đặt trước", ButtonVariant.Primary, Reserve, !App.Vehicles.IsReadOnly(v)));
         }
 
         private void Reserve()
         {
-            var error = DemoApp.Reservations.CheckReserve(_code);
+            var error = App.Reservations.CheckReserve(_code);
             if (error != "")
             {
-                ReservationDialogs.ShowReserveError(error, _code);
+                ReservationDialogs.ShowReserveError(App, error, _code);
                 return;
             }
-            Shell.Navigate(new ConfirmReservationScreen(_code));
+            Shell.Navigate(new ConfirmReservationScreen(App, _code));
         }
     }
 }

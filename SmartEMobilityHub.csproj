@@ -25,10 +25,10 @@
     <Compile Include="src/SmartEMobilityHub.Operator/Capture/ShotKit.cs" Link="Capture/ShotKit.cs" />
   </ItemGroup>
 
-  <!-- Dùng chung Core (AuthService, mạng lưới) và mở được Trung tâm điều hành trong cùng tiến trình (chế độ liên thông). -->
+  <!-- Chỉ dùng chung Core (AuthService, mạng lưới). App Sinh viên không tham chiếu project Operator:
+       chế độ liên thông do src/SmartEMobilityHub.Launcher mở cả hai app và cung cấp IOperatorConsole. -->
   <ItemGroup>
     <ProjectReference Include="src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />
-    <ProjectReference Include="src/SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj" />
   </ItemGroup>
 
 </Project>

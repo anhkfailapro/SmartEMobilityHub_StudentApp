@@ -11,7 +11,7 @@ namespace SmartEMobilityHub.Screens
         private readonly VehicleReservation _reservation;
         private readonly Incident _incident;
 
-        public UnlockFailedScreen(VehicleReservation reservation, Incident incident)
+        public UnlockFailedScreen(DemoApp app, VehicleReservation reservation, Incident incident) : base(app)
         {
             _reservation = reservation;
             _incident = incident;
@@ -35,7 +35,7 @@ namespace SmartEMobilityHub.Screens
                 Row("Giờ hỗ trợ", DemoConfig.SupportHours)));
 
         public override UIElement? BuildActions() => Columns(12,
-            Button("Về Trang chủ", ButtonVariant.Outline, () => DemoApp.GoTab(NavTab.Home)),
-            Button("Chọn xe khác", ButtonVariant.Primary, () => Shell.ResetTo(new VehicleListScreen(_reservation.HubId))));
+            Button("Về Trang chủ", ButtonVariant.Outline, () => App.GoTab(NavTab.Home)),
+            Button("Chọn xe khác", ButtonVariant.Primary, () => Shell.ResetTo(new VehicleListScreen(App, _reservation.HubId))));
     }
 }

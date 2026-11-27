@@ -1,0 +1,1406 @@
+{
+  "App.xaml": {
+    "mtime": 1795762741.7898705,
+    "seen": 1795788971.8021033,
+    "ast_hash": "8af6436a2a3741f621d4dda3cf7f66df",
+    "semantic_hash": ""
+  },
+  "App.xaml.cs": {
+    "mtime": 1795624801.8056087,
+    "seen": 1795760873.080222,
+    "ast_hash": "bba70e70bf9efe41e70805c4e569310c",
+    "semantic_hash": ""
+  },
+  "AssemblyInfo.cs": {
+    "mtime": 1795624801.826263,
+    "seen": 1795760873.0802286,
+    "ast_hash": "db06ab16ece57688dd9a39c807eb1aff",
+    "semantic_hash": ""
+  },
+  "Capture/StudentCapture.cs": {
+    "mtime": 1795762548.8333936,
+    "seen": 1795788971.8021266,
+    "ast_hash": "c7fcc026988a4e63a3ea3faeeda23f07",
+    "semantic_hash": ""
+  },
+  "Data/DemoConfig.cs": {
+    "mtime": 1795760385.0980625,
+    "seen": 1795760873.0802448,
+    "ast_hash": "57673cfa625ae35fe8e1d70caa484798",
+    "semantic_hash": ""
+  },
+  "Data/DemoToggles.cs": {
+    "mtime": 1795624801.9365366,
+    "seen": 1795760873.080249,
+    "ast_hash": "4eba571076c0485b93bde4ed1487e0a5",
+    "semantic_hash": ""
+  },
+  "Data/MockDataStore.cs": {
+    "mtime": 1795760385.1320639,
+    "seen": 1795760873.0802536,
+    "ast_hash": "31d04a6b40740f54e61d66349f600ac4",
+    "semantic_hash": ""
+  },
+  "DemoApp.cs": {
+    "mtime": 1795762472.4295363,
+    "seen": 1795788971.802149,
+    "ast_hash": "12424161099a769ff9e797f8d430382b",
+    "semantic_hash": ""
+  },
+  "MainWindow.xaml": {
+    "mtime": 1795762741.8071933,
+    "seen": 1795788971.8021529,
+    "ast_hash": "9f7ca7b1836a2e2dbd89b98238b14c28",
+    "semantic_hash": ""
+  },
+  "MainWindow.xaml.cs": {
+    "mtime": 1795762549.1016173,
+    "seen": 1795788971.8021564,
+    "ast_hash": "b3c128b13e720342f03f4eaef42527b7",
+    "semantic_hash": ""
+  },
+  "Models/AppNotification.cs": {
+    "mtime": 1795624802.0815108,
+    "seen": 1795760873.0802698,
+    "ast_hash": "bdbfd2af49bd853ee627378e63db272c",
+    "semantic_hash": ""
+  },
+  "Models/BookingItem.cs": {
+    "mtime": 1795624802.1205912,
+    "seen": 1795760873.080274,
+    "ast_hash": "8f26b07d97cbe59084c31ff121a710cd",
+    "semantic_hash": ""
+  },
+  "Models/ChargingEstimate.cs": {
+    "mtime": 1795760385.1970596,
+    "seen": 1795760873.0802782,
+    "ast_hash": "90847f183b3e8917033e88bd8935b9b6",
+    "semantic_hash": ""
+  },
+  "Models/ChargingPoint.cs": {
+    "mtime": 1795760385.2290633,
+    "seen": 1795760873.0802822,
+    "ast_hash": "1f0c1a53384342219b3ab37affa691c8",
+    "semantic_hash": ""
+  },
+  "Models/ChargingRequest.cs": {
+    "mtime": 1795760385.2610695,
+    "seen": 1795760873.0802863,
+    "ast_hash": "839d570d92c43ea846b20ab868e0fffe",
+    "semantic_hash": ""
+  },
+  "Models/Enums.cs": {
+    "mtime": 1795760385.3210673,
+    "seen": 1795760873.0802946,
+    "ast_hash": "e4ef0755cbb8cf9ce39a1c591fed6c23",
+    "semantic_hash": ""
+  },
+  "Models/HistoryEntry.cs": {
+    "mtime": 1795624802.2907157,
+    "seen": 1795760873.0802984,
+    "ast_hash": "a4a98f3eb55d304c5057dd2b484efd22",
+    "semantic_hash": ""
+  },
+  "Models/Hub.cs": {
+    "mtime": 1795760385.3530629,
+    "seen": 1795760873.080303,
+    "ast_hash": "c4db16225c3ed4379e0e6749a5189ca5",
+    "semantic_hash": ""
+  },
+  "Models/Incident.cs": {
+    "mtime": 1795760385.3860588,
+    "seen": 1795760873.0803068,
+    "ast_hash": "cd2548fdb621856f8f9da0dacc8d3853",
+    "semantic_hash": ""
+  },
+  "Models/Invoice.cs": {
+    "mtime": 1795624802.3939574,
+    "seen": 1795760873.0803108,
+    "ast_hash": "4a509aef777c029a971dcbb843b245c7",
+    "semantic_hash": ""
+  },
+  "Models/JourneyResult.cs": {
+    "mtime": 1795624802.4285514,
+    "seen": 1795760873.0803149,
+    "ast_hash": "7d4e3af1b39ec0807f0ab0c1f1284ce8",
+    "semantic_hash": ""
+  },
+  "Models/OpResult.cs": {
+    "mtime": 1795624802.4652357,
+    "seen": 1795760873.0803187,
+    "ast_hash": "ffe43d398cff7d3bab3007d1c4de2ead",
+    "semantic_hash": ""
+  },
+  "Models/ParkingReservation.cs": {
+    "mtime": 1795624802.5019512,
+    "seen": 1795760873.0803225,
+    "ast_hash": "69e8fb4824fee98ecb7511d1046aa09a",
+    "semantic_hash": ""
+  },
+  "Models/PrivateEVChargingSession.cs": {
+    "mtime": 1795624802.538172,
+    "seen": 1795760873.0803268,
+    "ast_hash": "c60130e649138ab095cc68b902c5b940",
+    "semantic_hash": ""
+  },
+  "Models/PrivateVehicle.cs": {
+    "mtime": 1795624802.5721672,
+    "seen": 1795760873.0803308,
+    "ast_hash": "b47a18de3b92dec5e9fb7276e816354b",
+    "semantic_hash": ""
+  },
+  "Models/Trip.cs": {
+    "mtime": 1795624802.607957,
+    "seen": 1795760873.0803347,
+    "ast_hash": "b6691a8c570b65d496d3cc796db050f1",
+    "semantic_hash": ""
+  },
+  "Models/Vehicle.cs": {
+    "mtime": 1795760385.4170623,
+    "seen": 1795760873.0803387,
+    "ast_hash": "0e18559e1a92f7960a55ac91f959a322",
+    "semantic_hash": ""
+  },
+  "Models/VehicleReservation.cs": {
+    "mtime": 1795760385.451768,
+    "seen": 1795760873.0803428,
+    "ast_hash": "926b4865b78d70ff8e242e7e19e8a3a8",
+    "semantic_hash": ""
+  },
+  "Screens/AccountScreen.cs": {
+    "mtime": 1795762618.3192093,
+    "seen": 1795788971.8022337,
+    "ast_hash": "1224a501f21573c82d6019c831e2ae73",
+    "semantic_hash": ""
+  },
+  "Screens/ActivityScreen.cs": {
+    "mtime": 1795762651.54681,
+    "seen": 1795788971.8022375,
+    "ast_hash": "e41d31053f0f878782f6db785b47ace9",
+    "semantic_hash": ""
+  },
+  "Screens/CancelConfirmScreen.cs": {
+    "mtime": 1795762493.6342006,
+    "seen": 1795788971.8022413,
+    "ast_hash": "cdc1d7fa655778cfa16d8b1339f726b1",
+    "semantic_hash": ""
+  },
+  "Screens/ChangeTimeScreen.cs": {
+    "mtime": 1795762493.6492026,
+    "seen": 1795788971.8022447,
+    "ast_hash": "7498846c880d8726fda3f8c6e9368d03",
+    "semantic_hash": ""
+  },
+  "Screens/ChargingAlternativesScreen.cs": {
+    "mtime": 1795762493.6651976,
+    "seen": 1795788971.8022485,
+    "ast_hash": "f0eef2e87139fff5bef6931608c65c4c",
+    "semantic_hash": ""
+  },
+  "Screens/ChargingBookingDetailScreen.cs": {
+    "mtime": 1795762493.6791978,
+    "seen": 1795788971.8022516,
+    "ast_hash": "65c33c2658e38ef5db8cd98699532c26",
+    "semantic_hash": ""
+  },
+  "Screens/ChargingQueuedScreen.cs": {
+    "mtime": 1795762493.6952,
+    "seen": 1795788971.802255,
+    "ast_hash": "42321feb36c7a9866d9520c8eeebefff",
+    "semantic_hash": ""
+  },
+  "Screens/ChargingRequestScreen.cs": {
+    "mtime": 1795762493.7101977,
+    "seen": 1795788971.8022585,
+    "ast_hash": "e2ebcd2f9c170d0ee74f8b860ba49117",
+    "semantic_hash": ""
+  },
+  "Screens/ConfirmReservationScreen.cs": {
+    "mtime": 1795762493.7252061,
+    "seen": 1795788971.8022618,
+    "ast_hash": "7552dc277e395257165170a6e6f56584",
+    "semantic_hash": ""
+  },
+  "Screens/HistoryDetailScreen.cs": {
+    "mtime": 1795762493.74025,
+    "seen": 1795788971.802265,
+    "ast_hash": "401c1a13d115a55534f137597876d1c3",
+    "semantic_hash": ""
+  },
+  "Screens/HomeScreen.cs": {
+    "mtime": 1795762548.558131,
+    "seen": 1795788971.8022683,
+    "ast_hash": "066e1d64282e36166bd3e07afbf808c9",
+    "semantic_hash": ""
+  },
+  "Screens/InvoiceView.cs": {
+    "mtime": 1795762493.7691581,
+    "seen": 1795788971.8022711,
+    "ast_hash": "71bb027caf493b5745fa0e6b453c6211",
+    "semantic_hash": ""
+  },
+  "Screens/JourneyResultScreen.cs": {
+    "mtime": 1795762493.7841566,
+    "seen": 1795788971.8022745,
+    "ast_hash": "77d021349172d70dcc24a1d3d983ce1d",
+    "semantic_hash": ""
+  },
+  "Screens/ManualCodeScreen.cs": {
+    "mtime": 1795762493.8141587,
+    "seen": 1795788971.802282,
+    "ast_hash": "d3b2d39c7974009319bce84f38dc9df7",
+    "semantic_hash": ""
+  },
+  "Screens/MyReservationsScreen.cs": {
+    "mtime": 1795762618.3589635,
+    "seen": 1795788971.8022852,
+    "ast_hash": "a560a8ee91c879a90a4488a619314f80",
+    "semantic_hash": ""
+  },
+  "Screens/ParkingDetailScreen.cs": {
+    "mtime": 1795762493.8441613,
+    "seen": 1795788971.802289,
+    "ast_hash": "29b63d27aca3bf387015b78098499a22",
+    "semantic_hash": ""
+  },
+  "Screens/ParkingFullScreen.cs": {
+    "mtime": 1795762493.860163,
+    "seen": 1795788971.8022926,
+    "ast_hash": "dab4e2e80f03ebbba354ebf6f33f5d01",
+    "semantic_hash": ""
+  },
+  "Screens/PickUpFlow.cs": {
+    "mtime": 1795762493.8741586,
+    "seen": 1795788971.8022962,
+    "ast_hash": "6b255788a33cdd392ea2d74d812027c3",
+    "semantic_hash": ""
+  },
+  "Screens/ReportProblemScreen.cs": {
+    "mtime": 1795762618.3857772,
+    "seen": 1795788971.8022995,
+    "ast_hash": "e12927f7896a99f2f597ab8fbd29297e",
+    "semantic_hash": ""
+  },
+  "Screens/ReportResultScreen.cs": {
+    "mtime": 1795762493.9031587,
+    "seen": 1795788971.8023028,
+    "ast_hash": "7dd6514d9b355ba5001c8aa9654dc7b0",
+    "semantic_hash": ""
+  },
+  "Screens/ReservationDialogs.cs": {
+    "mtime": 1795762548.6464076,
+    "seen": 1795788971.802306,
+    "ast_hash": "2fa65b6561e857696c0f3da6458fd4fa",
+    "semantic_hash": ""
+  },
+  "Screens/ReservationScreen.cs": {
+    "mtime": 1795762548.6850748,
+    "seen": 1795788971.8023095,
+    "ast_hash": "d3facf7bc6fbe5071d3354d16e650b5a",
+    "semantic_hash": ""
+  },
+  "Screens/ReserveParkingScreen.cs": {
+    "mtime": 1795762603.0446804,
+    "seen": 1795788971.8023129,
+    "ast_hash": "e18e03edba60f9d42898898b28441238",
+    "semantic_hash": ""
+  },
+  "Screens/ReturnRefusedScreen.cs": {
+    "mtime": 1795762493.9601574,
+    "seen": 1795788971.8023162,
+    "ast_hash": "3a76203b5cc9f6b80e31fa5d41b5ce3d",
+    "semantic_hash": ""
+  },
+  "Screens/ReturnVehicleScreen.cs": {
+    "mtime": 1795762493.9751573,
+    "seen": 1795788971.8023198,
+    "ast_hash": "7fa22e836a678cdfb128c5282c51cc93",
+    "semantic_hash": ""
+  },
+  "Screens/ScanQrScreen.cs": {
+    "mtime": 1795762548.720198,
+    "seen": 1795788971.8023233,
+    "ast_hash": "fb76dcb33fddf76b70dc67a196936997",
+    "semantic_hash": ""
+  },
+  "Screens/ScheduleChargingScreen.cs": {
+    "mtime": 1795762603.0599377,
+    "seen": 1795788971.8023272,
+    "ast_hash": "928d9b9c6195d4ad5b7de14c07bac6fb",
+    "semantic_hash": ""
+  },
+  "Screens/Screen.cs": {
+    "mtime": 1795762524.4443536,
+    "seen": 1795788971.8023303,
+    "ast_hash": "89e91152544674f59842f849289d9a32",
+    "semantic_hash": ""
+  },
+  "Screens/ScreenHelpers.cs": {
+    "mtime": 1795762524.4892209,
+    "seen": 1795788971.802334,
+    "ast_hash": "0dc2329c52e0b1e5825a56e2dad8105e",
+    "semantic_hash": ""
+  },
+  "Screens/TimeOptions.cs": {
+    "mtime": 1795762524.5085604,
+    "seen": 1795788971.8023376,
+    "ast_hash": "76cfcd17d1595672d4fb7cbc4ebad3b6",
+    "semantic_hash": ""
+  },
+  "Screens/TripScreen.cs": {
+    "mtime": 1795762548.7552035,
+    "seen": 1795788971.8023412,
+    "ast_hash": "7b901f7b24ba150cf6ce043659f43fdb",
+    "semantic_hash": ""
+  },
+  "Screens/TripSummaryScreen.cs": {
+    "mtime": 1795762494.0511558,
+    "seen": 1795788971.8023446,
+    "ast_hash": "1c4f3d62189d71e224c92c8c2d4417ff",
+    "semantic_hash": ""
+  },
+  "Screens/UnlockFailedScreen.cs": {
+    "mtime": 1795762494.0661564,
+    "seen": 1795788971.8023481,
+    "ast_hash": "1b68ebce17ae9111c56ddcd74aa29a06",
+    "semantic_hash": ""
+  },
+  "Screens/UnlockingScreen.cs": {
+    "mtime": 1795762603.061793,
+    "seen": 1795788971.8023515,
+    "ast_hash": "54cdcf35bcb7c84598a2b651f7a5895c",
+    "semantic_hash": ""
+  },
+  "Screens/VehicleDetailScreen.cs": {
+    "mtime": 1795762494.0961573,
+    "seen": 1795788971.802355,
+    "ast_hash": "9d85a8414f7acccb3076a8e94c298126",
+    "semantic_hash": ""
+  },
+  "Screens/VehicleListScreen.cs": {
+    "mtime": 1795762494.1101573,
+    "seen": 1795788971.8023584,
+    "ast_hash": "5ab8c98ed2604bf56a9cd1b5ff90f689",
+    "semantic_hash": ""
+  },
+  "Services/BookingService.cs": {
+    "mtime": 1795760385.815046,
+    "seen": 1795760873.0804975,
+    "ast_hash": "4791b07b5e88ee798483a69013b93cda",
+    "semantic_hash": ""
+  },
+  "Services/ChargingService.cs": {
+    "mtime": 1795760385.8490505,
+    "seen": 1795760873.0805013,
+    "ast_hash": "a8adbf77b5a04f11841c5dd7c16fd6fb",
+    "semantic_hash": ""
+  },
+  "Services/HistoryService.cs": {
+    "mtime": 1795760385.8830464,
+    "seen": 1795760873.0805054,
+    "ast_hash": "1c29ef3c4a291ed5297d0d6a0de03457",
+    "semantic_hash": ""
+  },
+  "Services/IncidentService.cs": {
+    "mtime": 1795760385.9135835,
+    "seen": 1795760873.0805094,
+    "ast_hash": "a88fb7ac5ab3ee5f6241b864139f8ea5",
+    "semantic_hash": ""
+  },
+  "Services/JourneyPlanner.cs": {
+    "mtime": 1795760385.947587,
+    "seen": 1795760873.0805132,
+    "ast_hash": "85ec6fc912c733b0b4e1020679fb4f3c",
+    "semantic_hash": ""
+  },
+  "Services/NotificationService.cs": {
+    "mtime": 1795760386.0677755,
+    "seen": 1795760873.080531,
+    "ast_hash": "70fa25b628e86b944699abf3895a8169",
+    "semantic_hash": ""
+  },
+  "Services/ParkingService.cs": {
+    "mtime": 1795760386.1017754,
+    "seen": 1795760873.080535,
+    "ast_hash": "9c4b0778e5eae0baa9cca71f1537972b",
+    "semantic_hash": ""
+  },
+  "Services/PickUpService.cs": {
+    "mtime": 1795760386.1363075,
+    "seen": 1795760873.0805392,
+    "ast_hash": "1275905f102942bba45babacc253eed7",
+    "semantic_hash": ""
+  },
+  "Services/ReservationService.cs": {
+    "mtime": 1795760386.1719537,
+    "seen": 1795760873.080543,
+    "ast_hash": "aefb4f464968069673b19e0a42ac028a",
+    "semantic_hash": ""
+  },
+  "Services/TripBillingService.cs": {
+    "mtime": 1795760386.2330868,
+    "seen": 1795760873.0805516,
+    "ast_hash": "ac1ee84f4cf7bd2c34d9b1c0aaf30f90",
+    "semantic_hash": ""
+  },
+  "Services/VehicleManager.cs": {
+    "mtime": 1795760386.2660842,
+    "seen": 1795760873.0805554,
+    "ast_hash": "39ac33f8e9c634da86b2e0da3f6570d1",
+    "semantic_hash": ""
+  },
+  "SmartEMobilityHub.csproj": {
+    "mtime": 1795762741.8414414,
+    "seen": 1795788971.802433,
+    "ast_hash": "0b76a7d3dbb5242234adc66f5d598b16",
+    "semantic_hash": ""
+  },
+  "SmartEMobilityHub.slnx": {
+    "mtime": 1795788784.2327123,
+    "seen": 1795788971.8024368,
+    "ast_hash": "8dd756ee8c71c986adb928f2331e7518",
+    "semantic_hash": ""
+  },
+  "Ui/AppShell.cs": {
+    "mtime": 1795762651.5150173,
+    "seen": 1795788971.8024404,
+    "ast_hash": "bd2a15e560ede108a4754524b1b72998",
+    "semantic_hash": ""
+  },
+  "Ui/ButtonVariant.cs": {
+    "mtime": 1795624804.4707503,
+    "seen": 1795760873.080572,
+    "ast_hash": "f2b22f3fdb0ba80f3d3bea215b6f0337",
+    "semantic_hash": ""
+  },
+  "Ui/DemoPanel.cs": {
+    "mtime": 1795762741.8230133,
+    "seen": 1795788971.8024478,
+    "ast_hash": "c826ca8c319b0e86383f3076590c94df",
+    "semantic_hash": ""
+  },
+  "Ui/DialogAction.cs": {
+    "mtime": 1795624804.5585406,
+    "seen": 1795760873.0805802,
+    "ast_hash": "1298610caf6fff3d70c2cc82b3be1355",
+    "semantic_hash": ""
+  },
+  "Ui/Icons.cs": {
+    "mtime": 1795624804.5923946,
+    "seen": 1795760873.0805843,
+    "ast_hash": "ff8542353687f6262e95841f7b8abaeb",
+    "semantic_hash": ""
+  },
+  "Ui/NavTab.cs": {
+    "mtime": 1795624804.622472,
+    "seen": 1795760873.0805886,
+    "ast_hash": "d7d0611a54463ecab525ff35b7103580",
+    "semantic_hash": ""
+  },
+  "Ui/TextKind.cs": {
+    "mtime": 1795624804.6585631,
+    "seen": 1795760873.0805924,
+    "ast_hash": "93fa7209b8c1ba8971bcc503a704a7d5",
+    "semantic_hash": ""
+  },
+  "Ui/Theme.cs": {
+    "mtime": 1795714039.799526,
+    "seen": 1795760873.0805962,
+    "ast_hash": "03736c4f7c1e928341e1829cd47811bd",
+    "semantic_hash": ""
+  },
+  "Ui/UiKit.cs": {
+    "mtime": 1795760386.4970605,
+    "seen": 1795760873.0806208,
+    "ast_hash": "610731ef5e0ad6f982f5f9f568ab8210",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Adapters/InAppNotificationService.cs": {
+    "mtime": 1795279368.1125207,
+    "seen": 1795760873.0806258,
+    "ast_hash": "b6c5066a571650baea58e5cc52313294",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Adapters/InMemoryReservationAdapter.cs": {
+    "mtime": 1795624804.8207319,
+    "seen": 1795760873.0806298,
+    "ast_hash": "8905acaa0eb93e10a9a30bcb359b1aa5",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Adapters/MockIoTSensorGateway.cs": {
+    "mtime": 1795276380.6086688,
+    "seen": 1795760873.080638,
+    "ast_hash": "8c092b35ad1312d87a7f907e4dc43983",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Clock/Clock.cs": {
+    "mtime": 1795275272.6845615,
+    "seen": 1795760873.080646,
+    "ast_hash": "b26d5e70a48c8ab1e2eccc28e3444650",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Alert.cs": {
+    "mtime": 1795275177.1897178,
+    "seen": 1795760873.0806546,
+    "ast_hash": "3773e943eb84a687aaa3b8624c5e6068",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/ChargingModels.cs": {
+    "mtime": 1795275178.9190037,
+    "seen": 1795760873.0806587,
+    "ast_hash": "597a98f0265ddfc6475743538cd9f578",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/ChargingPoint.cs": {
+    "mtime": 1795278369.0199494,
+    "seen": 1795760873.0806632,
+    "ast_hash": "0df3cb9b23937a36c2b1eebeedf12bf2",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/DispatchOrder.cs": {
+    "mtime": 1795624804.8852084,
+    "seen": 1795760873.080667,
+    "ast_hash": "27cd7453595820c2fdc8aa21349f2e5b",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Enums.cs": {
+    "mtime": 1795624804.9435692,
+    "seen": 1795760873.080671,
+    "ast_hash": "9ff40bf060c01bebf711ae211732fb45",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Errors.cs": {
+    "mtime": 1795275065.842663,
+    "seen": 1795760873.0806751,
+    "ast_hash": "73396901be448804e7f33560940baedd",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/GeoPoint.cs": {
+    "mtime": 1795275064.8251004,
+    "seen": 1795760873.080679,
+    "ast_hash": "2b69f0f0e38be07ecf0017aaa5ccbb92",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/IncidentRecord.cs": {
+    "mtime": 1795275174.307289,
+    "seen": 1795760873.080683,
+    "ast_hash": "5e17c114cd4b63018b3ed1edad151a91",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/MaintenanceTask.cs": {
+    "mtime": 1795276463.8046634,
+    "seen": 1795760873.0806868,
+    "ast_hash": "ebe1327189000b0dd4465810f81df9fb",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/MobilityHub.cs": {
+    "mtime": 1795278370.5546215,
+    "seen": 1795760873.0806909,
+    "ast_hash": "2060a5f152f1855a2c612a66c3b38531",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/NetworkSnapshot.cs": {
+    "mtime": 1795624805.0007324,
+    "seen": 1795760873.0806947,
+    "ast_hash": "d7f8349d22d9bf9d65b00fc151a4f80a",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Operator.cs": {
+    "mtime": 1795275184.3418243,
+    "seen": 1795760873.0806987,
+    "ast_hash": "acd691de2574f713ffeb564a0e3f7145",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Reservation.cs": {
+    "mtime": 1795624805.058226,
+    "seen": 1795760873.0807025,
+    "ast_hash": "eca5c178d84327f17e01631370676890",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/ServiceConstants.cs": {
+    "mtime": 1795624805.1178267,
+    "seen": 1795760873.0807066,
+    "ast_hash": "f89c7f02bbe1e2c5861cd441cadbd7fe",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/SimulationModels.cs": {
+    "mtime": 1795624758.466355,
+    "seen": 1795760873.0807104,
+    "ast_hash": "78426340a79b9edb6ac852509e227106",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Technician.cs": {
+    "mtime": 1795275176.1282086,
+    "seen": 1795760873.0807142,
+    "ast_hash": "e40f863ba7fcf744f446e5bd39340710",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/Vehicle.cs": {
+    "mtime": 1795278367.4179788,
+    "seen": 1795760873.0807226,
+    "ast_hash": "ef4f93ae239f65358529fe4ff5ab8aa5",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/IAlertSink.cs": {
+    "mtime": 1795276300.3405147,
+    "seen": 1795760873.0807312,
+    "ast_hash": "79553380838dda61444483476dcc4a57",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/IIoTSensorGateway.cs": {
+    "mtime": 1795275278.6620207,
+    "seen": 1795760873.080735,
+    "ast_hash": "05570e954f465c04a9a9105543a93afd",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/INotificationService.cs": {
+    "mtime": 1795275279.5283556,
+    "seen": 1795760873.0807388,
+    "ast_hash": "0dad4dd486583f4c9631b24bc4a24c6c",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/IReservationPort.cs": {
+    "mtime": 1795275285.12046,
+    "seen": 1795760873.080743,
+    "ast_hash": "f1c080adc559418301c1eede28a61043",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/IScheduler.cs": {
+    "mtime": 1795275295.4718006,
+    "seen": 1795760873.0807474,
+    "ast_hash": "7b64a5a4bc95b9ee468940fcaa1085ba",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/ISmartSchedulingService.cs": {
+    "mtime": 1795276302.2127037,
+    "seen": 1795760873.0807512,
+    "ast_hash": "2c8fd83173a85425260af8c6a426df23",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/ISystemLogger.cs": {
+    "mtime": 1795275294.047721,
+    "seen": 1795760873.0807552,
+    "ast_hash": "f7e134041ae70582292339c429a403f3",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Ports/Telemetry.cs": {
+    "mtime": 1795276378.5539055,
+    "seen": 1795760873.0807595,
+    "ast_hash": "580573deb57b85f15656236553aa4fae",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/HubSeed.cs": {
+    "mtime": 1795275418.846496,
+    "seen": 1795760873.0807714,
+    "ast_hash": "325fc0f602d506ab418e7ebcb1e7c921",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/IncidentSeed.cs": {
+    "mtime": 1795275434.6818044,
+    "seen": 1795760873.0807757,
+    "ast_hash": "55c0595a25ee289ee2b60fe4625e910a",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/NetworkSeed.cs": {
+    "mtime": 1795278338.997083,
+    "seen": 1795760873.0807796,
+    "ast_hash": "5125caa99ba3ebe808d6c34464af7359",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/ReservationSeed.cs": {
+    "mtime": 1795275421.9600391,
+    "seen": 1795760873.0807836,
+    "ast_hash": "0d8dae24587bc51c32ff2eddca8959fd",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/TechnicianSeed.cs": {
+    "mtime": 1795275435.8314416,
+    "seen": 1795760873.0807877,
+    "ast_hash": "e6d04b13047847031fb2a8bf4f80dba0",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/VehicleSeed.cs": {
+    "mtime": 1795275420.9871044,
+    "seen": 1795760873.0807915,
+    "ast_hash": "f9cdaa478bdcae0e185e0b41c865fccf",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/AlertRetryQueue.cs": {
+    "mtime": 1795278340.6968844,
+    "seen": 1795760873.0807953,
+    "ast_hash": "28e6b32803796547a756753f7196a3ce",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/AutoCancelService.cs": {
+    "mtime": 1795760386.7410412,
+    "seen": 1795760873.0808034,
+    "ast_hash": "b2f639dcb16780e0250edcbe6568e60c",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/HubStatusSyncService.cs": {
+    "mtime": 1795624805.2354078,
+    "seen": 1795760873.0808072,
+    "ast_hash": "4d187c683c6931a20b4512d13f2d0ea1",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/IncidentManager.cs": {
+    "mtime": 1795714039.802526,
+    "seen": 1795760873.0808113,
+    "ast_hash": "203b4bd90a47249b16b9e76cc14d8b5a",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/SmartChargingScheduler.cs": {
+    "mtime": 1795628589.08849,
+    "seen": 1795760873.080815,
+    "ast_hash": "5ca0585e39122e0fd6c35b3f3291e5c1",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/StatusUpdaterTimer.cs": {
+    "mtime": 1795760386.7873766,
+    "seen": 1795760873.0808191,
+    "ast_hash": "2ca6e84c034e2ba0f2fe2c592f4e4c49",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/ThresholdMonitor.cs": {
+    "mtime": 1795624805.4765642,
+    "seen": 1795760873.080828,
+    "ast_hash": "b259248066d406d84327c5a688905793",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/VehicleRedistributor.cs": {
+    "mtime": 1795624805.5353835,
+    "seen": 1795760873.0809183,
+    "ast_hash": "41184d606d23a9b960018286d1bc9285",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/WhatIfController.cs": {
+    "mtime": 1795760386.8800018,
+    "seen": 1795760873.0809274,
+    "ast_hash": "ed4c01762bd87615eaa808ce8d509974",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/WhatIfEngineService.cs": {
+    "mtime": 1795760386.921131,
+    "seen": 1795760873.0809324,
+    "ast_hash": "e2dfd6dfc236f78e2c7207c21e4b9e5f",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj": {
+    "mtime": 1795275063.1056144,
+    "seen": 1795760873.0809364,
+    "ast_hash": "234a8adf6528ce5b1170e9df030a5843",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Store/NetworkStore.cs": {
+    "mtime": 1795624805.5986023,
+    "seen": 1795760873.08094,
+    "ast_hash": "ae8f578f0db9b66768e7bf7e4478415a",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Store/TempStateRepository.cs": {
+    "mtime": 1795760386.9777126,
+    "seen": 1795760873.0809438,
+    "ast_hash": "e2da58e4310354b8a875871c43b2689d",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/App.xaml": {
+    "mtime": 1795628589.1778474,
+    "seen": 1795760873.0809474,
+    "ast_hash": "897bef8c9437ad30c1983a37574a27c4",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/App.xaml.cs": {
+    "mtime": 1795628589.2238524,
+    "seen": 1795760873.0809507,
+    "ast_hash": "6d635363694c97f6a17ffbd283360d25",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Capture/OperatorCapture.cs": {
+    "mtime": 1795762389.8830628,
+    "seen": 1795788971.8028817,
+    "ast_hash": "4933e0324a2aa894488211e6c83e514e",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Capture/ShotKit.cs": {
+    "mtime": 1795628589.3365011,
+    "seen": 1795760873.080958,
+    "ast_hash": "da533fa941a9a102d216e131d0ce131f",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Infrastructure/ObservableObject.cs": {
+    "mtime": 1795277079.7908146,
+    "seen": 1795760873.0809648,
+    "ast_hash": "ced197e770afb7841fd641960dc7cad0",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Infrastructure/UiLogger.cs": {
+    "mtime": 1795760387.1069984,
+    "seen": 1795760873.0809715,
+    "ast_hash": "1afd79ae15cd1225616b03a8bb2ca635",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/MainWindow.xaml": {
+    "mtime": 1795762370.523054,
+    "seen": 1795788971.8029125,
+    "ast_hash": "edfb12fa2ef96ba0c62af098c5586413",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/MainWindow.xaml.cs": {
+    "mtime": 1795762389.8475099,
+    "seen": 1795788971.8029163,
+    "ast_hash": "5785bef093c7b5b6e2e1595a39d672b6",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Models/Rows.cs": {
+    "mtime": 1795714039.8045022,
+    "seen": 1795760873.080992,
+    "ast_hash": "16cf5c21db0a92eedfbac591256bf9e3",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/OperatorDemo.cs": {
+    "mtime": 1795762164.8203213,
+    "seen": 1795788971.8029277,
+    "ast_hash": "c973ce68aa0a63b221070ee89ec4b660",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj": {
+    "mtime": 1795277075.787405,
+    "seen": 1795760873.0809982,
+    "ast_hash": "1c5bf42bdb5727012f8bf2598b2e686f",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/UtilizationToHeightConverter.cs": {
+    "mtime": 1795624758.821972,
+    "seen": 1795760873.081014,
+    "ast_hash": "93fdc62773fa0e9b73510ff1f9c84e64",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/MainViewModel.cs": {
+    "mtime": 1795762355.3535285,
+    "seen": 1795788971.8030078,
+    "ast_hash": "7fe638cca6283fce8e08fc9c834fa0eb",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/WhatIfViewModel.cs": {
+    "mtime": 1795624758.8744133,
+    "seen": 1795760873.081048,
+    "ast_hash": "80b4ed69f57a720c35f89aa5a24afd1f",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/WhatIfWindow.xaml": {
+    "mtime": 1795628590.0249841,
+    "seen": 1795760873.0810926,
+    "ast_hash": "9804d9f01d65739853efc8d63502a5fa",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/WhatIfWindow.xaml.cs": {
+    "mtime": 1795628590.0679796,
+    "seen": 1795760873.0810957,
+    "ast_hash": "9a2c43a9bbfd0529f4e2977b8e84bb19",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Assert.cs": {
+    "mtime": 1795275535.657035,
+    "seen": 1795760873.081099,
+    "ast_hash": "b369c5fda6cf1c8148ff7b578eeec0d4",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Program.cs": {
+    "mtime": 1795760387.9848132,
+    "seen": 1795760873.0811024,
+    "ast_hash": "d739978d7337de7314bb46049b557199",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/ReportWriter.cs": {
+    "mtime": 1795788653.3680704,
+    "seen": 1795788971.8031108,
+    "ast_hash": "d777589170ade5f69db1066d276b0720",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/SeedSmokeTests.cs": {
+    "mtime": 1795275536.8073988,
+    "seen": 1795760873.081109,
+    "ast_hash": "bcd5131e97dfb9315e22a159bc464a7b",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/SmartEMobilityHub.Tests.csproj": {
+    "mtime": 1795762766.91659,
+    "seen": 1795788971.8031178,
+    "ast_hash": "630dad2efd2e19314af593dc51f713f0",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Support/CollectingLogger.cs": {
+    "mtime": 1795276606.0244396,
+    "seen": 1795760873.0811183,
+    "ast_hash": "31120db31fdace9f5070b813c844dc69",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Support/TestWorld.cs": {
+    "mtime": 1795760388.1784313,
+    "seen": 1795760873.0811253,
+    "ast_hash": "c81e4f6aafe7d4f22e6920ffcb2674f1",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/TestRunner.cs": {
+    "mtime": 1795275524.718712,
+    "seen": 1795760873.0811284,
+    "ast_hash": "8f231c07c8361e92c25fb8d296d8331b",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Unit/BoundaryTests.cs": {
+    "mtime": 1795276787.548534,
+    "seen": 1795760873.0811348,
+    "ast_hash": "45f93af7333e12edaa989d5197a4fc03",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Unit/DispatchTests.cs": {
+    "mtime": 1795624806.1160715,
+    "seen": 1795760873.081138,
+    "ast_hash": "aeaa01c4efc4a09f53910bb798da34f3",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Unit/RegressionTests.cs": {
+    "mtime": 1795760388.2267568,
+    "seen": 1795760873.081141,
+    "ast_hash": "1222b424eb3324942c8c249450f0163c",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/UseCase/TCOP03Tests.cs": {
+    "mtime": 1795279374.1563756,
+    "seen": 1795760873.0811474,
+    "ast_hash": "186b38ede9569633a9e5a56c80e60328",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/UseCase/TCSYS01Tests.cs": {
+    "mtime": 1795624806.2415712,
+    "seen": 1795760873.0811505,
+    "ast_hash": "bbcbaafd0ba61c0ea302f6c64004caf3",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/UseCase/TCSYS02Tests.cs": {
+    "mtime": 1795276753.0830145,
+    "seen": 1795760873.0811536,
+    "ast_hash": "1959a9858b4386a3989f34a8fc11396b",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/UseCase/TCSYS03Tests.cs": {
+    "mtime": 1795276807.5345962,
+    "seen": 1795760873.0811565,
+    "ast_hash": "45e69621f804a5c2fc5659797d53d00d",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/UseCase/TCSYS04Tests.cs": {
+    "mtime": 1795279374.936933,
+    "seen": 1795760873.0811596,
+    "ast_hash": "fed233b4e4653178e618f573909592a6",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1795760385.4807894,
+    "seen": 1795760873.0811627,
+    "ast_hash": "e23ab428232d676766f2bfdd31eb408c",
+    "semantic_hash": ""
+  },
+  "Screens/LoginScreen.cs": {
+    "mtime": 1795762493.7991588,
+    "seen": 1795788971.8022785,
+    "ast_hash": "ac9c1f72582046b99e9a277f6e553a44",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Domain/UserAccount.cs": {
+    "mtime": 1795628588.9464896,
+    "seen": 1795760873.0807185,
+    "ast_hash": "15684ab64c6c202fbeae0e637573762e",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/AccountSeed.cs": {
+    "mtime": 1795628588.9915018,
+    "seen": 1795760873.0807633,
+    "ast_hash": "5fd03c1966d1b442cc833215b157bba2",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/AuthService.cs": {
+    "mtime": 1795628589.0354896,
+    "seen": 1795760873.0807993,
+    "ast_hash": "7e96807f9ec6369a4e5bcd2d32dec271",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/LoginWindow.xaml": {
+    "mtime": 1795628589.3706124,
+    "seen": 1795760873.080975,
+    "ast_hash": "4444c5b86675f03c79245954592cec53",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/LoginWindow.xaml.cs": {
+    "mtime": 1795628589.407615,
+    "seen": 1795760873.0809784,
+    "ast_hash": "45ce3e33503a257007e5f5a7565e3a1c",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Unit/AuthTests.cs": {
+    "mtime": 1795628590.1669877,
+    "seen": 1795760873.0811317,
+    "ast_hash": "2858cd51ea39936fc8b9b08ac5428544",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Services/StudentAppGateway.cs": {
+    "mtime": 1795760386.8215816,
+    "seen": 1795760873.0808237,
+    "ast_hash": "8ac781bc8580a4fa825a18c92038dae0",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Themes/Dark.xaml": {
+    "mtime": 1795714039.8045022,
+    "seen": 1795760873.0810015,
+    "ast_hash": "de389c15f83876d8399dc3e88a7bef45",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Themes/Light.xaml": {
+    "mtime": 1795714039.8045022,
+    "seen": 1795760873.0810046,
+    "ast_hash": "bd6ab9bc2cdc1ab1919d10c8139706ce",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Themes/OperatorTheme.cs": {
+    "mtime": 1795628589.7659395,
+    "seen": 1795760873.0810077,
+    "ast_hash": "bad1aa003f21a35cefe1405593df816b",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Themes/Styles.xaml": {
+    "mtime": 1795760387.2867727,
+    "seen": 1795760873.0810103,
+    "ast_hash": "e422e422b1dbce4881e12a6729b90439",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Unit/StudentLinkTests.cs": {
+    "mtime": 1795628590.2079866,
+    "seen": 1795760873.081144,
+    "ast_hash": "4c752e2458a529a599de6e410aed819d",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Models/NetworkRows.cs": {
+    "mtime": 1795762277.3948386,
+    "seen": 1795788971.8029203,
+    "ast_hash": "29d219c08775004bd6248d4ed385e074",
+    "semantic_hash": ""
+  },
+  "Data/CampusMap.cs": {
+    "mtime": 1795760385.065063,
+    "seen": 1795760873.0802393,
+    "ast_hash": "384b55bed4880c387c017e3e1a6c4423",
+    "semantic_hash": ""
+  },
+  "Models/CoreAliases.cs": {
+    "mtime": 1795760385.2880633,
+    "seen": 1795760873.0802906,
+    "ast_hash": "4d9e91acd6024f5ae1d89fce2e7d0412",
+    "semantic_hash": ""
+  },
+  "Services/NetworkMapping.cs": {
+    "mtime": 1795760386.0085864,
+    "seen": 1795760873.0805225,
+    "ast_hash": "8577baf4982399f672bd61ed90ee39d7",
+    "semantic_hash": ""
+  },
+  "Services/NetworkWatcher.cs": {
+    "mtime": 1795760386.0351298,
+    "seen": 1795760873.0805266,
+    "ast_hash": "bab391dba81cc5257b72043623225509",
+    "semantic_hash": ""
+  },
+  "Services/StudentContext.cs": {
+    "mtime": 1795760386.1999507,
+    "seen": 1795760873.0805476,
+    "ast_hash": "b10b8f18b303b906d8e7fe973c648757",
+    "semantic_hash": ""
+  },
+  "Ui/UiKit.Controls.cs": {
+    "mtime": 1795760386.3554873,
+    "seen": 1795760873.0806003,
+    "ast_hash": "89d8155a23f7646c7fa34f237184e21c",
+    "semantic_hash": ""
+  },
+  "Ui/UiKit.Domain.cs": {
+    "mtime": 1795760386.38263,
+    "seen": 1795760873.0806043,
+    "ast_hash": "7c1495aefd36a8c943d62e61b8ace405",
+    "semantic_hash": ""
+  },
+  "Ui/UiKit.Indicators.cs": {
+    "mtime": 1795760386.4116335,
+    "seen": 1795760873.0806086,
+    "ast_hash": "65ad80bb39bba8f1dfe34e40d46365b7",
+    "semantic_hash": ""
+  },
+  "Ui/UiKit.Inputs.cs": {
+    "mtime": 1795760386.4376464,
+    "seen": 1795760873.080613,
+    "ast_hash": "cf14731c523f1257361efb0e4392c9d5",
+    "semantic_hash": ""
+  },
+  "Ui/UiKit.Surfaces.cs": {
+    "mtime": 1795760386.4647093,
+    "seen": 1795760873.0806167,
+    "ast_hash": "e2ad35122a3abca02fe611ca7a5ea203",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Adapters/ManualScheduler.cs": {
+    "mtime": 1795760386.5450652,
+    "seen": 1795760873.0806339,
+    "ast_hash": "c9e7d207377c73ff7eb2b028b675959d",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Adapters/SystemLog.cs": {
+    "mtime": 1795760386.581347,
+    "seen": 1795760873.0806422,
+    "ast_hash": "b29b0c099255c150c39b1641ac195603",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Clock/SimulationClock.cs": {
+    "mtime": 1795760386.6203508,
+    "seen": 1795760873.0806508,
+    "ast_hash": "c42099c05d984266ec7837351d26c93d",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/NetworkSession.cs": {
+    "mtime": 1795760386.6493523,
+    "seen": 1795760873.0807269,
+    "ast_hash": "1caab1728a7b583d12f1e0da6cfe848f",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Core/Seed/CampusFleetSeed.cs": {
+    "mtime": 1795760386.688449,
+    "seen": 1795760873.0807674,
+    "ast_hash": "9044c5a04935620cb2d160b80264b7bc",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Infrastructure/IDialogService.cs": {
+    "mtime": 1795760387.0208366,
+    "seen": 1795760873.0809615,
+    "ast_hash": "559a60650f31349b71d5ffead2724745",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Infrastructure/RelayCommand.cs": {
+    "mtime": 1795760387.0540738,
+    "seen": 1795760873.0809681,
+    "ast_hash": "02747edb04012695646d3c8e88adb3f2",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/AssetsPage.xaml": {
+    "mtime": 1795762370.6738782,
+    "seen": 1795788971.803023,
+    "ast_hash": "3a6681ddd133563951d82d676ff6c8a3",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/AssetsPage.xaml.cs": {
+    "mtime": 1795762370.6978765,
+    "seen": 1795788971.803027,
+    "ast_hash": "56ed5145c13e97cd8dc906089cd2452a",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/ChargingPage.xaml": {
+    "mtime": 1795762370.726898,
+    "seen": 1795788971.8030307,
+    "ast_hash": "1f7bdbf868b05fb1b8a120a2383c01fb",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/ChargingPage.xaml.cs": {
+    "mtime": 1795762370.7510874,
+    "seen": 1795788971.8030343,
+    "ast_hash": "1184d1636cc6184724b85ba109e3f9c7",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/DemoLogPage.xaml": {
+    "mtime": 1795762370.828138,
+    "seen": 1795788971.8030376,
+    "ast_hash": "baa362566568f356ca42e7f0e3630fe8",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/DemoLogPage.xaml.cs": {
+    "mtime": 1795762370.8502944,
+    "seen": 1795788971.8030412,
+    "ast_hash": "312688990863a20e0dc8d98b236198c8",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/DispatchPage.xaml": {
+    "mtime": 1795762370.780143,
+    "seen": 1795788971.8030448,
+    "ast_hash": "97b8cf4398b4fd021a6b302b97045807",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/DispatchPage.xaml.cs": {
+    "mtime": 1795762370.8071425,
+    "seen": 1795788971.8030484,
+    "ast_hash": "90b58a34d88839e71fd76385fffaee2b",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/IncidentsPage.xaml": {
+    "mtime": 1795762370.6184955,
+    "seen": 1795788971.8030517,
+    "ast_hash": "e7c52f2e7203d5ce9e3b7fdf60721675",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/IncidentsPage.xaml.cs": {
+    "mtime": 1795762370.6478817,
+    "seen": 1795788971.8030553,
+    "ast_hash": "163677d7470e4da172786256aa6b0fac",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/OverviewPage.xaml": {
+    "mtime": 1795762370.5782788,
+    "seen": 1795788971.8030586,
+    "ast_hash": "32370c39ab2efc0a610ddf406c4fd9f9",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/Views/OverviewPage.xaml.cs": {
+    "mtime": 1795762370.6015716,
+    "seen": 1795788971.8030622,
+    "ast_hash": "80a87414de8fac29ccf825f496d6248a",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/StudentApp/StudentAppTests.cs": {
+    "mtime": 1795760388.0845797,
+    "seen": 1795760873.0811152,
+    "ast_hash": "525243258ebd39097f3a50835e605cb3",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests/Support/StudentWorld.cs": {
+    "mtime": 1795760388.133995,
+    "seen": 1795760873.0811214,
+    "ast_hash": "c8c268530c0705841fb39b0c0a16be43",
+    "semantic_hash": ""
+  },
+  "Services/IOperatorConsole.cs": {
+    "mtime": 1795762472.4121366,
+    "seen": 1795788971.8023736,
+    "ast_hash": "0e45b6857ff3eb5a938e60b7e51cc6e6",
+    "semantic_hash": ""
+  },
+  "Ui/DemoStyles.xaml": {
+    "mtime": 1795762741.7840023,
+    "seen": 1795788971.8024518,
+    "ast_hash": "0a3f48e9ba3480b670eecef454fbc7e5",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Launcher/App.xaml": {
+    "mtime": 1795762766.785672,
+    "seen": 1795788971.8028595,
+    "ast_hash": "b7cdb7b72c61170737fbfb529448e708",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Launcher/App.xaml.cs": {
+    "mtime": 1795762766.80967,
+    "seen": 1795788971.8028631,
+    "ast_hash": "0e9b419ff5f7fe6ab65718f13c88b7c6",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Launcher/OperatorConsole.cs": {
+    "mtime": 1795762766.8346689,
+    "seen": 1795788971.8028665,
+    "ast_hash": "d32c7be103284ba1b6c23302a159be1c",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Launcher/SmartEMobilityHub.Launcher.csproj": {
+    "mtime": 1795762766.7606723,
+    "seen": 1795788971.8028698,
+    "ast_hash": "d1a73f3dd2fcee04e41be9de1574a486",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/AssetsPageViewModel.cs": {
+    "mtime": 1795762330.127061,
+    "seen": 1795788971.8029535,
+    "ast_hash": "1441e270f4cbc76e46c1d2a6e2d91b19",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/ChargingPageViewModel.cs": {
+    "mtime": 1795762239.6862326,
+    "seen": 1795788971.8029568,
+    "ast_hash": "251d8885990e125099b13c543b793ef4",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/DashboardContext.cs": {
+    "mtime": 1795762164.854593,
+    "seen": 1795788971.8029602,
+    "ast_hash": "c29935aa6b9d7d63ed9e7ce1493ea22d",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/DemoPageViewModel.cs": {
+    "mtime": 1795762330.1608229,
+    "seen": 1795788971.8029635,
+    "ast_hash": "00e68de2e49038bbdff57dba3076ba70",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/DispatchPageViewModel.cs": {
+    "mtime": 1795762267.497558,
+    "seen": 1795788971.8029666,
+    "ast_hash": "71d388362240e61a9ae8818a3f21ecd8",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/IncidentsPageViewModel.cs": {
+    "mtime": 1795762205.5235085,
+    "seen": 1795788971.8030012,
+    "ast_hash": "7b8ecea565c1b1e2528a08158f7a33d3",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/OverviewPageViewModel.cs": {
+    "mtime": 1795762330.116187,
+    "seen": 1795788971.8030114,
+    "ast_hash": "1415e6800324fdafd18c5e9b16693b3d",
+    "semantic_hash": ""
+  },
+  "src/SmartEMobilityHub.Operator/ViewModels/PageViewModel.cs": {
+    "mtime": 1795762164.8800108,
+    "seen": 1795788971.8030148,
+    "ast_hash": "7317e7bc275c7179541738d0c88e9112",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/OperatorUiTests.cs": {
+    "mtime": 1795788816.8586037,
+    "seen": 1795788971.803073,
+    "ast_hash": "9850eb75210b454ef97fb4a4fd642fbc",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/Program.cs": {
+    "mtime": 1795788784.1764276,
+    "seen": 1795788971.8030765,
+    "ast_hash": "c5dc1dfb47fccd7c0b1821e07ee1114f",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/SmartEMobilityHub.Tests.Ui.csproj": {
+    "mtime": 1795788816.932338,
+    "seen": 1795788971.8030798,
+    "ast_hash": "2cd2371cef733961bdc23020a7bb48fe",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/StudentUiTests.cs": {
+    "mtime": 1795788784.146959,
+    "seen": 1795788971.8030834,
+    "ast_hash": "45fbc7f0fb58f53cc2e5cb965046f054",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/Support/BindingErrors.cs": {
+    "mtime": 1795788893.9544675,
+    "seen": 1795788971.8030877,
+    "ast_hash": "e6fd5d23ec91b97cec361214de82aa75",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/Support/FakeDialogs.cs": {
+    "mtime": 1795788731.9642117,
+    "seen": 1795788971.8030915,
+    "ast_hash": "530df446ffe488720e75e533d7491c61",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/Support/StudentHarness.cs": {
+    "mtime": 1795788784.1370802,
+    "seen": 1795788971.8030956,
+    "ast_hash": "d4351e515eec1d8b6ea8259cd702932e",
+    "semantic_hash": ""
+  },
+  "tests/SmartEMobilityHub.Tests.Ui/Support/UiHelpers.cs": {
+    "mtime": 1795788816.6060796,
+    "seen": 1795788971.8030994,
+    "ast_hash": "52a13b68a2227198466861fc8001ddbe",
+    "semantic_hash": ""
+  }
+}

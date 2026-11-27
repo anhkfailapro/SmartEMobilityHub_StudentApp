@@ -101,8 +101,8 @@
                         <StackPanel>
                             <TextBlock Text="CHU KỲ QUÉT" Style="{StaticResource Overline}" />
                             <TextBlock Text="{Binding ScanText}" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,4,0,8" />
-                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét (30 giây)" IsChecked="{Binding AutoScan}" FontSize="11.5" Margin="0,0,0,4" />
-                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="11.5" />
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét (30 giây)" IsChecked="{Binding Shell.AutoScan}" FontSize="11.5" Margin="0,0,0,4" />
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding Shell.SpeedUp}" FontSize="11.5" />
                         </StackPanel>
                     </Border>
 
@@ -168,22 +168,22 @@
             <Grid Grid.Column="1">
 
                 <!-- ===== Trang 0: Tổng quan mạng lưới ===== -->
-                <views:OverviewPage Visibility="{Binding OverviewVisibility}" />
+                <views:OverviewPage DataContext="{Binding Overview}" Visibility="{Binding DataContext.OverviewVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
 
                 <!-- ===== Trang 1: Sự cố & bảo trì (UC-OP-03) ===== -->
-                <views:IncidentsPage Visibility="{Binding IncidentsVisibility}" />
+                <views:IncidentsPage DataContext="{Binding Incidents}" Visibility="{Binding DataContext.IncidentsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
 
                 <!-- ===== Trang 2: Phương tiện & cổng sạc ===== -->
-                <views:AssetsPage Visibility="{Binding AssetsVisibility}" />
+                <views:AssetsPage DataContext="{Binding Assets}" Visibility="{Binding DataContext.AssetsVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
 
                 <!-- ===== Trang 3: Lịch sạc thông minh (UC-SYS-01 / UC-OP-04) ===== -->
-                <views:ChargingPage Visibility="{Binding ChargingVisibility}" />
+                <views:ChargingPage DataContext="{Binding Charging}" Visibility="{Binding DataContext.ChargingVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
 
                 <!-- ===== Trang 4: Điều phối phương tiện ===== -->
-                <views:DispatchPage Visibility="{Binding DispatchVisibility}" />
+                <views:DispatchPage DataContext="{Binding Dispatch}" Visibility="{Binding DataContext.DispatchVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
 
                 <!-- ===== Trang 5: Kịch bản demo & nhật ký ===== -->
-                <views:DemoLogPage Visibility="{Binding DemoVisibility}" />
+                <views:DemoLogPage DataContext="{Binding Demo}" Visibility="{Binding DataContext.DemoVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             </Grid>
         </Grid>
 
@@ -192,7 +192,7 @@
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE946;" FontFamily="{StaticResource IconFont}" FontSize="11" Foreground="#60A5FA" VerticalAlignment="Center" Margin="0,0,8,0" />
-                    <TextBlock Text="{Binding LastActionText}" Foreground="#E2E8F0" FontSize="11.5" />
+                    <TextBlock Text="{Binding Shell.LastActionText}" Foreground="#E2E8F0" FontSize="11.5" />
                 </StackPanel>
                 <TextBlock Text="Nhóm 21 · CO3001 · Dữ liệu mô phỏng" Foreground="#64748B" FontSize="11"
                            HorizontalAlignment="Right" />

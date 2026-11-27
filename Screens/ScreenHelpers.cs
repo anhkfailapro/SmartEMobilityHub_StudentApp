@@ -6,16 +6,9 @@ using static SmartEMobilityHub.Ui.UiKit;
 
 namespace SmartEMobilityHub.Screens
 {
+    /// <summary>Hàm định dạng dùng chung, không phụ thuộc trạng thái app (HubMeta, GoHome nằm ở <see cref="Screen"/>).</summary>
     public static class ScreenHelpers
     {
-        public static string HubMeta(Hub h)
-        {
-            if (h.IsSuspended) return "Tạm dừng hoạt động · không nhận đặt xe, đỗ xe, sạc";
-            var avail = DemoApp.Vehicles.AvailableCount(h);
-            var slots = h.FreeSlots > 0 ? $"{h.FreeSlots} chỗ trống" : "Hết chỗ đỗ";
-            return $"{avail} xe sẵn sàng · {slots} · {h.FreePoints} cổng sạc";
-        }
-
         public static string DistanceFromMe(Hub h) => DemoConfig.Km(h.DistanceKmTo(0, 0));
 
         public static string Elapsed(TimeSpan e) => $"{(int)e.TotalHours:00}:{e.Minutes:00}:{e.Seconds:00}";
@@ -28,7 +21,5 @@ namespace SmartEMobilityHub.Screens
             tile.Background = Theme.SkySubtle;
             return HStack(12, tile, Stack(2, Text(v.Code, TextKind.Subtitle), Text(line, TextKind.Caption, Theme.Text2)));
         }
-
-        public static void GoHome() => DemoApp.GoTab(NavTab.Home);
     }
 }

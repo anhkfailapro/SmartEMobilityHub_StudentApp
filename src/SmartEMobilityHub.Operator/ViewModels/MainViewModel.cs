@@ -1,103 +1,112 @@
 using System.Collections.ObjectModel;
 using System.Windows;
-using SmartEMobilityHub.Core.Domain;
 using SmartEMobilityHub.Operator.Infrastructure;
 using SmartEMobilityHub.Operator.Models;
-using SmartEMobilityHub.Core.Services;
 
 namespace SmartEMobilityHub.Operator.ViewModels;
 
 /// <summary>
-/// ViewModel của Trung tâm điều hành, chia theo trang (DC-52): file này giữ phần chung (đồng hồ, chu kỳ quét,
-/// Refresh, header, KPI); .Network (Tổng quan, Xe &amp; cổng sạc, điều hướng), .Incidents, .Charging, .Dispatch,
-/// .Demo và .Commands (lệnh cho các nút).
+/// Khung điều hướng của Trung tâm điều hành: thanh bên (trang đang xem, huy hiệu), header (đồng hồ, chu kỳ quét)
+/// và nhịp 1 giây. Nội dung từng trang nằm ở ViewModel riêng (<see cref="OverviewPageViewModel"/>,
+/// <see cref="IncidentsPageViewModel"/>, <see cref="AssetsPageViewModel"/>, <see cref="ChargingPageViewModel"/>,
+/// <see cref="DispatchPageViewModel"/>, <see cref="DemoPageViewModel"/>); các trang chỉ liên lạc qua
+/// <see cref="DashboardContext"/>.
 /// </summary>
-public sealed partial class MainViewModel : ObservableObject
+public sealed class MainViewModel : ObservableObject
 {
-    private readonly OperatorDemo _demo;
+    public const int PageOverview = 0;
+    public const int PageIncidents = 1;
+    public const int PageAssets = 2;
+    public const int PageCharging = 3;
+    public const int PageDispatch = 4;
+    public const int PageDemo = 5;
 
-    private FilterOption _selectedFilter;
-    private IncidentRow? _selected;
-    private string _searchText = "";
-    private string _lastAction = "Sẵn sàng — bấm “Quét ngay” hoặc để tự động quét mỗi 30 giây.";
+    /// <summary>Chu kỳ quét tự động (giây theo đồng hồ mô phỏng).</summary>
+    private const int ScanPeriodSeconds = 30;
+
+    private readonly PageViewModel[] _pages;
+    private int _pageIndex = PageOverview;
     private string _clockText = "";
     private string _scanText = "";
-    private string _kpiNew = "0";
-    private string _kpiCheck = "0";
-    private string _kpiRepair = "0";
-    private string _kpiDone = "0";
-    private string _overloadText = "0";
-    private string _alertCountText = "0";
-    private string _techText = "0/0";
-    private string _visibleCountText = "0 sự cố";
-    private bool _autoScan = true;
-    private bool _speedUp;
+    private RelayCommand? _scanCommand;
 
-    public MainViewModel(OperatorDemo demo)
+    public MainViewModel(OperatorDemo demo, IDialogService? dialogs = null)
     {
-        _demo = demo;
-        Filters = new ObservableCollection<FilterOption>
-        {
-            new("Tất cả"),
-            new("Mới", IncidentStatus.New),
-            new("Kiểm tra", IncidentStatus.UnderCheck, IncidentStatus.Locked),
-            new("Đang sửa", IncidentStatus.InRepair),
-            new("Đã xong", IncidentStatus.Resolved, IncidentStatus.Closed)
-        };
-        _selectedFilter = Filters[0];
+        Shell = new DashboardContext(demo) { Dialogs = dialogs };
+        Overview = new OverviewPageViewModel(Shell);
+        Incidents = new IncidentsPageViewModel(Shell);
+        Assets = new AssetsPageViewModel(Shell);
+        Charging = new ChargingPageViewModel(Shell);
+        Dispatch = new DispatchPageViewModel(Shell);
+        Demo = new DemoPageViewModel(Shell);
+        _pages = new PageViewModel[] { Overview, Incidents, Assets, Charging, Dispatch, Demo };
+
+        Shell.RefreshRequested += Refresh;
+        Shell.HubAssetsRequested += OpenHubAssets;
         Refresh();
     }
 
-    public ObservableCollection<FilterOption> Filters { get; }
-    public ObservableCollection<IncidentRow> Incidents { get; } = new();
-    public ObservableCollection<MaintenanceRow> SelectedTasks { get; } = new();
-    public ObservableCollection<TechnicianRow> Technicians { get; } = new();
-    public ObservableCollection<AlertRow> Alerts { get; } = new();
-    public ObservableCollection<QueueRow> ChargingQueue { get; } = new();
-    public ObservableCollection<string> Logs => _demo.Logger.Lines;
+    /// <summary>Trạng thái dùng chung (dòng trạng thái, tự quét, hộp thoại).</summary>
+    public DashboardContext Shell { get; }
 
-    public string ClockText
+    public OverviewPageViewModel Overview { get; }
+    public IncidentsPageViewModel Incidents { get; }
+    public AssetsPageViewModel Assets { get; }
+    public ChargingPageViewModel Charging { get; }
+    public DispatchPageViewModel Dispatch { get; }
+    public DemoPageViewModel Demo { get; }
+
+    public ObservableCollection<NavItem> NavItems { get; } = new()
     {
-        get => _clockText;
-        private set => SetProperty(ref _clockText, value);
+        new NavItem("", "Tổng quan mạng lưới"),
+        new NavItem("", "Sự cố & bảo trì"),
+        new NavItem("", "Xe & cổng sạc"),
+        new NavItem("", "Lịch sạc thông minh"),
+        new NavItem("", "Điều phối phương tiện"),
+        new NavItem("", "Kịch bản demo & nhật ký")
+    };
+
+    public int PageIndex
+    {
+        get => _pageIndex;
+        set
+        {
+            // ListBox đặt -1 khi danh sách thay đổi: giữ nguyên trang đang xem.
+            if (value < 0 || value >= NavItems.Count || !SetProperty(ref _pageIndex, value)) return;
+            OnPropertyChanged(nameof(OverviewVisibility));
+            OnPropertyChanged(nameof(IncidentsVisibility));
+            OnPropertyChanged(nameof(AssetsVisibility));
+            OnPropertyChanged(nameof(ChargingVisibility));
+            OnPropertyChanged(nameof(DispatchVisibility));
+            OnPropertyChanged(nameof(DemoVisibility));
+        }
     }
 
-    public string ScanText
-    {
-        get => _scanText;
-        private set => SetProperty(ref _scanText, value);
-    }
+    public Visibility OverviewVisibility => Page(PageOverview);
+    public Visibility IncidentsVisibility => Page(PageIncidents);
+    public Visibility AssetsVisibility => Page(PageAssets);
+    public Visibility ChargingVisibility => Page(PageCharging);
+    public Visibility DispatchVisibility => Page(PageDispatch);
+    public Visibility DemoVisibility => Page(PageDemo);
 
-    public string LastActionText
-    {
-        get => _lastAction;
-        private set => SetProperty(ref _lastAction, value);
-    }
+    public string ClockText { get => _clockText; private set => SetProperty(ref _clockText, value); }
+    public string ScanText { get => _scanText; private set => SetProperty(ref _scanText, value); }
 
-    public string KpiNew { get => _kpiNew; private set => SetProperty(ref _kpiNew, value); }
-    public string KpiCheck { get => _kpiCheck; private set => SetProperty(ref _kpiCheck, value); }
-    public string KpiRepair { get => _kpiRepair; private set => SetProperty(ref _kpiRepair, value); }
-    public string KpiDone { get => _kpiDone; private set => SetProperty(ref _kpiDone, value); }
-    public string OverloadText { get => _overloadText; private set => SetProperty(ref _overloadText, value); }
-    public string AlertCountText { get => _alertCountText; private set => SetProperty(ref _alertCountText, value); }
-    public string TechText { get => _techText; private set => SetProperty(ref _techText, value); }
-    public string VisibleCountText { get => _visibleCountText; private set => SetProperty(ref _visibleCountText, value); }
-
-    public bool AutoScan { get => _autoScan; set => SetProperty(ref _autoScan, value); }
-    public bool SpeedUp { get => _speedUp; set => SetProperty(ref _speedUp, value); }
+    public RelayCommand ScanCommand => _scanCommand ??= new(ScanNow);
 
     /// <summary>Nhịp UI 1 giây: thời gian mô phỏng trôi, tự quét mỗi 30 giây.</summary>
     public void Tick()
     {
+        var session = Shell.Session;
         // Đồng hồ mô phỏng tự trôi theo giờ thật (DC-54); chế độ ×10 tua thêm 9 giây mỗi giây.
-        if (SpeedUp) _demo.Clock.AdvanceSeconds(9);
+        if (Shell.SpeedUp) session.Clock.AdvanceSeconds(9);
 
-        var lastTick = _demo.Timer.LastTickAt;
-        var due = lastTick is null || (_demo.Clock.Now - lastTick.Value).TotalSeconds >= 30;
+        var lastTick = session.Timer.LastTickAt;
+        var due = lastTick is null || (session.Clock.Now - lastTick.Value).TotalSeconds >= ScanPeriodSeconds;
 
-        if (AutoScan && due)
+        if (Shell.AutoScan && due)
         {
-            _demo.Scan();
+            session.Scan();
             Refresh();
             return;
         }
@@ -107,82 +116,49 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void ScanNow()
     {
-        _demo.Scan();
-        Note("Đã chạy chu kỳ quét 6 bước.");
+        Shell.Session.Scan();
+        Shell.Note("Đã chạy chu kỳ quét 6 bước.");
         Refresh();
     }
 
-    public void Advance(int minutes)
-    {
-        _demo.Advance(minutes);
-        Note($"Đã tua +{minutes} phút. Bấm “Quét ngay” để áp dụng chu kỳ.");
-        Refresh();
-    }
-
+    /// <summary>Làm mới mọi trang, huy hiệu thanh bên và header.</summary>
     public void Refresh()
     {
-        var previousId = _selected?.Id;
-        var all = _demo.Incidents.GetIncidentQueue();
-        var visible = all.Where(Matches).ToList();
-
-        Incidents.Clear();
-        foreach (var incident in visible)
-            Incidents.Add(new IncidentRow(incident, _demo.Store, _demo.Clock.Now));
-
-        SelectedIncident = Incidents.FirstOrDefault(r => r.Id == previousId) ?? Incidents.FirstOrDefault();
-        RefreshSelectedTasks();
-
-        KpiNew = all.Count(i => i.Status == IncidentStatus.New).ToString();
-        KpiCheck = all.Count(i => i.Status is IncidentStatus.UnderCheck or IncidentStatus.Locked).ToString();
-        KpiRepair = all.Count(i => i.Status == IncidentStatus.InRepair).ToString();
-        KpiDone = all.Count(i => i.Status is IncidentStatus.Resolved or IncidentStatus.Closed).ToString();
-        VisibleCountText = $"{Incidents.Count} sự cố";
-        OnPropertyChanged(nameof(EmptyHintText));
-
-        OverloadText = _demo.Store.Hubs.Count(h =>
-            h.Status == HubStatus.Online &&
-            h.Connection == ConnectionStatus.Online &&
-            h.MaxUtilization >= _demo.Threshold.Threshold).ToString();
-
-        TechText = $"{_demo.Store.Technicians.Count(t => t.IsAvailable())}/{_demo.Store.Technicians.Count}";
-
-        RefreshTechnicians();
-        RefreshAlerts();
-        RefreshQueue();
+        foreach (var page in _pages) page.Refresh();
+        UpdateBadges();
         UpdateHeader();
-        RefreshActionFlags();
-        RefreshHubsAndDispatch();
-        RefreshNetwork();
     }
 
-    // ---------- Nội bộ ----------
-
-    private void RefreshAlerts()
+    /// <summary>Mở trang Xe &amp; cổng sạc, lọc theo một Hub.</summary>
+    public void OpenHubAssets(string hubId)
     {
-        var merged = _demo.Notification.OperatorAlerts
-            .Concat(_demo.RetryQueue.Pending)
-            .GroupBy(a => a.AlertId)
-            .Select(g => g.First())
-            .OrderByDescending(a => a.CreatedAt)
-            .Take(6)
-            .ToList();
-
-        Alerts.Clear();
-        foreach (var alert in merged) Alerts.Add(new AlertRow(alert));
-        AlertCountText = merged.Count.ToString();
+        Assets.ShowHub(hubId);
+        PageIndex = PageAssets;
     }
+
+    private Visibility Page(int index) => _pageIndex == index ? Visibility.Visible : Visibility.Collapsed;
+
+    private void UpdateBadges()
+    {
+        var store = Shell.Session.Store;
+        var waiting = store.ChargingRequests.Count(r => r.AssignedPortId is null);
+        var activeOrders = store.DispatchOrders.Count(o => o.IsActive);
+
+        NavItems[PageOverview].Badge = Badge(Overview.AtRiskHubs.Count);
+        NavItems[PageIncidents].Badge = Badge(Overview.OpenIncidentCount);
+        NavItems[PageAssets].Badge = Badge(Assets.FaultyCount);
+        NavItems[PageCharging].Badge = Badge(waiting);
+        NavItems[PageDispatch].Badge = Badge(activeOrders);
+    }
+
+    private static string Badge(int count) => count > 0 ? count.ToString() : "";
 
     private void UpdateHeader()
     {
-        ClockText = _demo.Clock.Now.ToString("HH:mm:ss");
-
-        ScanText = _demo.Timer.LastTickAt is null
+        var session = Shell.Session;
+        ClockText = session.Clock.Now.ToString("HH:mm:ss");
+        ScanText = session.Timer.LastTickAt is null
             ? "Chưa quét · chu kỳ 30 giây"
-            : $"Cập nhật {_demo.Timer.GetSecondsSinceLastTick()} giây trước · chu kỳ 30 giây";
-
-        OnPropertyChanged(nameof(ClockText));
-        OnPropertyChanged(nameof(ScanText));
+            : $"Cập nhật {session.Timer.GetSecondsSinceLastTick()} giây trước · chu kỳ 30 giây";
     }
-
-    private void Note(string message) => LastActionText = message;
 }

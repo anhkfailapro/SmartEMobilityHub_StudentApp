@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SmartEMobilityHub.Tests.Ui</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Test tầng giao diện WPF (chạy trên Windows): ViewModel từng trang Trung tâm điều hành, cửa sổ Operator với
+    binding thật, và mọi màn hình app Sinh viên dựng trên một DemoApp riêng. Không dùng NuGet (ràng buộc của nhóm):
+    dùng lại TestRunner / Assert / ReportWriter của project test chính.
+  -->
+  <!-- Project WPF không có sẵn using System.IO (ReportWriter, Program cần). -->
+  <ItemGroup>
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../SmartEMobilityHub.Tests/Assert.cs" Link="Shared/Assert.cs" />
+    <Compile Include="../SmartEMobilityHub.Tests/TestRunner.cs" Link="Shared/TestRunner.cs" />
+    <Compile Include="../SmartEMobilityHub.Tests/ReportWriter.cs" Link="Shared/ReportWriter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />
+    <ProjectReference Include="../../src/SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj" />
+    <ProjectReference Include="../../SmartEMobilityHub.csproj" />
+  </ItemGroup>
+
+</Project>

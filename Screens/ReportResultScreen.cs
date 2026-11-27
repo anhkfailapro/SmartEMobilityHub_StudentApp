@@ -12,7 +12,7 @@ namespace SmartEMobilityHub.Screens
         private readonly bool _linked;
         private readonly Trip? _returnedTrip;
 
-        public ReportResultScreen(Incident incident, bool linked, Trip? returnedTrip)
+        public ReportResultScreen(DemoApp app, Incident incident, bool linked, Trip? returnedTrip) : base(app)
         {
             _incident = incident;
             _linked = linked;
@@ -48,6 +48,6 @@ namespace SmartEMobilityHub.Screens
             return root;
         }
 
-        public override UIElement? BuildActions() => Button("Về trang chủ", ButtonVariant.Primary, ScreenHelpers.GoHome);
+        public override UIElement? BuildActions() => Button("Về trang chủ", ButtonVariant.Primary, GoHome);
     }
 }

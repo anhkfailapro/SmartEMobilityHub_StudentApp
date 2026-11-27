@@ -12,12 +12,14 @@ namespace SmartEMobilityHub.Capture
     /// </summary>
     internal static class StudentCapture
     {
+        private static DemoApp _app = null!;
         private static ShotKit _kit = null!;
         private static Border _phone = null!;
-        private static AppShell Shell => DemoApp.Shell;
+        private static AppShell Shell => _app.Shell;
 
-        public static async Task RunAsync(Border phoneHost, string dir)
+        public static async Task RunAsync(DemoApp app, Border phoneHost, string dir)
         {
+            _app = app;
             _kit = new ShotKit(dir);
             _phone = phoneHost;
             await ShotKit.Settle(800);
@@ -52,13 +54,13 @@ namespace SmartEMobilityHub.Capture
         private static async Task Demo(Action action)
         {
             action();
-            DemoApp.AfterDemoAction();
+            _app.AfterDemoAction();
             await ShotKit.Settle();
         }
 
         private static async Task Tab(NavTab tab)
         {
-            DemoApp.GoTab(tab);
+            _app.GoTab(tab);
             await ShotKit.Settle();
         }
 
@@ -103,7 +105,7 @@ namespace SmartEMobilityHub.Capture
         // ---------- kịch bản ----------
         private static async Task Script()
         {
-            var toggles = DemoApp.Toggles;
+            var toggles = _app.Toggles;
 
             // ===== UC-01 =====
             _kit.Section = "UC-01 Lập kế hoạch hành trình (Plan journey)";
@@ -170,7 +172,7 @@ namespace SmartEMobilityHub.Capture
             // ===== UC-06 =====
             _kit.Section = "UC-06 Nhận xe (Pick up vehicle)";
             await Tab(NavTab.Home);
-            Shell.Navigate(new ReservationScreen());
+            Shell.Navigate(new ReservationScreen(_app));
             await ShotKit.Settle();
             await C("Nhập mã thủ công");
             await Shot("Luồng thay thế 1a – Nhập mã thủ công",
@@ -194,7 +196,7 @@ namespace SmartEMobilityHub.Capture
 
             // ===== UC-08 =====
             _kit.Section = "UC-08 Yêu cầu sạc (Charging request)";
-            DemoApp.Clock.FastForward(18);
+            _app.Clock.FastForward(18);
             await Tab(NavTab.Trip);
             await C("Yêu cầu sạc");
             await Shot("Yêu cầu sạc cho xe đang dùng",
@@ -206,7 +208,7 @@ namespace SmartEMobilityHub.Capture
             await C("Xác nhận yêu cầu sạc");
             await Shot("Đã vào hàng chờ sạc",
                 "Gửi yêu cầu thành công: xe được đưa vào hàng chờ sạc với vị trí và thời gian chờ dự kiến. Khi có cổng trống, sinh viên nhận thông báo “Đã có cổng sạc”.");
-            await Demo(() => DemoApp.Charging.AssignNextChargingPoint());
+            await Demo(() => _app.Charging.AssignNextChargingPoint());
 
             // ===== UC-07 (phần 1) =====
             _kit.Section = "UC-07 Trả xe (Return vehicle)";
@@ -377,8 +379,8 @@ namespace SmartEMobilityHub.Capture
             await C("EB-1055");
             await C("Đặt trước");
             await C("Xác nhận đặt");
-            DemoApp.Clock.FastForward(16);
-            DemoApp.Tick();
+            _app.Clock.FastForward(16);
+            _app.Tick();
             await ShotKit.Settle();
             await Dialog("Luồng 5a – Hết 15 phút giữ xe, đặt chỗ tự hủy",
                 "Quá 15 phút mà sinh viên chưa nhận xe: đặt chỗ tự động bị hủy, xe trở về trạng thái sẵn sàng và sinh viên được gợi ý tìm xe khác.");

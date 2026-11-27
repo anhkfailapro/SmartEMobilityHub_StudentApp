@@ -11,29 +11,29 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly bool _justStarted;
 
-        public TripScreen(bool justStarted = false)
+        public TripScreen(DemoApp app, bool justStarted = false) : base(app)
         {
             _justStarted = justStarted;
         }
 
-        public override string? Title => DemoApp.Billing.ActiveTrip != null ? "Chuyến đi đang diễn ra" : "Chuyến đi";
+        public override string? Title => App.Billing.ActiveTrip != null ? "Chuyến đi đang diễn ra" : "Chuyến đi";
         public override bool ShowBack => false;
         public override NavTab? Tab => NavTab.Trip;
-        public override bool WantsTick => DemoApp.Billing.ActiveTrip != null;
+        public override bool WantsTick => App.Billing.ActiveTrip != null;
 
         public override UIElement BuildContent()
         {
-            var billing = DemoApp.Billing;
+            var billing = App.Billing;
             var trip = billing.ActiveTrip;
             if (trip == null)
             {
                 var empty = EmptyState(Icons.Bike, "Bạn chưa có chuyến đi nào", "Đặt xe và nhận xe để bắt đầu chuyến đi.");
-                Add(empty, Button("Tìm xe", ButtonVariant.Primary, ScreenHelpers.GoHome), 16);
+                Add(empty, Button("Tìm xe", ButtonVariant.Primary, GoHome), 16);
                 return empty;
             }
 
-            var v = DemoApp.Store.GetVehicle(trip.VehicleCode)!;
-            var hub = DemoApp.Store.GetHub(trip.StartHubId);
+            var v = App.Store.GetVehicle(trip.VehicleCode)!;
+            var hub = App.Store.GetHub(trip.StartHubId);
             var root = Stack(16);
             if (_justStarted) Add(root, Banner(Tone.Success, "Mở khóa thành công. Chuyến đi đã bắt đầu."), 16);
 
@@ -45,7 +45,7 @@ namespace SmartEMobilityHub.Screens
                 Effect = Theme.SoftShadow(26, 6, 0.28, "#4F46E5"),
                 Child = Stack(12,
                     Centered(Text("Thời gian đã đi", TextKind.Body, Theme.OnPrimary)),
-                    Centered(Text(ScreenHelpers.Elapsed(DemoApp.Clock.Now - trip.StartTime), TextKind.Huge, Theme.OnPrimary)),
+                    Centered(Text(ScreenHelpers.Elapsed(App.Clock.Now - trip.StartTime), TextKind.Huge, Theme.OnPrimary)),
                     Columns(8,
                         Tile($"{billing.CurrentBattery(trip)}%", "Pin"),
                         Tile(DemoConfig.Km(billing.CurrentDistanceKm(trip)), "Quãng đường"),
@@ -59,9 +59,9 @@ namespace SmartEMobilityHub.Screens
                 Add(root, Banner(Tone.Success, $"Bạn được cộng thêm {trip.ExtraFreeMinutes} phút miễn phí để đến Hub còn chỗ trống."), 16);
             Add(root, RoutePreview(), 16);
             Add(root, Columns(12,
-                Button("Yêu cầu sạc", ButtonVariant.Charging, () => Shell.Navigate(new ChargingRequestScreen(trip.VehicleCode, trip.StartHubId)), true, Icons.Bolt),
-                Button("Báo lỗi", ButtonVariant.DangerSubtle, () => Shell.Navigate(new ReportProblemScreen(ReportObjectKind.Vehicle, trip.VehicleCode)), true, Icons.Warning)), 16);
-            Add(root, Button("Trả xe", ButtonVariant.Primary, () => Shell.Navigate(new ReturnVehicleScreen())), 12);
+                Button("Yêu cầu sạc", ButtonVariant.Charging, () => Shell.Navigate(new ChargingRequestScreen(App, trip.VehicleCode, trip.StartHubId)), true, Icons.Bolt),
+                Button("Báo lỗi", ButtonVariant.DangerSubtle, () => Shell.Navigate(new ReportProblemScreen(App, ReportObjectKind.Vehicle, trip.VehicleCode)), true, Icons.Warning)), 16);
+            Add(root, Button("Trả xe", ButtonVariant.Primary, () => Shell.Navigate(new ReturnVehicleScreen(App))), 12);
             return root;
         }
 

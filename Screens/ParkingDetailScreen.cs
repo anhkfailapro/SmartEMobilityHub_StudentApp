@@ -11,7 +11,7 @@ namespace SmartEMobilityHub.Screens
         private readonly string _id;
         private readonly bool _justCreated;
 
-        public ParkingDetailScreen(string id, bool justCreated)
+        public ParkingDetailScreen(DemoApp app, string id, bool justCreated) : base(app)
         {
             _id = id;
             _justCreated = justCreated;
@@ -21,9 +21,9 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var p = DemoApp.Store.ParkingReservations.First(x => x.Id == _id);
-            var hub = DemoApp.Store.GetHub(p.HubId);
-            var pv = DemoApp.Store.GetPrivateVehicle(p.PrivateVehicleId);
+            var p = App.Store.ParkingReservations.First(x => x.Id == _id);
+            var hub = App.Store.GetHub(p.HubId);
+            var pv = App.Store.GetPrivateVehicle(p.PrivateVehicleId);
             var (label, tone) = DemoConfig.ReservationStateLabel(p.State, false);
             var root = Stack(16);
             if (_justCreated) Add(root, Banner(Tone.Success, "Đặt chỗ đỗ xe thành công! Thông báo đã được gửi tới bạn."), 16);
@@ -41,7 +41,7 @@ namespace SmartEMobilityHub.Screens
         }
 
         public override UIElement? BuildActions() => Columns(12,
-            Button("Về trang chủ", ButtonVariant.Outline, ScreenHelpers.GoHome),
-            Button("Đặt chỗ của tôi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Booking)));
+            Button("Về trang chủ", ButtonVariant.Outline, GoHome),
+            Button("Đặt chỗ của tôi", ButtonVariant.Primary, () => App.GoTab(NavTab.Booking)));
     }
 }

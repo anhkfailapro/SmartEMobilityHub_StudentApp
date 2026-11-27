@@ -19,7 +19,7 @@ namespace SmartEMobilityHub.Screens
         private string? _photoName;
         private double? _photoMb;
 
-        public ReportProblemScreen(ReportObjectKind kind = ReportObjectKind.Vehicle, string? code = null)
+        public ReportProblemScreen(DemoApp app, ReportObjectKind kind = ReportObjectKind.Vehicle, string? code = null) : base(app)
         {
             _kind = kind;
             _code = code ?? "";
@@ -29,7 +29,7 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var store = DemoApp.Store;
+            var store = App.Store;
             var root = Stack(16, Labeled("Đối tượng", Segmented(new[] { "Phương tiện", "Điểm sạc" }, _kind == ReportObjectKind.Vehicle ? 0 : 1, i =>
             {
                 _kind = i == 0 ? ReportObjectKind.Vehicle : ReportObjectKind.ChargingPoint;
@@ -94,7 +94,7 @@ namespace SmartEMobilityHub.Screens
             Shell.Refresh();
         }
 
-        private static void RejectPhoto(double mb)
+        private void RejectPhoto(double mb)
         {
             Shell.ShowDialog(Tone.Danger, "Ảnh quá lớn", $"Ảnh {mb:0.0} MB vượt giới hạn {DemoConfig.MaxPhotoMb:0} MB nên không được tải lên. Vui lòng chọn ảnh nhỏ hơn.");
         }
@@ -108,17 +108,17 @@ namespace SmartEMobilityHub.Screens
                     Shell.ShowDialog(Tone.Info, "Thiếu mã phương tiện", "Vui lòng nhập mã phương tiện cần báo lỗi.");
                     return;
                 }
-                if (DemoApp.Store.GetVehicle(_code) == null)
+                if (App.Store.GetVehicle(_code) == null)
                 {
                     Shell.ShowDialog(Tone.Warning, "Không tìm thấy phương tiện", $"Không có phương tiện mã {_code.Trim()}.");
                     return;
                 }
-                var trip = DemoApp.Billing.ActiveTrip;
+                var trip = App.Billing.ActiveTrip;
                 if (trip != null && string.Equals(trip.VehicleCode, _code.Trim(), StringComparison.OrdinalIgnoreCase))
                 {
                     Shell.ShowDialog(Tone.Warning, "Chuyến đi đang diễn ra",
                         $"Bạn đang dùng {trip.VehicleCode}. Hệ thống sẽ kết thúc chuyến (trả xe) trước, sau đó gửi báo cáo.",
-                        new DialogAction("Kết thúc chuyến và báo lỗi", ButtonVariant.Danger, () => Shell.Navigate(new ReturnVehicleScreen(t => SendReport(t)))),
+                        new DialogAction("Kết thúc chuyến và báo lỗi", ButtonVariant.Danger, () => Shell.Navigate(new ReturnVehicleScreen(App, t => SendReport(t)))),
                         new DialogAction("Hủy", ButtonVariant.Outline));
                     return;
                 }
@@ -128,16 +128,16 @@ namespace SmartEMobilityHub.Screens
 
         private void SendReport(Trip? returnedTrip)
         {
-            var hub = DemoApp.Store.GetHub(_hubId);
+            var hub = App.Store.GetHub(_hubId);
             var code = _kind == ReportObjectKind.Vehicle ? _code.Trim() : $"{hub.ShortName} · Cổng #{_point}";
-            var result = DemoApp.Incidents.ReceiveStudentReport(_kind, code, _kind == ReportObjectKind.ChargingPoint ? _hubId : null,
+            var result = App.Incidents.ReceiveStudentReport(_kind, code, _kind == ReportObjectKind.ChargingPoint ? _hubId : null,
                 _kind == ReportObjectKind.ChargingPoint ? _point : null, _problem, _description, _photoMb);
             if (!result.Ok)
             {
                 Shell.ShowDialog(Tone.Danger, "Không thể gửi báo cáo", result.Message);
                 return;
             }
-            Shell.ResetTo(new ReportResultScreen(result.Value!, result.Message == "Linked", returnedTrip));
+            Shell.ResetTo(new ReportResultScreen(App, result.Value!, result.Message == "Linked", returnedTrip));
         }
     }
 }

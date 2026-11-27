@@ -13,7 +13,7 @@ namespace SmartEMobilityHub.Screens
         private string _hubId;
         private bool _showOthers;
 
-        public ChargingRequestScreen(string vehicleCode, string hubId)
+        public ChargingRequestScreen(DemoApp app, string vehicleCode, string hubId) : base(app)
         {
             _vehicleCode = vehicleCode;
             _originalHubId = hubId;
@@ -26,10 +26,10 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var v = DemoApp.Store.GetVehicle(_vehicleCode)!;
-            var trip = DemoApp.Billing.ActiveTrip;
-            var battery = trip != null && trip.VehicleCode == _vehicleCode ? DemoApp.Billing.CurrentBattery(trip) : v.Battery;
-            var e = DemoApp.Charging.GetChargingEstimate(_vehicleCode, _hubId, ApplyBusyToggle);
+            var v = App.Store.GetVehicle(_vehicleCode)!;
+            var trip = App.Billing.ActiveTrip;
+            var battery = trip != null && trip.VehicleCode == _vehicleCode ? App.Billing.CurrentBattery(trip) : v.Battery;
+            var e = App.Charging.GetChargingEstimate(_vehicleCode, _hubId, ApplyBusyToggle);
             var hub = e.Hub;
 
             var root = Stack(16,
@@ -71,7 +71,7 @@ namespace SmartEMobilityHub.Screens
             if (e.AllBusy)
                 Add(root, Banner(Tone.Warning, $"Tất cả cổng sạc tại {hub.Name} đang bận hoặc ngưng hoạt động. Thời gian chờ ~{e.WaitMinutes} phút. Bạn có thể chọn Hub khác."), 16);
 
-            var others = DemoApp.Charging.OtherHubs(_vehicleCode, _hubId);
+            var others = App.Charging.OtherHubs(_vehicleCode, _hubId);
             var best = others.FirstOrDefault();
             if (best != null)
             {
@@ -111,12 +111,12 @@ namespace SmartEMobilityHub.Screens
 
         private OpResult<ChargingRequest> SubmitRequest()
         {
-            var result = DemoApp.Charging.SubmitChargingRequest(_vehicleCode, _hubId, ApplyBusyToggle);
+            var result = App.Charging.SubmitChargingRequest(_vehicleCode, _hubId, ApplyBusyToggle);
             if (result.Error == "Duplicate")
             {
                 var existing = result.Value!;
                 Shell.ShowDialog(Tone.Info, "Yêu cầu đã tồn tại", result.Message,
-                    new DialogAction("Xem yêu cầu", ButtonVariant.Primary, () => Shell.Replace(new ChargingQueuedScreen(existing.Id))),
+                    new DialogAction("Xem yêu cầu", ButtonVariant.Primary, () => Shell.Replace(new ChargingQueuedScreen(App, existing.Id))),
                     new DialogAction("Đóng", ButtonVariant.Outline));
             }
             else if (!result.Ok)
@@ -130,7 +130,7 @@ namespace SmartEMobilityHub.Screens
         private void Submit()
         {
             var result = SubmitRequest();
-            if (result.Ok) Shell.Replace(new ChargingQueuedScreen(result.Value!.Id));
+            if (result.Ok) Shell.Replace(new ChargingQueuedScreen(App, result.Value!.Id));
         }
 
         private void Combined()
@@ -139,11 +139,11 @@ namespace SmartEMobilityHub.Screens
             if (!result.Ok) return;
             var request = result.Value!;
             var hubId = _hubId;
-            var hub = DemoApp.Store.GetHub(hubId);
+            var hub = App.Store.GetHub(hubId);
             var note = request.State == ChargingRequestState.Assigned
                 ? $"Đã giữ cổng sạc #{request.AssignedPoint} tại {hub.ShortName} cho {_vehicleCode}: trả xe ở đây là xe vào sạc ngay. Bạn có thể đặt xe mới tại Hub này."
                 : $"Đã gửi yêu cầu sạc cho {_vehicleCode}: vị trí #{request.QueuePosition} tại {hub.ShortName}, chờ ~{request.WaitMinutes} phút. Bạn có thể đặt xe mới tại Hub này.";
-            Shell.Replace(new ReturnVehicleScreen(trip => Shell.ResetTo(new TripSummaryScreen(trip, hubId, note)), hubId));
+            Shell.Replace(new ReturnVehicleScreen(App, trip => Shell.ResetTo(new TripSummaryScreen(App, trip, hubId, note)), hubId));
         }
     }
 }

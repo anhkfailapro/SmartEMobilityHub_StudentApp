@@ -11,7 +11,7 @@ namespace SmartEMobilityHub.Screens
         private readonly bool _fromHome;
         private int _tab;
 
-        public ActivityScreen(bool fromHome)
+        public ActivityScreen(DemoApp app, bool fromHome) : base(app)
         {
             _fromHome = fromHome;
         }
@@ -31,11 +31,11 @@ namespace SmartEMobilityHub.Screens
             return root;
         }
 
-        private static UIElement BuildNotifications()
+        private UIElement BuildNotifications()
         {
-            var list = DemoApp.Notifications.Newest();
+            var list = App.Notifications.Newest();
             if (list.Count == 0) return EmptyState(Icons.Bell, "Chưa có thông báo", "Thông báo về đặt chỗ, thanh toán và sạc sẽ hiển thị ở đây.");
-            var now = DemoApp.Clock.Now;
+            var now = App.Clock.Now;
             var stack = Stack(12);
             foreach (var n in list)
             {
@@ -53,7 +53,7 @@ namespace SmartEMobilityHub.Screens
                 var body = Stack(4, Split(title, Text(DemoConfig.Ago(n.Time, now), TextKind.Caption, Theme.Text2, false)), Text(n.Body, TextKind.Body, Theme.Text2));
                 Add(stack, Panel(HStackFill(tile, body)), 12);
             }
-            DemoApp.Notifications.MarkAllRead();
+            App.Notifications.MarkAllRead();
             return stack;
         }
 
@@ -69,9 +69,9 @@ namespace SmartEMobilityHub.Screens
             return g;
         }
 
-        private static UIElement BuildHistory()
+        private UIElement BuildHistory()
         {
-            var entries = DemoApp.History.Entries();
+            var entries = App.History.Entries();
             if (entries.Count == 0)
                 return EmptyState(Icons.Clock, $"Không có hoạt động trong {DemoConfig.HistoryMonths} tháng gần đây", "Các chuyến đi và đặt chỗ của bạn sẽ hiển thị ở đây.");
             var stack = Stack(12, Text($"Chuyến đi và đặt chỗ trong {DemoConfig.HistoryMonths} tháng gần đây", TextKind.Caption, Theme.Text2));
@@ -82,7 +82,7 @@ namespace SmartEMobilityHub.Screens
                     Split(Text(entry.Title, TextKind.Subtitle), Text(entry.Fee, TextKind.Subtitle, null, false)),
                     Text($"{entry.Date:dd/MM/yyyy HH:mm} · {entry.HubName}", TextKind.Caption, Theme.Text2),
                     Text($"{entry.Duration} · {entry.Status}", TextKind.Caption, Theme.Text2));
-                Add(stack, OnClick(card, () => Shell.Navigate(new HistoryDetailScreen(entry))), 12);
+                Add(stack, OnClick(card, () => Shell.Navigate(new HistoryDetailScreen(App, entry))), 12);
             }
             return stack;
         }

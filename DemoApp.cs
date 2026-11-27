@@ -11,103 +11,115 @@ using SmartEMobilityHub.Ui;
 
 namespace SmartEMobilityHub
 {
-    public static class DemoApp
+    /// <summary>
+    /// App Sinh viên đang chạy: dữ liệu và service (<see cref="StudentContext"/>), khung điện thoại (<see cref="AppShell"/>),
+    /// Demo panel, phiên đăng nhập và nhịp 1 giây. Mỗi cửa sổ tạo một instance và truyền nó cho màn hình qua constructor,
+    /// nên màn hình không đọc trạng thái toàn cục và test dựng được app trên một <see cref="StudentContext"/> riêng.
+    /// </summary>
+    public sealed class DemoApp
     {
-        /// <summary>Liên thông với Trung tâm điều hành: dùng chung mạng lưới Core (Hub, xe, đặt chỗ, sự cố, hàng chờ sạc).</summary>
-        public static NetworkLink Link { get; } = new();
+        private DemoPanel? _panel;
+        private DispatcherTimer? _timer;
 
-        /// <summary>
-        /// Dữ liệu và service của app Sinh viên (DC-51) trên mạng lưới dùng chung với Trung tâm điều hành (DC-54).
-        /// Các thuộc tính dưới đây chỉ là lối tắt cho màn hình.
-        /// </summary>
-        public static StudentContext Context { get; } = new();
+        /// <param name="operatorConsole">
+        /// Cửa sổ Trung tâm điều hành liên thông (Launcher cung cấp). null = chạy app Sinh viên riêng lẻ.
+        /// </param>
+        /// <param name="context">Dữ liệu và service; null = tạo mới theo giờ thật.</param>
+        public DemoApp(IOperatorConsole? operatorConsole = null, StudentContext? context = null)
+        {
+            OperatorConsole = operatorConsole;
+            Context = context ?? new StudentContext();
+            Auth = new AuthService(Context.Clock);
+            AccountSeed.Apply(Auth);
+        }
 
-        public static SimulationClock Clock => Context.Clock;
-        public static DemoToggles Toggles => Context.Toggles;
-        public static MockDataStore Store => Context.Store;
-        public static NotificationService Notifications => Context.Notifications;
-        public static JourneyPlanner Journey => Context.Journey;
-        public static VehicleManager Vehicles => Context.Vehicles;
-        public static ReservationService Reservations => Context.Reservations;
-        public static ParkingService Parking => Context.Parking;
-        public static PickUpService PickUp => Context.PickUp;
-        public static TripBillingService Billing => Context.Billing;
-        public static ChargingService Charging => Context.Charging;
-        public static BookingService Booking => Context.Booking;
-        public static IncidentService Incidents => Context.Incidents;
-        public static HistoryService History => Context.History;
-        public static AppShell Shell { get; private set; } = null!;
+        /// <summary>Dữ liệu và service của app Sinh viên (DC-51) trên mạng lưới dùng chung với Trung tâm điều hành (DC-54).</summary>
+        public StudentContext Context { get; }
+
+        /// <summary>Trung tâm điều hành liên thông; null khi không chạy qua Launcher.</summary>
+        public IOperatorConsole? OperatorConsole { get; }
 
         /// <summary>Đăng nhập dùng chung với Core; tài khoản demo nạp từ <see cref="AccountSeed"/>.</summary>
-        public static AuthService Auth { get; } = CreateAuth();
+        public AuthService Auth { get; }
 
-        private static DemoPanel? _panel;
-        private static DispatcherTimer? _timer;
+        public AppShell Shell { get; private set; } = null!;
+
+        // Lối tắt cho màn hình.
+        public SimulationClock Clock => Context.Clock;
+        public DemoToggles Toggles => Context.Toggles;
+        public MockDataStore Store => Context.Store;
+        public NotificationService Notifications => Context.Notifications;
+        public JourneyPlanner Journey => Context.Journey;
+        public VehicleManager Vehicles => Context.Vehicles;
+        public ReservationService Reservations => Context.Reservations;
+        public ParkingService Parking => Context.Parking;
+        public PickUpService PickUp => Context.PickUp;
+        public TripBillingService Billing => Context.Billing;
+        public ChargingService Charging => Context.Charging;
+        public BookingService Booking => Context.Booking;
+        public IncidentService Incidents => Context.Incidents;
+        public HistoryService History => Context.History;
 
         /// <param name="requireLogin">
         /// false khi chạy chế độ chụp màn hình: tự đăng nhập tài khoản demo để kịch bản vào thẳng Trang chủ.
         /// </param>
-        public static void Start(Border phoneHost, Border panelHost, bool requireLogin = true)
+        /// <param name="startTimer">false trong test: không chạy nhịp 1 giây của giao diện.</param>
+        public void Start(Border phoneHost, Border panelHost, bool requireLogin = true, bool startTimer = true)
         {
             Context.Reset();
-            Link.Reset();
-            Shell = new AppShell(phoneHost);
-            _panel = new DemoPanel(panelHost);
+            OperatorConsole?.SessionChanged(Context.Network);
+            Shell = new AppShell(this, phoneHost);
+            _panel = new DemoPanel(this, panelHost);
             _panel.Build();
             if (requireLogin)
             {
-                Shell.ResetTo(new LoginScreen());
+                Shell.ResetTo(new LoginScreen(this));
             }
             else
             {
                 var demo = Auth.Login(AccountSeed.StudentUsername, AccountSeed.StudentPassword, Core.Domain.AccountRole.Student);
                 OnLoggedIn(demo.Account!);
             }
+
+            if (!startTimer) return;
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += (_, _) => Tick();
             _timer.Start();
         }
 
-        public static void OnLoggedIn(Core.Domain.UserAccount account)
+        public void OnLoggedIn(Core.Domain.UserAccount account)
         {
             Store.StudentName = account.DisplayName;
             Store.StudentId = account.LinkedId;
-            Shell.ResetTo(new HomeScreen());
+            Shell.ResetTo(new HomeScreen(this));
         }
 
-        public static void Logout()
+        public void Logout()
         {
             Auth.Logout();
-            Shell.ResetTo(new LoginScreen());
+            Shell.ResetTo(new LoginScreen(this));
         }
 
-        private static AuthService CreateAuth()
-        {
-            var auth = new AuthService(Clock);
-            AccountSeed.Apply(auth);
-            return auth;
-        }
-
-        public static void GoTab(NavTab tab)
+        public void GoTab(NavTab tab)
         {
             if (!Auth.IsLoggedIn)
             {
-                Shell.ResetTo(new LoginScreen());
+                Shell.ResetTo(new LoginScreen(this));
                 return;
             }
 
             Screen screen = tab switch
             {
-                NavTab.Booking => new MyReservationsScreen(),
-                NavTab.Trip => new TripScreen(),
-                NavTab.Notify => new ActivityScreen(false),
-                NavTab.Account => new AccountScreen(),
-                _ => new HomeScreen()
+                NavTab.Booking => new MyReservationsScreen(this),
+                NavTab.Trip => new TripScreen(this),
+                NavTab.Notify => new ActivityScreen(this, false),
+                NavTab.Account => new AccountScreen(this),
+                _ => new HomeScreen(this)
             };
             Shell.ResetTo(screen);
         }
 
-        public static void Tick()
+        public void Tick()
         {
             var expired = Reservations.AutoCancelExpired();
             Booking.ProcessSessions();
@@ -127,22 +139,30 @@ namespace SmartEMobilityHub
             _panel?.UpdateClock();
         }
 
-        public static void AfterDemoAction()
+        public void AfterDemoAction()
         {
             Tick();
             Shell.Refresh();
             _panel?.Build();
         }
 
-        public static void ResetDemo()
+        public void ResetDemo()
         {
             Clock.Reset();
             Toggles.Reset();
             Theme.IsDark = false;
             Context.Reset();
-            Link.Reset();
-            Shell.ResetTo(Auth.IsLoggedIn ? new HomeScreen() : new LoginScreen());
+            OperatorConsole?.SessionChanged(Context.Network);
+            Shell.ResetTo(Auth.IsLoggedIn ? new HomeScreen(this) : new LoginScreen(this));
             _panel?.Build();
+        }
+
+        /// <summary>Mở Trung tâm điều hành liên thông. false khi app Sinh viên chạy riêng (không qua Launcher).</summary>
+        public bool OpenOperatorConsole()
+        {
+            if (OperatorConsole is null) return false;
+            OperatorConsole.Open(Context.Network);
+            return true;
         }
     }
 }

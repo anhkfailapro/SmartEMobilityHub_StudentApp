@@ -4,9 +4,9 @@ namespace SmartEMobilityHub.Screens
     {
         public static readonly string[] Days = { "Hôm nay", "Ngày mai" };
 
-        public static List<DateTime> Slots(int dayOffset, int count = 8)
+        /// <summary>Các mốc 30 phút để chọn giờ, tính từ giờ demo <paramref name="now"/>.</summary>
+        public static List<DateTime> Slots(DateTime now, int dayOffset, int count = 8)
         {
-            var now = DemoApp.Clock.Now;
             DateTime start;
             if (dayOffset == 0)
             {

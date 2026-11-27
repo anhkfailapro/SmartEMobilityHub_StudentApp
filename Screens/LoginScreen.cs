@@ -14,6 +14,10 @@ namespace SmartEMobilityHub.Screens
     /// </summary>
     public class LoginScreen : Screen
     {
+        public LoginScreen(DemoApp app) : base(app)
+        {
+        }
+
         private string _username = "";
         private string _password = "";
         private string? _error;
@@ -44,7 +48,7 @@ namespace SmartEMobilityHub.Screens
 
         private void Submit()
         {
-            var result = DemoApp.Auth.Login(_username, _password, AccountRole.Student);
+            var result = App.Auth.Login(_username, _password, AccountRole.Student);
             if (!result.Success)
             {
                 _error = result.Message;
@@ -55,7 +59,7 @@ namespace SmartEMobilityHub.Screens
 
             _error = null;
             _password = "";
-            DemoApp.OnLoggedIn(result.Account!);
+            App.OnLoggedIn(result.Account!);
         }
     }
 }

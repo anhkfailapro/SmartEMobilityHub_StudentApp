@@ -8,5 +8,7 @@
   </Project>
   <Project Path="src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />
   <Project Path="src/SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj" />
+  <Project Path="src/SmartEMobilityHub.Launcher/SmartEMobilityHub.Launcher.csproj" />
   <Project Path="tests/SmartEMobilityHub.Tests/SmartEMobilityHub.Tests.csproj" />
+  <Project Path="tests/SmartEMobilityHub.Tests.Ui/SmartEMobilityHub.Tests.Ui.csproj" />
 </Solution>

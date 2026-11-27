@@ -7,7 +7,9 @@ namespace SmartEMobilityHub.Tests;
 /// <summary>Xuất results.md + results.json sau mỗi lần chạy (GĐ5).</summary>
 public static class ReportWriter
 {
-    public static string Write(IReadOnlyList<TestResult> results, string directory)
+    public static string Write(IReadOnlyList<TestResult> results, string directory,
+        string title = "Kết quả kiểm thử — Smart E-Mobility Hub (Core)",
+        string source = "`tests/SmartEMobilityHub.Tests` (console runner, không dùng NuGet)")
     {
         Directory.CreateDirectory(directory);
 
@@ -16,11 +18,11 @@ public static class ReportWriter
         var failed = results.Count - passed;
 
         var markdown = new StringBuilder();
-        markdown.AppendLine("# Kết quả kiểm thử — Smart E-Mobility Hub (Core)");
+        markdown.AppendLine($"# {title}");
         markdown.AppendLine();
         markdown.AppendLine($"- Thời điểm chạy: {runAt:yyyy-MM-dd HH:mm:ss}");
         markdown.AppendLine($"- Tổng số: **{results.Count}** · Đạt: **{passed}** · Không đạt: **{failed}**");
-        markdown.AppendLine("- Nguồn: `tests/SmartEMobilityHub.Tests` (console runner, không dùng NuGet)");
+        markdown.AppendLine($"- Nguồn: {source}");
         markdown.AppendLine();
         markdown.AppendLine("| Mã | Tên kịch bản | Kết quả | Chi tiết lỗi |");
         markdown.AppendLine("| --- | --- | --- | --- |");

@@ -11,9 +11,9 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly JourneyResult _result;
 
-        public JourneyResultScreen(string destination)
+        public JourneyResultScreen(DemoApp app, string destination) : base(app)
         {
-            _result = DemoApp.Journey.PlanJourney(destination);
+            _result = App.Journey.PlanJourney(destination);
         }
 
         public override string? Title => "Kết quả hành trình";
@@ -27,7 +27,7 @@ namespace SmartEMobilityHub.Screens
                 foreach (var h in _result.HubsByStraightLine)
                 {
                     var hub = h;
-                    Add(root, HubCard(hub.Name, ScreenHelpers.HubMeta(hub), ScreenHelpers.DistanceFromMe(hub), () => Shell.Navigate(new VehicleListScreen(hub.Id))), 12);
+                    Add(root, HubCard(hub.Name, HubMeta(hub), ScreenHelpers.DistanceFromMe(hub), () => Shell.Navigate(new VehicleListScreen(App, hub.Id))), 12);
                 }
                 return root;
             }
@@ -38,7 +38,7 @@ namespace SmartEMobilityHub.Screens
                 Text("Hub xuất phát", TextKind.Caption, Theme.Text2),
                 Text(start.Name, TextKind.Subtitle),
                 Row("Đi bộ", $"{DemoConfig.Km(_result.WalkToStartKm)} · ~{JourneyPlanner.WalkMinutes(_result.WalkToStartKm)} phút"),
-                Row("Xe sẵn sàng", $"{DemoApp.Vehicles.AvailableCount(start)} xe")), 16);
+                Row("Xe sẵn sàng", $"{App.Vehicles.AvailableCount(start)} xe")), 16);
             Add(root, Card(
                 Text("Hub đến", TextKind.Caption, Theme.Text2),
                 Text(end.Name, TextKind.Subtitle),
@@ -54,7 +54,7 @@ namespace SmartEMobilityHub.Screens
         {
             if (!_result.RouteAvailable || _result.StartHub == null) return null;
             var hubId = _result.StartHub.Id;
-            return Button("Chọn Hub xuất phát", ButtonVariant.Primary, () => Shell.Navigate(new VehicleListScreen(hubId)));
+            return Button("Chọn Hub xuất phát", ButtonVariant.Primary, () => Shell.Navigate(new VehicleListScreen(App, hubId)));
         }
     }
 }

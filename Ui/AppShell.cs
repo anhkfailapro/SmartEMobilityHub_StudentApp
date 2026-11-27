@@ -9,14 +9,16 @@ namespace SmartEMobilityHub.Ui
 {
     public class AppShell
     {
+        private readonly DemoApp _app;
         private readonly Border _host;
         private readonly List<Screen> _stack = new();
         private ScrollViewer? _scroll;
         private Grid? _root;
         private UIElement? _dialog;
 
-        public AppShell(Border host)
+        public AppShell(DemoApp app, Border host)
         {
+            _app = app;
             _host = host;
         }
 
@@ -159,9 +161,9 @@ namespace SmartEMobilityHub.Ui
             grid.Children.Add(element);
         }
 
-        private static UIElement BuildStatusBar()
+        private UIElement BuildStatusBar()
         {
-            var time = UiKit.Text(DemoApp.Clock.Now.ToString("HH:mm"), TextKind.Subtitle, null, false);
+            var time = UiKit.Text(_app.Clock.Now.ToString("HH:mm"), TextKind.Subtitle, null, false);
             var right = UiKit.Text("▂▄▆  ▮▮▮", TextKind.Caption, null, false);
             var g = UiKit.Split(time, right);
             g.Height = 40;
@@ -194,7 +196,7 @@ namespace SmartEMobilityHub.Ui
             return new Border { Background = Theme.CanvasBg, Child = sp };
         }
 
-        private static UIElement BuildBottomNav(NavTab active)
+        private UIElement BuildBottomNav(NavTab active)
         {
             var items = new (NavTab Tab, string Glyph, string Label)[]
             {
@@ -211,7 +213,7 @@ namespace SmartEMobilityHub.Ui
                 var on = item.Tab == active;
                 var color = on ? Theme.Primary : Theme.Text2;
                 var label = item.Label;
-                var unread = item.Tab == NavTab.Notify ? DemoApp.Notifications.UnreadCount : 0;
+                var unread = item.Tab == NavTab.Notify ? _app.Notifications.UnreadCount : 0;
 
                 // Biểu tượng nằm trong "viên thuốc" khi tab đang chọn; thông báo chưa đọc có chấm đỏ.
                 var iconHost = new Grid { HorizontalAlignment = HorizontalAlignment.Center };
@@ -245,7 +247,7 @@ namespace SmartEMobilityHub.Ui
                 caption.FontSize = 11;
                 if (on) caption.FontWeight = FontWeights.SemiBold;
                 var cell = new Border { Child = UiKit.Stack(3, iconHost, caption), Padding = new Thickness(0, 8, 0, 0) };
-                UiKit.OnClick(cell, () => DemoApp.GoTab(item.Tab));
+                UiKit.OnClick(cell, () => _app.GoTab(item.Tab));
                 g.Children.Add(cell);
             }
             return new Border

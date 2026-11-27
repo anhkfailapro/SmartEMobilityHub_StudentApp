@@ -8,19 +8,24 @@ namespace SmartEMobilityHub.Screens
 {
     public class ReserveParkingScreen : Screen
     {
+        public ReserveParkingScreen(DemoApp app) : base(app)
+        {
+            _arrival = TimeOptions.Slots(App.Clock.Now, 0)[0];
+        }
+
         private static readonly int[] Durations = { 60, 120, 180, 240 };
         private string _hubId = CampusMap.DefaultHubId;
         private string _vehicleId = "PV1";
         private bool _arriveNow;
         private int _day;
-        private DateTime _arrival = TimeOptions.Slots(0)[0];
+        private DateTime _arrival;
         private int _duration = 120;
 
         public override string? Title => "Đặt chỗ đỗ xe";
 
         public override UIElement BuildContent()
         {
-            var store = DemoApp.Store;
+            var store = App.Store;
             var root = Stack(16,
                 Labeled("Hub", ChipGroup(store.Hubs, store.GetHub(_hubId), h => $"{h.ShortName} ({h.FreeSlots} chỗ)", h =>
                 {
@@ -42,10 +47,10 @@ namespace SmartEMobilityHub.Screens
                 Add(root, Labeled("Ngày", ChipGroup(Enumerable.Range(0, TimeOptions.Days.Length), _day, i => TimeOptions.Days[i], i =>
                 {
                     _day = i;
-                    _arrival = TimeOptions.Slots(i)[0];
+                    _arrival = TimeOptions.Slots(App.Clock.Now, i)[0];
                     Shell.Refresh();
                 })), 16);
-                Add(root, Labeled("Giờ đến", ChipGroup(TimeOptions.Slots(_day), _arrival, t => DemoConfig.Time(t), t =>
+                Add(root, Labeled("Giờ đến", ChipGroup(TimeOptions.Slots(App.Clock.Now, _day), _arrival, t => DemoConfig.Time(t), t =>
                 {
                     _arrival = t;
                     Shell.Refresh();
@@ -64,20 +69,20 @@ namespace SmartEMobilityHub.Screens
 
         public void Submit(string hubId, bool alternativeHub)
         {
-            var arrival = _arriveNow ? DemoApp.Clock.Now : _arrival;
-            var result = DemoApp.Parking.ReserveParking(hubId, _vehicleId, arrival, _duration, alternativeHub);
+            var arrival = _arriveNow ? App.Clock.Now : _arrival;
+            var result = App.Parking.ReserveParking(hubId, _vehicleId, arrival, _duration, alternativeHub);
             switch (result.Error)
             {
                 case "":
                     Shell.BackTo<ReserveParkingScreen>();
-                    Shell.Replace(new ParkingDetailScreen(result.Value!.Id, true));
+                    Shell.Replace(new ParkingDetailScreen(App, result.Value!.Id, true));
                     break;
                 case "Full":
-                    Shell.Navigate(new ParkingFullScreen(this, hubId, result.Message));
+                    Shell.Navigate(new ParkingFullScreen(App, this, hubId, result.Message));
                     break;
                 case "LimitReached":
                     Shell.ShowDialog(Tone.Danger, "Không thể tạo đặt chỗ", result.Message,
-                        new DialogAction("Xem đặt chỗ của tôi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Booking)),
+                        new DialogAction("Xem đặt chỗ của tôi", ButtonVariant.Primary, () => App.GoTab(NavTab.Booking)),
                         new DialogAction("Đóng", ButtonVariant.Outline));
                     break;
                 default:

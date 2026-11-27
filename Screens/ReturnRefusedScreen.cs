@@ -13,7 +13,7 @@ namespace SmartEMobilityHub.Screens
         private readonly Hub? _nearest;
         private readonly Action<Trip>? _afterReturn;
 
-        public ReturnRefusedScreen(string error, string message, Hub? nearest, Action<Trip>? afterReturn)
+        public ReturnRefusedScreen(DemoApp app, string error, string message, Hub? nearest, Action<Trip>? afterReturn) : base(app)
         {
             _error = error;
             _message = message;
@@ -35,7 +35,7 @@ namespace SmartEMobilityHub.Screens
             }
             Add(root, Section("Hub gần nhất còn chỗ trống"), 16);
             Add(root, HubCard(_nearest.Name, $"{_nearest.FreeSlots} chỗ trống", DemoConfig.Km(_nearest.DistanceKmTo(0, 0)), null), 12);
-            var trip = DemoApp.Billing.ActiveTrip;
+            var trip = App.Billing.ActiveTrip;
             if (HubFull && trip != null && trip.ExtraFreeMinutes > 0)
                 Add(root, Banner(Tone.Success, $"Bạn được cộng thêm {trip.ExtraFreeMinutes} phút miễn phí để đến {_nearest.ShortName}."), 16);
             return root;
@@ -46,7 +46,7 @@ namespace SmartEMobilityHub.Screens
             if (_nearest == null) return Button("Quay lại", ButtonVariant.Outline, Shell.Back);
             var hubId = _nearest.Id;
             return Stack(12,
-                Button($"Đã đến {_nearest.ShortName} – trả xe tại đây", ButtonVariant.Primary, () => new ReturnVehicleScreen(_afterReturn, hubId).DoReturn(hubId, true)),
+                Button($"Đã đến {_nearest.ShortName} – trả xe tại đây", ButtonVariant.Primary, () => new ReturnVehicleScreen(App, _afterReturn, hubId).DoReturn(hubId, true)),
                 Button("Quay lại", ButtonVariant.Outline, Shell.Back));
         }
     }

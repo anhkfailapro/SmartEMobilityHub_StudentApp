@@ -10,6 +10,10 @@ namespace SmartEMobilityHub.Screens
 {
     public class HomeScreen : Screen
     {
+        public HomeScreen(DemoApp app) : base(app)
+        {
+        }
+
         private string _destination = "";
         private bool _showAllHubs;
 
@@ -17,7 +21,7 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var store = DemoApp.Store;
+            var store = App.Store;
 
             // Thẻ tiêu đề gradient: lời chào, ô tìm điểm đến và tóm tắt mạng lưới gần thời gian thực.
             var go = Button("Tìm", ButtonVariant.Secondary, Search, true, Icons.Search);
@@ -38,10 +42,10 @@ namespace SmartEMobilityHub.Screens
 
             var trip = store.ActiveTrip;
             if (trip != null)
-                Add(root, OnClick(Banner(Tone.Info, $"Bạn đang có chuyến đi với {trip.VehicleCode}. Nhấn để xem chuyến đi."), () => DemoApp.GoTab(NavTab.Trip)), 16);
-            var held = DemoApp.Reservations.ActiveVehicleReservation;
+                Add(root, OnClick(Banner(Tone.Info, $"Bạn đang có chuyến đi với {trip.VehicleCode}. Nhấn để xem chuyến đi."), () => App.GoTab(NavTab.Trip)), 16);
+            var held = App.Reservations.ActiveVehicleReservation;
             if (held != null)
-                Add(root, OnClick(Banner(Tone.Warning, $"Đang giữ xe {held.VehicleCode} đến {DemoConfig.Time(held.HoldUntil)}. Nhấn để xem mã nhận xe."), () => Shell.Navigate(new ReservationScreen())), 16);
+                Add(root, OnClick(Banner(Tone.Warning, $"Đang giữ xe {held.VehicleCode} đến {DemoConfig.Time(held.HoldUntil)}. Nhấn để xem mã nhận xe."), () => Shell.Navigate(new ReservationScreen(App))), 16);
 
             Add(root, Section("Điểm đến phổ biến"), 4);
             Add(root, ChipGroup(JourneyPlanner.Destinations.Select(d => d.Name), "", n => n, n =>
@@ -50,13 +54,13 @@ namespace SmartEMobilityHub.Screens
                 Search();
             }), 8);
 
-            var unread = DemoApp.Notifications.UnreadCount;
+            var unread = App.Notifications.UnreadCount;
             Add(root, Columns(8,
-                QuickAction(Icons.Parking, "Đặt chỗ đỗ xe", Tone.Info, () => Shell.Navigate(new ReserveParkingScreen())),
-                QuickAction(Icons.Bolt, "Lên lịch sạc", Tone.Charging, () => Shell.Navigate(new ScheduleChargingScreen())),
-                QuickAction(Icons.Clock, unread > 0 ? $"Hoạt động ({unread})" : "Hoạt động", Tone.Success, () => Shell.Navigate(new ActivityScreen(true)))), 8);
+                QuickAction(Icons.Parking, "Đặt chỗ đỗ xe", Tone.Info, () => Shell.Navigate(new ReserveParkingScreen(App))),
+                QuickAction(Icons.Bolt, "Lên lịch sạc", Tone.Charging, () => Shell.Navigate(new ScheduleChargingScreen(App))),
+                QuickAction(Icons.Clock, unread > 0 ? $"Hoạt động ({unread})" : "Hoạt động", Tone.Success, () => Shell.Navigate(new ActivityScreen(App, true)))), 8);
 
-            Add(root, MapPreview(store.Hubs, h => Shell.Navigate(new VehicleListScreen(h.Id))), 16);
+            Add(root, MapPreview(store.Hubs, h => Shell.Navigate(new VehicleListScreen(App, h.Id))), 16);
             Add(root, SectionWithLink("Hub gần bạn", _showAllHubs ? "Thu gọn" : "Xem tất cả", () =>
             {
                 _showAllHubs = !_showAllHubs;
@@ -67,7 +71,7 @@ namespace SmartEMobilityHub.Screens
             foreach (var h in hubs)
             {
                 var hub = h;
-                Add(root, HubCard(hub.Name, ScreenHelpers.HubMeta(hub), ScreenHelpers.DistanceFromMe(hub), () => Shell.Navigate(new VehicleListScreen(hub.Id))), 12);
+                Add(root, HubCard(hub.Name, HubMeta(hub), ScreenHelpers.DistanceFromMe(hub), () => Shell.Navigate(new VehicleListScreen(App, hub.Id))), 12);
             }
             return root;
         }
@@ -79,7 +83,7 @@ namespace SmartEMobilityHub.Screens
                 Shell.ShowDialog(Tone.Info, "Nhập điểm đến", "Vui lòng nhập điểm đến hoặc chọn một gợi ý bên dưới ô tìm kiếm.");
                 return;
             }
-            Shell.Navigate(new JourneyResultScreen(_destination));
+            Shell.Navigate(new JourneyResultScreen(App, _destination));
         }
 
         private static UIElement HeroStat(string value, string label)

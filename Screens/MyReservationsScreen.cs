@@ -7,6 +7,10 @@ namespace SmartEMobilityHub.Screens
 {
     public class MyReservationsScreen : Screen
     {
+        public MyReservationsScreen(DemoApp app) : base(app)
+        {
+        }
+
         private bool _finished;
 
         public override string? Title => "Đặt chỗ của tôi";
@@ -16,17 +20,17 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var active = DemoApp.Reservations.ListActive();
+            var active = App.Reservations.ListActive();
             var root = Stack(16, Segmented(new[] { $"Đang hoạt động ({active.Count})", "Đã kết thúc" }, _finished ? 1 : 0, i =>
             {
                 _finished = i == 1;
                 Shell.Refresh();
             }));
             Add(root, Columns(12,
-                Button("Đặt chỗ đỗ xe", ButtonVariant.Secondary, () => Shell.Navigate(new ReserveParkingScreen()), true, Icons.Parking),
-                Button("Lên lịch sạc", ButtonVariant.Charging, () => Shell.Navigate(new ScheduleChargingScreen()), true, Icons.Bolt)), 16);
+                Button("Đặt chỗ đỗ xe", ButtonVariant.Secondary, () => Shell.Navigate(new ReserveParkingScreen(App)), true, Icons.Parking),
+                Button("Lên lịch sạc", ButtonVariant.Charging, () => Shell.Navigate(new ScheduleChargingScreen(App)), true, Icons.Bolt)), 16);
 
-            var items = _finished ? DemoApp.Reservations.ListFinished() : active;
+            var items = _finished ? App.Reservations.ListFinished() : active;
             if (items.Count == 0)
             {
                 Add(root, EmptyState(Icons.Calendar, _finished ? "Chưa có đặt chỗ đã kết thúc" : "Chưa có đặt chỗ nào", "Đặt xe, đặt chỗ đỗ xe hoặc lên lịch sạc để bắt đầu."), 16);
@@ -49,31 +53,31 @@ namespace SmartEMobilityHub.Screens
             {
                 BookingKind.Vehicle when item.Started => Button("Hủy", ButtonVariant.DangerOutline, () => Cancel(item)),
                 BookingKind.Vehicle => Columns(12,
-                    Button("Xem mã nhận xe", ButtonVariant.Outline, () => Shell.Navigate(new ReservationScreen())),
+                    Button("Xem mã nhận xe", ButtonVariant.Outline, () => Shell.Navigate(new ReservationScreen(App))),
                     Button("Hủy", ButtonVariant.DangerOutline, () => Cancel(item))),
                 BookingKind.ChargingRequest => Button("Hủy yêu cầu", ButtonVariant.DangerOutline, () => Cancel(item)),
                 _ => Columns(12,
-                    Button("Đổi giờ", ButtonVariant.Outline, () => Shell.Navigate(new ChangeTimeScreen(item.Kind, item.Id)), item.CanChangeTime),
+                    Button("Đổi giờ", ButtonVariant.Outline, () => Shell.Navigate(new ChangeTimeScreen(App, item.Kind, item.Id)), item.CanChangeTime),
                     Button("Hủy", ButtonVariant.DangerOutline, () => Cancel(item)))
             };
             Add(stack, buttons, 12);
             return card;
         }
 
-        private static void Cancel(BookingItem item)
+        private void Cancel(BookingItem item)
         {
-            var preview = DemoApp.Reservations.PreviewCancel(item.Kind, item.Id);
+            var preview = App.Reservations.PreviewCancel(item.Kind, item.Id);
             if (!preview.Ok)
             {
                 if (item.Kind == BookingKind.Vehicle)
                     Shell.ShowDialog(Tone.Danger, "Không thể hủy", preview.Message,
-                        new DialogAction("Đến màn hình chuyến đi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Trip)),
+                        new DialogAction("Đến màn hình chuyến đi", ButtonVariant.Primary, () => App.GoTab(NavTab.Trip)),
                         new DialogAction("Đóng", ButtonVariant.Outline));
                 else
                     Shell.ShowDialog(Tone.Danger, "Không thể hủy", preview.Message);
                 return;
             }
-            Shell.Navigate(new CancelConfirmScreen(item.Kind, item.Id));
+            Shell.Navigate(new CancelConfirmScreen(App, item.Kind, item.Id));
         }
     }
 }

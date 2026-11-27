@@ -12,7 +12,7 @@ namespace SmartEMobilityHub.Screens
         private readonly string _hubId;
         private readonly string _message;
 
-        public ParkingFullScreen(ReserveParkingScreen form, string hubId, string message)
+        public ParkingFullScreen(DemoApp app, ReserveParkingScreen form, string hubId, string message) : base(app)
         {
             _form = form;
             _hubId = hubId;
@@ -23,9 +23,9 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var hub = DemoApp.Store.GetHub(_hubId);
+            var hub = App.Store.GetHub(_hubId);
             var root = Stack(16, Banner(Tone.Warning, _message), Section($"Hub trong bán kính {DemoConfig.AlternativeHubRadiusKm:0} km còn chỗ"));
-            var hubs = DemoApp.Parking.FindAvailableHubsWithin1Km(_hubId);
+            var hubs = App.Parking.FindAvailableHubsWithin1Km(_hubId);
             if (hubs.Count == 0) Add(root, Text("Không có Hub nào trong bán kính 1 km còn chỗ trống.", TextKind.Body, Theme.Text2), 12);
             foreach (var h in hubs)
             {
@@ -37,6 +37,6 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement? BuildActions() => Columns(12,
             Button("Đổi thời gian", ButtonVariant.Outline, Shell.Back),
-            Button("Dừng", ButtonVariant.DangerOutline, ScreenHelpers.GoHome));
+            Button("Dừng", ButtonVariant.DangerOutline, GoHome));
     }
 }

@@ -12,20 +12,20 @@ namespace SmartEMobilityHub.Screens
         private readonly string _hubId;
         private string _filter = Filters[0];
 
-        public VehicleListScreen(string hubId)
+        public VehicleListScreen(DemoApp app, string hubId) : base(app)
         {
             _hubId = hubId;
         }
 
-        public override string? Title => DemoApp.Store.GetHub(_hubId).Name;
+        public override string? Title => App.Store.GetHub(_hubId).Name;
 
         public override UIElement BuildContent()
         {
-            var hub = DemoApp.Store.GetHub(_hubId);
-            var all = DemoApp.Vehicles.ListVehicles(_hubId);
+            var hub = App.Store.GetHub(_hubId);
+            var all = App.Vehicles.ListVehicles(_hubId);
             var available = all.Count(v => v.IsAvailable);
             var root = Stack(16, HStack(8, Icon(Icons.Clock, 14, Theme.Text2),
-                Text($"Cập nhật lúc {DemoConfig.Time(DemoApp.Clock.Now)} · {available} xe sẵn sàng · cách bạn {ScreenHelpers.DistanceFromMe(hub)}", TextKind.Caption, Theme.Text2)));
+                Text($"Cập nhật lúc {DemoConfig.Time(App.Clock.Now)} · {available} xe sẵn sàng · cách bạn {ScreenHelpers.DistanceFromMe(hub)}", TextKind.Caption, Theme.Text2)));
             Add(root, ChipGroup(Filters, _filter, f => f, f =>
             {
                 _filter = f;
@@ -36,10 +36,10 @@ namespace SmartEMobilityHub.Screens
             {
                 Add(root, Banner(Tone.Warning, $"Hiện không có xe sẵn sàng tại {hub.Name}."), 8);
                 Add(root, Section($"{DemoConfig.NearestHubCount} Hub gần nhất còn xe"), 16);
-                foreach (var h in DemoApp.Vehicles.NearestHubsWithAvailable(hub, DemoConfig.NearestHubCount))
+                foreach (var h in App.Vehicles.NearestHubsWithAvailable(hub, DemoConfig.NearestHubCount))
                 {
                     var other = h;
-                    Add(root, HubCard(other.Name, $"{DemoApp.Vehicles.AvailableCount(other)} xe sẵn sàng", DemoConfig.Km(other.DistanceKmTo(hub)), () => Shell.Navigate(new VehicleListScreen(other.Id))), 12);
+                    Add(root, HubCard(other.Name, $"{App.Vehicles.AvailableCount(other)} xe sẵn sàng", DemoConfig.Km(other.DistanceKmTo(hub)), () => Shell.Navigate(new VehicleListScreen(App, other.Id))), 12);
                 }
                 if (all.Count > 0) Add(root, Section("Xe khác tại Hub này"), 16);
             }
@@ -49,7 +49,7 @@ namespace SmartEMobilityHub.Screens
             foreach (var v in list)
             {
                 var code = v.Code;
-                Add(root, VehicleCard(v, () => Shell.Navigate(new VehicleDetailScreen(code))), 12);
+                Add(root, VehicleCard(v, () => Shell.Navigate(new VehicleDetailScreen(App, code))), 12);
             }
             return root;
         }

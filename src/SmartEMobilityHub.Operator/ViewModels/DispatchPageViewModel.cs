@@ -1,47 +1,42 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using SmartEMobilityHub.Core.Domain;
 using SmartEMobilityHub.Core.Services;
+using SmartEMobilityHub.Operator.Infrastructure;
 using SmartEMobilityHub.Operator.Models;
 
 namespace SmartEMobilityHub.Operator.ViewModels;
 
 /// <summary>Trang "Điều phối phương tiện": tải từng Hub, gợi ý và vòng đời lệnh điều phối.</summary>
-public sealed partial class MainViewModel
+public sealed class DispatchPageViewModel : PageViewModel
 {
+    private const string DispatchTitle = "Điều phối";
+
+    /// <summary>Ngưỡng Hub nhận khi không có Hub nào thiếu xe rõ rệt (≤ 35%).</summary>
+    private const double RelaxedReceiverThreshold = 0.5;
+
     private string _sourceHubId = "";
     private string _targetHubId = "";
     private string _dispatchVehicleCountText = "2";
     private string _dispatchStaffId = "NV-DIEUPHOI-01";
     private DispatchOrderRow? _selectedDispatchOrder;
 
+    private RelayCommand? _suggestDispatchCommand;
+    private RelayCommand? _createDispatchCommand;
+    private RelayCommand? _executeDispatchCommand;
+    private RelayCommand? _completeDispatchCommand;
+
+    public DispatchPageViewModel(DashboardContext shell) : base(shell)
+    {
+    }
+
     public ObservableCollection<HubRow> Hubs { get; } = new();
     public ObservableCollection<string> HubIds { get; } = new();
     public ObservableCollection<DispatchOrderRow> DispatchOrders { get; } = new();
 
-    public string SourceHubId
-    {
-        get => _sourceHubId;
-        set => SetProperty(ref _sourceHubId, value);
-    }
-
-    public string TargetHubId
-    {
-        get => _targetHubId;
-        set => SetProperty(ref _targetHubId, value);
-    }
-
-    public string DispatchVehicleCountText
-    {
-        get => _dispatchVehicleCountText;
-        set => SetProperty(ref _dispatchVehicleCountText, value);
-    }
-
-    public string DispatchStaffId
-    {
-        get => _dispatchStaffId;
-        set => SetProperty(ref _dispatchStaffId, value);
-    }
+    public string SourceHubId { get => _sourceHubId; set => SetProperty(ref _sourceHubId, value); }
+    public string TargetHubId { get => _targetHubId; set => SetProperty(ref _targetHubId, value); }
+    public string DispatchVehicleCountText { get => _dispatchVehicleCountText; set => SetProperty(ref _dispatchVehicleCountText, value); }
+    public string DispatchStaffId { get => _dispatchStaffId; set => SetProperty(ref _dispatchStaffId, value); }
 
     public DispatchOrderRow? SelectedDispatchOrder
     {
@@ -59,10 +54,15 @@ public sealed partial class MainViewModel
     public bool CanExecuteDispatch => _selectedDispatchOrder?.StatusRaw == DispatchOrderStatus.Pending;
     public bool CanCompleteDispatch => _selectedDispatchOrder?.StatusRaw == DispatchOrderStatus.InProgress;
 
-    private void RefreshHubsAndDispatch()
+    // ---------- Lệnh ----------
+    public RelayCommand SuggestDispatchCommand => _suggestDispatchCommand ??= new(() => Run(SuggestAndCreateDispatch, DispatchTitle));
+    public RelayCommand CreateDispatchCommand => _createDispatchCommand ??= new(() => Run(CreateDispatchOrder, DispatchTitle));
+    public RelayCommand ExecuteDispatchCommand => _executeDispatchCommand ??= new(() => Run(ExecuteSelectedDispatch, DispatchTitle));
+    public RelayCommand CompleteDispatchCommand => _completeDispatchCommand ??= new(() => Run(CompleteSelectedDispatch, DispatchTitle));
+
+    public override void Refresh()
     {
-        Hubs.Clear();
-        var currentIds = _demo.Store.Hubs.Select(h => h.Id).ToList();
+        var currentIds = Store.Hubs.Select(h => h.Id).ToList();
         if (!HubIds.SequenceEqual(currentIds))
         {
             HubIds.Clear();
@@ -74,12 +74,12 @@ public sealed partial class MainViewModel
         if (string.IsNullOrWhiteSpace(TargetHubId) && HubIds.Count > 1)
             TargetHubId = HubIds[1];
 
-        foreach (var hub in _demo.Store.Hubs.OrderBy(h => h.Id, StringComparer.Ordinal))
-            Hubs.Add(new HubRow(hub, _demo.Store.Vehicles.Where(v => v.HubId == hub.Id).ToList()));
+        Hubs.Clear();
+        foreach (var row in HubRow.ForNetwork(Store)) Hubs.Add(row);
 
         var selectedOrderId = _selectedDispatchOrder?.OrderId;
         DispatchOrders.Clear();
-        foreach (var order in _demo.Store.DispatchOrders.OrderByDescending(o => o.CreatedAt))
+        foreach (var order in Store.DispatchOrders.OrderByDescending(o => o.CreatedAt))
             DispatchOrders.Add(new DispatchOrderRow(order));
 
         SelectedDispatchOrder = DispatchOrders.FirstOrDefault(o => o.OrderId == selectedOrderId)
@@ -89,13 +89,10 @@ public sealed partial class MainViewModel
         OnPropertyChanged(nameof(CanCompleteDispatch));
     }
 
-    /// <summary>Ngưỡng Hub nhận khi không có Hub nào thiếu xe rõ rệt (≤ 35%).</summary>
-    private const double RelaxedReceiverThreshold = 0.5;
-
     public string? SuggestAndCreateDispatch()
     {
-        var redistributor = _demo.Redistributor;
-        var suggestions = redistributor.GenerateDispatchSuggestions(_demo.Store.Hubs);
+        var redistributor = Session.Redistributor;
+        var suggestions = redistributor.GenerateDispatchSuggestions(Store.Hubs);
         var relaxed = false;
         if (suggestions.Count == 0)
         {
@@ -104,7 +101,7 @@ public sealed partial class MainViewModel
             try
             {
                 redistributor.LowLoadThreshold = RelaxedReceiverThreshold;
-                suggestions = redistributor.GenerateDispatchSuggestions(_demo.Store.Hubs);
+                suggestions = redistributor.GenerateDispatchSuggestions(Store.Hubs);
                 relaxed = suggestions.Count > 0;
             }
             finally
@@ -123,7 +120,7 @@ public sealed partial class MainViewModel
 
         var error = CreateDispatchOrder();
         if (error is null && relaxed)
-            Note(LastActionText + $" Không có Hub ≤ 35% nên đã chọn Hub nhận còn dưới {RelaxedReceiverThreshold:P0}.");
+            Note(Shell.LastActionText + $" Không có Hub ≤ 35% nên đã chọn Hub nhận còn dưới {RelaxedReceiverThreshold:P0}.");
         return error;
     }
 
@@ -132,14 +129,14 @@ public sealed partial class MainViewModel
         if (!int.TryParse(DispatchVehicleCountText.Trim(), out var count) || count <= 0)
             return "Số lượng xe điều phối phải là số nguyên dương.";
 
-        var sourceHub = _demo.Store.FindHub(SourceHubId);
+        var sourceHub = Store.FindHub(SourceHubId);
         var vehicleCodes = new List<string>();
 
         if (sourceHub is not null)
         {
-            vehicleCodes.AddRange(_demo.Store.Vehicles
+            vehicleCodes.AddRange(Store.Vehicles
                 .Where(v => v.HubId == sourceHub.Id && v.Status == DeviceStatus.Available)
-                .Where(v => !_demo.Store.DispatchOrders.Any(o => o.IsActive && o.VehicleIds.Contains(v.Code)))
+                .Where(v => !Store.DispatchOrders.Any(o => o.IsActive && o.VehicleIds.Contains(v.Code)))
                 .Take(count)
                 .Select(v => v.Code));
         }
@@ -152,7 +149,7 @@ public sealed partial class MainViewModel
 
         try
         {
-            var order = _demo.Redistributor.CreateOrder(
+            var order = Session.Redistributor.CreateOrder(
                 SourceHubId,
                 TargetHubId,
                 vehicleCodes,
@@ -160,7 +157,7 @@ public sealed partial class MainViewModel
                 "Tạo lệnh điều phối trên Operator Dashboard");
 
             Note($"Đã tạo lệnh {order.OrderId}: {order.SourceHubId} → {order.TargetHubId} ({order.VehicleIds.Count} xe).");
-            Refresh();
+            RefreshAll();
             return null;
         }
         catch (Exception ex) when (ex is IllegalArgumentException or HubNotFoundException)
@@ -172,22 +169,22 @@ public sealed partial class MainViewModel
     public string? ExecuteSelectedDispatch()
     {
         if (_selectedDispatchOrder is null) return "Hãy chọn một lệnh điều phối.";
-        if (!_demo.Redistributor.ExecuteRedistribution(_selectedDispatchOrder.OrderId))
+        if (!Session.Redistributor.ExecuteRedistribution(_selectedDispatchOrder.OrderId))
             return "Chỉ có thể bắt đầu điều phối khi lệnh ở trạng thái Chờ xuất phát.";
 
         Note($"Đang thực thi lệnh {_selectedDispatchOrder.OrderId}.");
-        Refresh();
+        RefreshAll();
         return null;
     }
 
     public string? CompleteSelectedDispatch()
     {
         if (_selectedDispatchOrder is null) return "Hãy chọn một lệnh điều phối.";
-        if (!_demo.Redistributor.CompleteOrder(_selectedDispatchOrder.OrderId))
+        if (!Session.Redistributor.CompleteOrder(_selectedDispatchOrder.OrderId))
             return "Chỉ có thể hoàn tất khi lệnh đang ở trạng thái Đang điều phối.";
 
         Note($"Đã hoàn tất lệnh {_selectedDispatchOrder.OrderId} và cập nhật tải Hub đích.");
-        Refresh();
+        RefreshAll();
         return null;
     }
 }

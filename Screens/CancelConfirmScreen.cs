@@ -11,7 +11,7 @@ namespace SmartEMobilityHub.Screens
         private readonly BookingKind _kind;
         private readonly string _id;
 
-        public CancelConfirmScreen(BookingKind kind, string id)
+        public CancelConfirmScreen(DemoApp app, BookingKind kind, string id) : base(app)
         {
             _kind = kind;
             _id = id;
@@ -29,9 +29,9 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var item = DemoApp.Reservations.FindActive(_kind, _id);
+            var item = App.Reservations.FindActive(_kind, _id);
             if (item == null) return EmptyState(Icons.Calendar, "Đặt chỗ không còn hoạt động", "Đặt chỗ có thể đã hết hạn hoặc đã bị hủy.");
-            var preview = DemoApp.Reservations.PreviewCancel(_kind, _id);
+            var preview = App.Reservations.PreviewCancel(_kind, _id);
             if (!preview.Ok) return Stack(16, Banner(Tone.Danger, preview.Message));
 
             var fee = preview.Value;
@@ -54,10 +54,10 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement? BuildActions()
         {
-            var item = DemoApp.Reservations.FindActive(_kind, _id);
-            if (item == null) return Button("Về Đặt chỗ của tôi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Booking));
-            var preview = DemoApp.Reservations.PreviewCancel(_kind, _id);
-            if (!preview.Ok) return Button("Đến màn hình chuyến đi", ButtonVariant.Primary, () => DemoApp.GoTab(NavTab.Trip));
+            var item = App.Reservations.FindActive(_kind, _id);
+            if (item == null) return Button("Về Đặt chỗ của tôi", ButtonVariant.Primary, () => App.GoTab(NavTab.Booking));
+            var preview = App.Reservations.PreviewCancel(_kind, _id);
+            if (!preview.Ok) return Button("Đến màn hình chuyến đi", ButtonVariant.Primary, () => App.GoTab(NavTab.Trip));
             return Columns(12,
                 Button("Quay lại", ButtonVariant.Outline, Shell.Back),
                 Button(preview.Value > 0 ? "Hủy và trả phí" : "Xác nhận hủy", ButtonVariant.Danger, Confirm));
@@ -65,8 +65,8 @@ namespace SmartEMobilityHub.Screens
 
         private void Confirm()
         {
-            var fee = DemoApp.Reservations.Cancel(_kind, _id);
-            DemoApp.GoTab(NavTab.Booking);
+            var fee = App.Reservations.Cancel(_kind, _id);
+            App.GoTab(NavTab.Booking);
             Shell.ShowDialog(Tone.Success, "Đã hủy đặt chỗ",
                 fee > 0
                     ? $"Đặt chỗ đã được hủy. Phí hủy muộn {DemoConfig.Money(fee)} đã được ghi nhận. Thông báo xác nhận đã được gửi."

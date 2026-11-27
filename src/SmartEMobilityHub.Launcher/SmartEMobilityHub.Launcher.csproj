@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SmartEMobilityHub.Launcher</RootNamespace>
+    <AssemblyName>SmartEMobilityHub.Launcher</AssemblyName>
+  </PropertyGroup>
+
+  <!--
+    Launcher là project duy nhất biết cả hai app giao diện: mở app Sinh viên và cung cấp cho nó IOperatorConsole
+    để mở Trung tâm điều hành trên cùng một phiên mạng lưới. App Sinh viên và Operator không tham chiếu nhau.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="../../SmartEMobilityHub.csproj" />
+    <ProjectReference Include="../SmartEMobilityHub.Operator/SmartEMobilityHub.Operator.csproj" />
+  </ItemGroup>
+
+</Project>

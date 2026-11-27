@@ -16,7 +16,17 @@ namespace SmartEMobilityHub
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        /// <summary>App Sinh viên chạy trong cửa sổ này.</summary>
+        public DemoApp App { get; }
+
+        public MainWindow() : this(null)
+        {
+        }
+
+        /// <param name="operatorConsole">
+        /// Trung tâm điều hành liên thông do Launcher cung cấp; null = app Sinh viên chạy riêng.
+        /// </param>
+        public MainWindow(Services.IOperatorConsole? operatorConsole)
         {
             InitializeComponent();
             Height = Math.Min(Height, SystemParameters.WorkArea.Height - 20);
@@ -24,11 +34,12 @@ namespace SmartEMobilityHub
             var args = Environment.GetCommandLineArgs();
             var ci = Array.IndexOf(args, "--capture");
             // Chế độ chụp tự đăng nhập tài khoản demo để kịch bản đi thẳng vào Trang chủ.
-            DemoApp.Start(PhoneHost, DemoPanelHost, requireLogin: ci < 0);
+            App = new DemoApp(operatorConsole);
+            App.Start(PhoneHost, DemoPanelHost, requireLogin: ci < 0);
             if (ci >= 0)
             {
                 var dir = ci + 1 < args.Length ? args[ci + 1] : "demo_screens/student";
-                Loaded += async (_, _) => await Capture.StudentCapture.RunAsync(PhoneHost, dir);
+                Loaded += async (_, _) => await Capture.StudentCapture.RunAsync(App, PhoneHost, dir);
             }
         }
     }

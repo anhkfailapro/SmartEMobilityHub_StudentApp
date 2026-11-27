@@ -8,12 +8,12 @@ namespace SmartEMobilityHub.Screens
 {
     public static class InvoiceView
     {
-        public static UIElement Build(Trip t)
+        public static UIElement Build(DemoApp app, Trip t)
         {
-            var store = DemoApp.Store;
+            var store = app.Store;
             var inv = t.Invoice!;
             var rate = DemoConfig.RentalPricePerMinute;
-            var duration = (t.EndTime ?? DemoApp.Clock.Now) - t.StartTime;
+            var duration = (t.EndTime ?? app.Clock.Now) - t.StartTime;
             var card = Card(
                 Split(Text($"Hóa đơn #{inv.Number}", TextKind.Subtitle), Badge(inv.PaidByPlanOnly ? "Trừ gói tháng" : "Đã thanh toán", Tone.Success)),
                 Row("Bắt đầu", $"{DemoConfig.Time(t.StartTime)} · {store.GetHub(t.StartHubId).ShortName}"),

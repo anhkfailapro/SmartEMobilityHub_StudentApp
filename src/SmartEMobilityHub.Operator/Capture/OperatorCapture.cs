@@ -56,70 +56,70 @@ namespace SmartEMobilityHub.Capture
 
                 // ===== UC-OP-03 =====
                 kit.Section = "UC-OP-03 Quản lý sự cố & bảo trì";
-                Vm().SelectedIncident = Vm().Incidents.FirstOrDefault();
+                Vm().Incidents.SelectedIncident = Vm().Incidents.Incidents.FirstOrDefault();
                 await Shot(MainViewModel.PageIncidents, "Chọn một sự cố",
                     "Người điều hành chọn một sự cố: xem đối tượng, Hub, người báo, mô tả, phiếu bảo trì và nhật ký xử lý; các nút Khóa thiết bị, Tạo phiếu bảo trì, Gán KTV gần nhất, Hoàn tất, Đóng sự cố, Tạm dừng Hub.");
-                kit.LogResult("Khoá thiết bị", Vm().LockSelected());
-                kit.LogResult("Tạo phiếu bảo trì", Vm().CreateTaskSelected());
-                kit.LogResult("Gán KTV gần nhất", Vm().AssignSelected());
+                kit.LogResult("Khoá thiết bị", Vm().Incidents.LockSelected());
+                kit.LogResult("Tạo phiếu bảo trì", Vm().Incidents.CreateTaskSelected());
+                kit.LogResult("Gán KTV gần nhất", Vm().Incidents.AssignSelected());
                 await Shot(MainViewModel.PageIncidents, "Khóa thiết bị, tạo phiếu bảo trì và gán kỹ thuật viên",
                     "Sau khi khóa thiết bị, tạo phiếu bảo trì và gán kỹ thuật viên gần nhất đang sẵn sàng, sự cố chuyển sang “Đang sửa”; mọi thao tác được ghi vào nhật ký xử lý.");
-                kit.LogResult("Hoàn tất xử lý", Vm().ResolveSelected());
-                kit.LogResult("Đóng sự cố", Vm().CloseSelected());
+                kit.LogResult("Hoàn tất xử lý", Vm().Incidents.ResolveSelected());
+                kit.LogResult("Đóng sự cố", Vm().Incidents.CloseSelected());
                 await Shot(MainViewModel.PageIncidents, "Hoàn tất và đóng sự cố",
                     "Kỹ thuật viên sửa xong: người điều hành bấm Hoàn tất xử lý rồi Đóng sự cố; thiết bị được mở lại và số liệu KPI cập nhật.");
 
                 // ===== Sự kiện IoT =====
                 kit.Section = "Trung tâm điều hành – Giám sát & cảnh báo (UC-SYS-01, UC-SYS-02)";
-                Vm().BreakPort();
+                Vm().Demo.BreakPort();
                 Vm().OpenHubAssets("HUB-08");
                 await Shot(MainViewModel.PageAssets, "Cảm biến báo cổng sạc CS-08-08 lỗi",
                     "Giả lập cổng sạc CS-08-08 báo lỗi: cổng chuyển sang trạng thái Lỗi trong lưới cổng sạc của HUB-08, đồng thời hệ thống tạo cảnh báo và sự cố mới cho người điều hành.");
-                Vm().DisconnectHub();
-                Vm().MakeStale();
+                Vm().Demo.DisconnectHub();
+                Vm().Demo.MakeStale();
                 await Shot(MainViewModel.PageOverview, "Hub mất kết nối và dữ liệu cũ",
                     "Giả lập HUB-03 mất kết nối và dữ liệu HUB-08 quá 10 phút chưa cập nhật: thẻ Hub đổi sang “Mất kết nối”, cảnh báo dữ liệu cũ xuất hiện ở cột bên phải.");
-                Vm().BreakChannel();
+                Vm().Demo.BreakChannel();
                 await Shot(MainViewModel.PageDemo, "Mạng gửi cảnh báo bị lỗi – cảnh báo vào hàng đợi",
                     "Khi kênh gửi cảnh báo bị lỗi, cảnh báo quá tải HUB-08 không mất mà được đưa vào hàng đợi gửi lại (trạng thái “Chờ gửi lại”).");
-                Vm().RestoreChannel();
+                Vm().Demo.RestoreChannel();
                 await Shot(MainViewModel.PageDemo, "Khôi phục mạng và gửi lại cảnh báo",
                     "Mạng được khôi phục: sau 30 giây hệ thống tự gửi lại các cảnh báo đang chờ; nhật ký hệ thống ghi lại từng bước.");
 
                 // ===== Sạc thông minh =====
                 kit.Section = "UC-SYS-01 / UC-OP-04 Lập lịch sạc thông minh";
-                Vm().AddChargingRequests();
+                Vm().Charging.AddChargingRequests();
                 await Shot(MainViewModel.PageCharging, "Hàng chờ sạc HUB-08",
                     "Thêm 3 yêu cầu sạc tại HUB-08: bộ lập lịch xếp thứ tự theo điểm ưu tiên (pin thấp, thời điểm cần xe, cao điểm), gán cổng trống trong giới hạn công suất; lưới cổng sạc của Hub hiện ngay bên dưới.");
 
                 // ===== Điều phối =====
                 kit.Section = "UC-OP-04 Điều phối phương tiện";
-                var suggestError = Vm().SuggestAndCreateDispatch();
+                var suggestError = Vm().Dispatch.SuggestAndCreateDispatch();
                 if (suggestError != null)
                 {
                     kit.Log("Gợi ý tự động: " + suggestError + " → tạo lệnh thủ công.");
                     string? err = null;
                     foreach (var (src, dst) in new[] { ("HUB-08", "HUB-03"), ("HUB-08", "HUB-07"), ("HUB-12", "HUB-03"), ("HUB-09", "HUB-05"), ("HUB-01", "HUB-02") })
                     {
-                        Vm().SourceHubId = src;
-                        Vm().TargetHubId = dst;
+                        Vm().Dispatch.SourceHubId = src;
+                        Vm().Dispatch.TargetHubId = dst;
                         foreach (var n in new[] { "3", "2", "1" })
                         {
-                            Vm().DispatchVehicleCountText = n;
-                            err = Vm().CreateDispatchOrder();
+                            Vm().Dispatch.DispatchVehicleCountText = n;
+                            err = Vm().Dispatch.CreateDispatchOrder();
                             if (err == null) break;
                         }
                         if (err == null) break;
                     }
                     kit.LogResult("Tạo lệnh thủ công", err);
                 }
-                Vm().SelectedDispatchOrder = Vm().DispatchOrders.FirstOrDefault();
+                Vm().Dispatch.SelectedDispatchOrder = Vm().Dispatch.DispatchOrders.FirstOrDefault();
                 await Shot(MainViewModel.PageDispatch, "Gợi ý và tạo lệnh điều phối",
                     "Bên trái: mức cân bằng tải của từng Hub (dư xe / cân bằng / thiếu xe). Người điều hành bấm Gợi ý tự động (hoặc chọn Hub nguồn, Hub đích, số xe) để tạo lệnh; lệnh ở trạng thái Chờ xuất phát.");
-                kit.LogResult("Xuất phát", Vm().ExecuteSelectedDispatch());
+                kit.LogResult("Xuất phát", Vm().Dispatch.ExecuteSelectedDispatch());
                 await Shot(MainViewModel.PageDispatch, "Lệnh điều phối đang thực hiện",
                     "Bấm Xuất phát: các xe chuyển sang trạng thái “Đang điều chuyển”, lệnh chuyển sang “Đang điều phối”.");
-                kit.LogResult("Hoàn tất lệnh", Vm().CompleteSelectedDispatch());
+                kit.LogResult("Hoàn tất lệnh", Vm().Dispatch.CompleteSelectedDispatch());
                 await Shot(MainViewModel.PageDispatch, "Hoàn tất điều phối",
                     "Nhân sự báo đã đưa xe tới Hub đích: lệnh hoàn tất và số xe, mức sử dụng của hai Hub được cập nhật.");
 
@@ -151,9 +151,9 @@ namespace SmartEMobilityHub.Capture
                 kit.Log("Không lấy được OperatorDemo để mở What-if.");
                 return;
             }
-            var demo = main.Demo;
+            var session = main.Demo.Session;
 
-            var w = new WhatIfWindow(demo.WhatIf, demo.Store, () => demo.Clock.Now) { Owner = owner, Width = 1400, Height = 900 };
+            var w = new WhatIfWindow(session.WhatIf, session.Store, () => session.Clock.Now) { Owner = owner, Width = 1400, Height = 900 };
             w.Show();
             await ShotKit.Settle(700);
             var vm = (WhatIfViewModel)w.DataContext;

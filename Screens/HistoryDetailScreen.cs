@@ -10,7 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly HistoryEntry _entry;
 
-        public HistoryDetailScreen(HistoryEntry entry)
+        public HistoryDetailScreen(DemoApp app, HistoryEntry entry) : base(app)
         {
             _entry = entry;
         }
@@ -27,7 +27,7 @@ namespace SmartEMobilityHub.Screens
                 Row("Trạng thái", _entry.Status),
                 Row("Phí", _entry.Fee, Theme.Primary)));
             if (_entry.Trip?.Invoice != null)
-                Add(root, InvoiceView.Build(_entry.Trip), 16);
+                Add(root, InvoiceView.Build(App, _entry.Trip), 16);
             else
                 Add(root, Text("Hoạt động này không có hóa đơn thanh toán.", TextKind.Body, Theme.Text2), 16);
             return root;

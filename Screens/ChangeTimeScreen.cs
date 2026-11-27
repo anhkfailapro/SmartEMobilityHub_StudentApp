@@ -14,14 +14,14 @@ namespace SmartEMobilityHub.Screens
         private DateTime _start;
         private int _duration;
 
-        public ChangeTimeScreen(BookingKind kind, string id)
+        public ChangeTimeScreen(DemoApp app, BookingKind kind, string id) : base(app)
         {
             _kind = kind;
             _id = id;
-            _start = TimeOptions.Slots(0)[0];
+            _start = TimeOptions.Slots(App.Clock.Now, 0)[0];
             _duration = kind == BookingKind.Parking
-                ? DemoApp.Store.ParkingReservations.First(p => p.Id == id).DurationMinutes
-                : DemoApp.Store.ChargingSessions.First(s => s.Id == id).DurationMinutes;
+                ? App.Store.ParkingReservations.First(p => p.Id == id).DurationMinutes
+                : App.Store.ChargingSessions.First(s => s.Id == id).DurationMinutes;
         }
 
         public override string? Title => "Đổi giờ";
@@ -30,7 +30,7 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var item = DemoApp.Reservations.FindActive(_kind, _id);
+            var item = App.Reservations.FindActive(_kind, _id);
             if (item == null) return EmptyState(Icons.Calendar, "Đặt chỗ không còn hoạt động", "Không thể đổi giờ.");
             var current = item.Rows.FirstOrDefault(r => r.Label == "Thời gian").Value ?? "-";
             return Stack(16,
@@ -38,10 +38,10 @@ namespace SmartEMobilityHub.Screens
                 Labeled("Ngày", ChipGroup(Enumerable.Range(0, TimeOptions.Days.Length), _day, i => TimeOptions.Days[i], i =>
                 {
                     _day = i;
-                    _start = TimeOptions.Slots(i)[0];
+                    _start = TimeOptions.Slots(App.Clock.Now, i)[0];
                     Shell.Refresh();
                 })),
-                Labeled("Giờ bắt đầu mới", ChipGroup(TimeOptions.Slots(_day), _start, t => DemoConfig.Time(t), t =>
+                Labeled("Giờ bắt đầu mới", ChipGroup(TimeOptions.Slots(App.Clock.Now, _day), _start, t => DemoConfig.Time(t), t =>
                 {
                     _start = t;
                     Shell.Refresh();
@@ -58,7 +58,7 @@ namespace SmartEMobilityHub.Screens
 
         private void Submit()
         {
-            var result = DemoApp.Reservations.ChangeTime(_kind, _id, _start, _duration);
+            var result = App.Reservations.ChangeTime(_kind, _id, _start, _duration);
             if (result.Ok)
             {
                 Shell.Back();

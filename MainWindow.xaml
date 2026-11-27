@@ -7,6 +7,9 @@
         mc:Ignorable="d"
         Title="Smart E-Mobility Hub – Student App (Demo)" Height="940" Width="900"
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <ResourceDictionary Source="/SmartEMobilityHub;component/Ui/DemoStyles.xaml" />
+    </Window.Resources>
     <Window.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#E0E7FF" Offset="0" />

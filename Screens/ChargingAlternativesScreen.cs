@@ -13,7 +13,7 @@ namespace SmartEMobilityHub.Screens
         private readonly DateTime _start;
         private readonly string _message;
 
-        public ChargingAlternativesScreen(ScheduleChargingScreen form, string hubId, DateTime start, string message)
+        public ChargingAlternativesScreen(DemoApp app, ScheduleChargingScreen form, string hubId, DateTime start, string message) : base(app)
         {
             _form = form;
             _hubId = hubId;
@@ -26,7 +26,7 @@ namespace SmartEMobilityHub.Screens
         public override UIElement BuildContent()
         {
             var root = Stack(16, Banner(Tone.Warning, _message), Section("Khung giờ trống gần nhất"));
-            foreach (var (hub, start) in DemoApp.Booking.FindAlternativeWindows(_hubId, _start))
+            foreach (var (hub, start) in App.Booking.FindAlternativeWindows(_hubId, _start))
             {
                 var id = hub.Id;
                 var st = start;
@@ -41,6 +41,6 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement? BuildActions() => Columns(12,
             Button("Chọn lại", ButtonVariant.Outline, Shell.Back),
-            Button("Dừng", ButtonVariant.DangerOutline, ScreenHelpers.GoHome));
+            Button("Dừng", ButtonVariant.DangerOutline, GoHome));
     }
 }

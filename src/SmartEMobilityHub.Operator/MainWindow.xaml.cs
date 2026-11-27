@@ -70,7 +70,7 @@ public partial class MainWindow : Window
     /// <summary>Hiện người vận hành đang đăng nhập; vai trò và ca trực lấy từ seed Operator nếu có.</summary>
     public void SetCurrentUser(UserAccount account)
     {
-        var op = _demo.Store.Operators.FirstOrDefault(o => o.OperatorId == account.LinkedId);
+        var op = _demo.Session.Store.Operators.FirstOrDefault(o => o.OperatorId == account.LinkedId);
         OperatorNameText.Text = op?.Name ?? account.DisplayName;
         OperatorRoleText.Text = op is null ? account.LinkedId : $"{op.Role} · {op.ShiftLabel}";
     }
@@ -110,20 +110,18 @@ public partial class MainWindow : Window
     public void AttachDemo(OperatorDemo demo)
     {
         _demo = demo;
-        _viewModel = new MainViewModel(_demo)
-        {
-            Dialogs = new WindowDialogService(this),
-            IsLinked = _linked,
-            ResetRequested = ResetDemo
-        };
+        _viewModel = new MainViewModel(_demo, new WindowDialogService(this));
+        _viewModel.Shell.IsLinked = _linked;
+        _viewModel.Shell.ResetRequested = ResetDemo;
         DataContext = _viewModel;
     }
 
-    // ---------- Việc của cửa sổ (các nút trong trang dùng lệnh của MainViewModel — DC-52) ----------
+    // ---------- Việc của cửa sổ (các nút trong trang dùng lệnh của ViewModel trang) ----------
 
     private void WhatIf_Click(object sender, RoutedEventArgs e)
     {
-        var window = new WhatIfWindow(_demo.WhatIf, _demo.Store, () => _demo.Clock.Now)
+        var session = _demo.Session;
+        var window = new WhatIfWindow(session.WhatIf, session.Store, () => session.Clock.Now)
         {
             Owner = this
         };

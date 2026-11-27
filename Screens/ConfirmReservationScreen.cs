@@ -10,7 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly string _code;
 
-        public ConfirmReservationScreen(string code)
+        public ConfirmReservationScreen(DemoApp app, string code) : base(app)
         {
             _code = code;
         }
@@ -19,8 +19,8 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var v = DemoApp.Vehicles.GetDetails(_code)!;
-            var hub = DemoApp.Store.GetHub(v.HubId ?? CampusMap.DefaultHubId);
+            var v = App.Vehicles.GetDetails(_code)!;
+            var hub = App.Store.GetHub(v.HubId ?? CampusMap.DefaultHubId);
             return Stack(16,
                 Card(
                     ScreenHelpers.VehicleHeader(v, $"{v.TypeLabel} · Pin {v.Battery}% · ~{v.RangeKm} km"),
@@ -42,13 +42,13 @@ namespace SmartEMobilityHub.Screens
 
         private void Confirm()
         {
-            var result = DemoApp.Reservations.ReserveVehicle(_code);
+            var result = App.Reservations.ReserveVehicle(_code);
             if (!result.Ok)
             {
-                ReservationDialogs.ShowReserveError(result.Error, _code);
+                ReservationDialogs.ShowReserveError(App, result.Error, _code);
                 return;
             }
-            Shell.Replace(new ReservationScreen(true));
+            Shell.Replace(new ReservationScreen(App, true));
         }
     }
 }

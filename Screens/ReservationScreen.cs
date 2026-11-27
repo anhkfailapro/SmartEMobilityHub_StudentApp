@@ -10,7 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         private readonly bool _justCreated;
 
-        public ReservationScreen(bool justCreated = false)
+        public ReservationScreen(DemoApp app, bool justCreated = false) : base(app)
         {
             _justCreated = justCreated;
         }
@@ -20,12 +20,12 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement BuildContent()
         {
-            var r = DemoApp.Reservations.ActiveVehicleReservation;
+            var r = App.Reservations.ActiveVehicleReservation;
             if (r == null)
                 return EmptyState(Icons.Calendar, "Không có đặt xe đang hoạt động", "Đặt chỗ có thể đã hết hạn, đã bị hủy hoặc bạn đã nhận xe.");
 
-            var hub = DemoApp.Store.GetHub(r.HubId);
-            var left = r.HoldUntil - DemoApp.Clock.Now;
+            var hub = App.Store.GetHub(r.HubId);
+            var left = r.HoldUntil - App.Clock.Now;
             if (left < TimeSpan.Zero) left = TimeSpan.Zero;
             var root = Stack(16);
             if (_justCreated) Add(root, Banner(Tone.Success, "Đặt xe thành công! Thông báo đã được gửi tới bạn."), 16);
@@ -54,14 +54,14 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement? BuildActions()
         {
-            var r = DemoApp.Reservations.ActiveVehicleReservation;
-            if (r == null) return Button("Tìm xe khác", ButtonVariant.Primary, ScreenHelpers.GoHome);
+            var r = App.Reservations.ActiveVehicleReservation;
+            if (r == null) return Button("Tìm xe khác", ButtonVariant.Primary, GoHome);
             var id = r.Id;
             return Stack(12,
-                Button("Quét QR để nhận xe", ButtonVariant.Primary, () => Shell.Navigate(new ScanQrScreen()), true, Icons.Camera),
+                Button("Quét QR để nhận xe", ButtonVariant.Primary, () => Shell.Navigate(new ScanQrScreen(App)), true, Icons.Camera),
                 Columns(12,
-                    Button("Nhập mã thủ công", ButtonVariant.Outline, () => Shell.Navigate(new ManualCodeScreen())),
-                    Button("Hủy đặt chỗ", ButtonVariant.DangerOutline, () => Shell.Navigate(new CancelConfirmScreen(BookingKind.Vehicle, id)))));
+                    Button("Nhập mã thủ công", ButtonVariant.Outline, () => Shell.Navigate(new ManualCodeScreen(App))),
+                    Button("Hủy đặt chỗ", ButtonVariant.DangerOutline, () => Shell.Navigate(new CancelConfirmScreen(App, BookingKind.Vehicle, id)))));
         }
     }
 }

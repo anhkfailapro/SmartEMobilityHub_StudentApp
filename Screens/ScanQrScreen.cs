@@ -8,11 +8,15 @@ namespace SmartEMobilityHub.Screens
 {
     public class ScanQrScreen : Screen
     {
+        public ScanQrScreen(DemoApp app) : base(app)
+        {
+        }
+
         public override string? Title => "Quét mã QR";
 
         public override UIElement BuildContent()
         {
-            var r = DemoApp.Reservations.ActiveVehicleReservation;
+            var r = App.Reservations.ActiveVehicleReservation;
             var frame = new System.Windows.Shapes.Rectangle
             {
                 Width = 200,
@@ -38,14 +42,14 @@ namespace SmartEMobilityHub.Screens
 
         public override UIElement? BuildActions()
         {
-            var r = DemoApp.Reservations.ActiveVehicleReservation;
+            var r = App.Reservations.ActiveVehicleReservation;
             var code = r?.VehicleCode ?? "EB-1024";
             var other = code == "EB-1040" ? "EB-1024" : "EB-1040";
             return Stack(12,
-                Button($"Giả lập quét {code} (đúng xe)", ButtonVariant.Primary, () => PickUpFlow.Verify(code, null), r != null, Icons.Camera),
+                Button($"Giả lập quét {code} (đúng xe)", ButtonVariant.Primary, () => PickUpFlow.Verify(App, code, null), r != null, Icons.Camera),
                 Columns(12,
-                    Button($"Quét nhầm {other}", ButtonVariant.Outline, () => PickUpFlow.Verify(other, null), r != null),
-                    Button("Nhập mã thủ công", ButtonVariant.Secondary, () => Shell.Replace(new ManualCodeScreen()), r != null)));
+                    Button($"Quét nhầm {other}", ButtonVariant.Outline, () => PickUpFlow.Verify(App, other, null), r != null),
+                    Button("Nhập mã thủ công", ButtonVariant.Secondary, () => Shell.Replace(new ManualCodeScreen(App)), r != null)));
         }
     }
 }
