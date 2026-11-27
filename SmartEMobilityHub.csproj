@@ -19,6 +19,12 @@
     <ApplicationDefinition Remove="tests/**" />
   </ItemGroup>
 
+  <!-- ShotKit (chụp màn hình cho Working demonstration) chỉ có một bản, nằm ở project Operator;
+       app Sinh viên biên dịch chung file đó thay vì giữ bản sao (DC-49). -->
+  <ItemGroup>
+    <Compile Include="src/SmartEMobilityHub.Operator/Capture/ShotKit.cs" Link="Capture/ShotKit.cs" />
+  </ItemGroup>
+
   <!-- Dùng chung Core (AuthService, mạng lưới) và mở được Trung tâm điều hành trong cùng tiến trình (chế độ liên thông). -->
   <ItemGroup>
     <ProjectReference Include="src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />

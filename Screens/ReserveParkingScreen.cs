@@ -9,7 +9,7 @@ namespace SmartEMobilityHub.Screens
     public class ReserveParkingScreen : Screen
     {
         private static readonly int[] Durations = { 60, 120, 180, 240 };
-        private string _hubId = "H1";
+        private string _hubId = CampusMap.DefaultHubId;
         private string _vehicleId = "PV1";
         private bool _arriveNow;
         private int _day;

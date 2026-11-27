@@ -1,8 +1,11 @@
 namespace SmartEMobilityHub.Models
 {
-    public enum VehicleStatus { Available, Reserved, InUse, NeedsCharge, Charging, Faulty, Relocating, UnderCheck }
+    // Các enum trùng với Core (VehicleType, PriorityLevel, IncidentStatus, IncidentSource) đã bỏ:
+    // app Sinh viên dùng thẳng enum của Core qua CoreAliases.cs (DC-54).
+    // Các enum dưới đây là trạng thái hiển thị riêng của app Sinh viên.
 
-    public enum VehicleType { EBike, EMotorbike }
+    /// <summary>Trạng thái xe như sinh viên thấy (Core có nhiều trạng thái hơn, xem NetworkMapping.StudentStatus).</summary>
+    public enum VehicleStatus { Available, Reserved, InUse, NeedsCharge, Charging, Faulty, Relocating, UnderCheck }
 
     public enum ReservationState { Active, Started, Cancelled, Expired, Completed }
 
@@ -13,12 +16,6 @@ namespace SmartEMobilityHub.Models
     public enum ChargingRequestState { InQueue, Assigned, Cancelled }
 
     public enum PointStatus { Free, Charging, OutOfService }
-
-    public enum PriorityLevel { Low, Medium, High, Critical }
-
-    public enum IncidentStatus { New, UnderCheck, Locked, InRepair, Resolved, Closed }
-
-    public enum IncidentSource { StudentReport, IotSensor, UnlockTimeout }
 
     public enum ReportObjectKind { Vehicle, ChargingPoint }
 

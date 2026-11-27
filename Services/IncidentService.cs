@@ -1,84 +1,76 @@
 using SmartEMobilityHub.Data;
 using SmartEMobilityHub.Models;
+using CoreDomain = SmartEMobilityHub.Core.Domain;
 
 namespace SmartEMobilityHub.Services
 {
+    /// <summary>
+    /// Báo lỗi của sinh viên (UC-10) đi thẳng vào hàng đợi sự cố của Trung tâm điều hành (IncidentManager, DC-54):
+    /// báo cáo trùng được gộp, thiết bị chuyển "Đang kiểm tra", mã báo cáo là mã sự cố.
+    /// </summary>
     public class IncidentService
     {
-        private static MockDataStore Store => DemoApp.Store;
+        private readonly StudentContext Ctx;
+
+        public IncidentService(StudentContext ctx) => Ctx = ctx;
+
+        private MockDataStore Store => Ctx.Store;
 
         public Incident? FindOpenIncident(string objectCode) =>
-            Store.Incidents.FirstOrDefault(i => string.Equals(i.ObjectCode, objectCode, StringComparison.OrdinalIgnoreCase)
-                                                && i.Status != IncidentStatus.Resolved && i.Status != IncidentStatus.Closed);
+            Ctx.Network.Incidents.FindOpenIncident(objectCode.Trim()) is { } record ? Store.View(record) : null;
 
         public OpResult<Incident> ReceiveStudentReport(ReportObjectKind kind, string objectCode, string? hubId, int? pointNumber, string problemType, string description, double? photoMb)
         {
             if (photoMb.HasValue && photoMb.Value > DemoConfig.MaxPhotoMb)
                 return OpResult<Incident>.Fail("PhotoTooLarge", $"Ảnh {photoMb.Value:0.0} MB vượt giới hạn {DemoConfig.MaxPhotoMb:0} MB. Vui lòng chọn ảnh nhỏ hơn.");
-            if (string.IsNullOrWhiteSpace(objectCode))
+            if (string.IsNullOrWhiteSpace(objectCode) && kind == ReportObjectKind.Vehicle)
                 return OpResult<Incident>.Fail("MissingCode", "Vui lòng nhập mã đối tượng cần báo lỗi.");
             if (string.IsNullOrWhiteSpace(problemType))
                 return OpResult<Incident>.Fail("MissingType", "Vui lòng chọn loại sự cố.");
 
-            Vehicle? vehicle = null;
+            CoreDomain.IncidentObjectType type;
+            string code;
             if (kind == ReportObjectKind.Vehicle)
             {
-                vehicle = Store.GetVehicle(objectCode);
+                var vehicle = Store.GetVehicle(objectCode);
                 if (vehicle == null) return OpResult<Incident>.Fail("UnknownObject", $"Không tìm thấy phương tiện {objectCode.Trim()}.");
-                objectCode = vehicle.Code;
-                hubId = vehicle.HubId ?? Store.ActiveTrip?.StartHubId ?? "H1";
+                type = CoreDomain.IncidentObjectType.Vehicle;
+                code = vehicle.Code;
+            }
+            else
+            {
+                var hub = Store.FindHub(hubId);
+                var point = hub?.Points.FirstOrDefault(p => p.Number == pointNumber);
+                if (hub == null || point == null)
+                    return OpResult<Incident>.Fail("UnknownObject", "Vui lòng chọn Hub và cổng sạc cần báo lỗi.");
+                type = CoreDomain.IncidentObjectType.ChargingPoint;
+                code = point.Id;
             }
 
-            var open = FindOpenIncident(objectCode);
-            if (open != null)
+            var existing = FindOpenIncident(code);
+            var photoBytes = photoMb.HasValue ? (long)(photoMb.Value * 1024 * 1024) : 0;
+            CoreDomain.IncidentRecord record;
+            try
             {
-                open.ReportCount++;
-                DemoApp.Link.OnProblemReported(open, pointNumber);
-                DemoApp.Notifications.Send("Đã tiếp nhận báo lỗi", $"{objectCode} đã có sự cố đang xử lý ({open.Code}). Báo cáo của bạn đã được gộp vào sự cố này.", Tone.Info);
-                return new OpResult<Incident> { Value = open, Message = "Linked" };
+                record = Ctx.Gateway.ReportProblem(Store.StudentId, type, code, problemType, description, photoBytes);
+            }
+            catch (Exception ex) when (ex is CoreDomain.IllegalArgumentException or CoreDomain.FileTooLargeException)
+            {
+                return OpResult<Incident>.Fail("Rejected", ex.Message);
             }
 
-            var incident = new Incident
+            var incident = Store.View(record);
+            var shown = kind == ReportObjectKind.Vehicle ? code : DescribePoint(hubId, pointNumber);
+            if (existing != null)
             {
-                Code = Store.NextReportCode(),
-                ObjectKind = kind,
-                ObjectCode = objectCode,
-                HubId = hubId ?? "H1",
-                ProblemType = problemType,
-                Description = description,
-                Status = IncidentStatus.UnderCheck,
-                Source = IncidentSource.StudentReport,
-                CreatedAt = DemoApp.Clock.Now
-            };
-            Store.Incidents.Add(incident);
-            DemoApp.Link.OnProblemReported(incident, pointNumber);
-
-            if (vehicle != null && vehicle.Status != VehicleStatus.InUse) vehicle.Status = VehicleStatus.UnderCheck;
-            if (kind == ReportObjectKind.ChargingPoint && pointNumber.HasValue)
-            {
-                var point = Store.GetHub(incident.HubId).Points.FirstOrDefault(p => p.Number == pointNumber.Value);
-                if (point != null) point.Status = PointStatus.OutOfService;
+                Ctx.Notifications.Send("Đã tiếp nhận báo lỗi", $"{shown} đã có sự cố đang xử lý ({incident.Code}). Báo cáo của bạn đã được gộp vào sự cố này.", Tone.Info);
+                return new OpResult<Incident> { Value = incident, Message = "Linked" };
             }
-            DemoApp.Notifications.Send("Đã tiếp nhận báo lỗi", $"Mã báo cáo {incident.Code} · {objectCode} · Người điều hành đang xử lý.", Tone.Info);
+            Ctx.Notifications.Send("Đã tiếp nhận báo lỗi", $"Mã báo cáo {incident.Code} · {shown} · Người điều hành đang xử lý.", Tone.Info);
             return OpResult<Incident>.Success(incident);
         }
 
-        public Incident CreateUnlockTimeoutIncident(string vehicleCode, string hubId)
-        {
-            var incident = new Incident
-            {
-                Code = Store.NextReportCode(),
-                ObjectKind = ReportObjectKind.Vehicle,
-                ObjectCode = vehicleCode,
-                HubId = hubId,
-                ProblemType = "Không mở khóa được",
-                Description = $"Không nhận được xác nhận mở khóa sau {DemoConfig.UnlockTimeoutSeconds} giây.",
-                Status = IncidentStatus.New,
-                Source = IncidentSource.UnlockTimeout,
-                CreatedAt = DemoApp.Clock.Now
-            };
-            Store.Incidents.Add(incident);
-            return incident;
-        }
+        private string DescribePoint(string? hubId, int? pointNumber) =>
+            Store.FindHub(hubId) is { } hub ? $"{hub.ShortName} · Cổng #{pointNumber}" : $"Cổng #{pointNumber}";
     }
 }

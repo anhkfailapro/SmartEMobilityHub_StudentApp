@@ -10,7 +10,7 @@ namespace SmartEMobilityHub.Screens
     {
         private static readonly int[] Durations = { 60, 90, 120, 150, 180, 240 };
         private static readonly int[] Targets = { 80, 90, 100 };
-        private string _hubId = "H1";
+        private string _hubId = CampusMap.DefaultHubId;
         private string _vehicleId = "PV2";
         private bool _asap;
         private int _day;

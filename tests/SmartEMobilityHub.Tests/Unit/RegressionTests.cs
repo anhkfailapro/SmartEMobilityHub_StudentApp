@@ -1,5 +1,7 @@
 using SmartEMobilityHub.Core.Adapters;
 using SmartEMobilityHub.Core.Domain;
+using SmartEMobilityHub.Core.Services;
+using SmartEMobilityHub.Core.Store;
 using SmartEMobilityHub.Tests.Support;
 
 namespace SmartEMobilityHub.Tests.Unit;
@@ -239,6 +241,39 @@ public static class RegressionTests
             var world = TestWorld.Create();
             var snapshot = world.Store.Snapshot();
             Assert.True(snapshot.FindVehicle(" xe-112 ") is not null, "Snapshot phải tìm được xe như store");
+        });
+        runner.Add("REG-16", "What-if dùng đồng hồ mô phỏng: phiên, lần chạy và khung mặc định theo giờ demo, không theo giờ máy", () =>
+        {
+            var world = TestWorld.Create();
+            world.Clock.AdvanceMinutes(15);
+            var controller = new WhatIfController(new TempStateRepository(world.Store, world.Clock),
+                new WhatIfEngineService(world.Clock), world.Store.Snapshot);
+
+            var parameters = controller.GetDefaultConfig("PARKING_FULL", "HUB-08");
+            Assert.Equal(world.Clock.Now.Date, parameters.StartTime.Date, "Khung mặc định nằm trong ngày mô phỏng");
+
+            var session = controller.ConfigureScenario("PARKING_FULL", parameters);
+            Assert.Equal(world.Clock.Now, session.CreatedAt, "Phiên ghi giờ mô phỏng");
+
+            var result = controller.StartSimulation(session.SessionId);
+            Assert.Equal(world.Clock.Now, result.StartedAt, "Lần chạy ghi giờ mô phỏng");
+        });
+
+        runner.Add("REG-17", "Timer bắt buộc có scheduler; Start/Stop gắn và gỡ đúng lịch, không chạy luồng nền", () =>
+        {
+            var world = TestWorld.Create();
+            Assert.Throws<ArgumentNullException>(() => new StatusUpdaterTimer(world.Store, world.Clock, world.Sync,
+                    world.Threshold, world.Queue, world.AutoCancel, world.Charging, world.Logger, null!),
+                "Thiếu scheduler phải báo lỗi ngay, không lặng lẽ dùng timer nền");
+
+            Assert.False(world.Scheduler.Fire(), "Chưa Start thì chưa có lịch");
+            world.Timer.Start();
+            world.Timer.Start();
+            Assert.True(world.Scheduler.Fire(), "Start xong thì lịch chạy được một chu kỳ");
+            Assert.Equal(world.Clock.Now, world.Timer.LastTickAt, "Chu kỳ quét đã chạy");
+
+            world.Timer.Stop();
+            Assert.False(world.Scheduler.IsScheduled, "Stop gỡ lịch");
         });
     }
 

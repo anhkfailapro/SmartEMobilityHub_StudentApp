@@ -5,11 +5,15 @@ namespace SmartEMobilityHub.Services
 {
     public class TripBillingService
     {
-        private static MockDataStore Store => DemoApp.Store;
+        private readonly StudentContext Ctx;
+
+        public TripBillingService(StudentContext ctx) => Ctx = ctx;
+
+        private MockDataStore Store => Ctx.Store;
 
         public Trip? ActiveTrip => Store.ActiveTrip;
 
-        public double ElapsedMinutes(Trip t) => ((t.EndTime ?? DemoApp.Clock.Now) - t.StartTime).TotalMinutes;
+        public double ElapsedMinutes(Trip t) => ((t.EndTime ?? Ctx.Clock.Now) - t.StartTime).TotalMinutes;
 
         public int CurrentBattery(Trip t) => Math.Max(3, t.StartBattery - (int)(ElapsedMinutes(t) / 3));
 
@@ -25,14 +29,14 @@ namespace SmartEMobilityHub.Services
         public OpResult<Hub> CheckReturn(string hubId, bool redirected = false)
         {
             var hub = Store.GetHub(hubId);
-            if (!redirected && DemoApp.Toggles.VehicleOutsideHub)
+            if (!redirected && Ctx.Toggles.VehicleOutsideHub)
             {
                 var nearest = NearestHubWithFreeSlots(hub, null);
                 return OpResult<Hub>.Fail("OutsideHub", "Xe không nằm trong khu vực Hub nên không thể trả xe. Hãy di chuyển đến Hub gần nhất còn chỗ trống.", nearest);
             }
             if (hub.IsSuspended)
                 return OpResult<Hub>.Fail("HubFull", $"{hub.Name} đang tạm dừng hoạt động.", NearestHubWithFreeSlots(hub, hub.Id));
-            if ((!redirected && DemoApp.Toggles.ReturnHubFull) || hub.FreeSlots <= 0)
+            if ((!redirected && Ctx.Toggles.ReturnHubFull) || hub.FreeSlots <= 0)
             {
                 var nearest = NearestHubWithFreeSlots(hub, hub.Id);
                 var t = ActiveTrip;
@@ -45,7 +49,7 @@ namespace SmartEMobilityHub.Services
         public Trip Complete(string hubId)
         {
             var t = ActiveTrip!;
-            var now = DemoApp.Clock.Now;
+            var now = Ctx.Clock.Now;
             var hub = Store.GetHub(hubId);
             var v = Store.GetVehicle(t.VehicleCode)!;
             var rate = DemoConfig.RentalPricePerMinute;
@@ -59,7 +63,7 @@ namespace SmartEMobilityHub.Services
             var planDeduction = planMinutes * rate;
             var total = Math.Max(0, rental - free * rate - planDeduction);
 
-            v.Battery = CurrentBattery(t);
+            var battery = CurrentBattery(t);
             t.DistanceKm = distance;
             t.EndTime = now;
             t.EndHubId = hubId;
@@ -76,25 +80,15 @@ namespace SmartEMobilityHub.Services
                 PaymentMethod = DemoConfig.PaymentMethod
             };
 
-            v.Status = v.Battery < DemoConfig.NeedsChargeBelow ? VehicleStatus.NeedsCharge : VehicleStatus.Available;
-            v.HubId = hubId;
-            v.Slot = t.EndSlot;
-            v.LastUpdate = now;
-            hub.FreeSlots = Math.Max(0, hub.FreeSlots - 1);
-            DemoApp.Link.OnReturned(v, hubId);
-
-            var r = Store.VehicleReservations.FirstOrDefault(x => x.State == ReservationState.Started);
-            if (r != null)
-            {
-                r.State = ReservationState.Completed;
-                r.ClosedAt = now;
-            }
+            // Mạng lưới ghi nhận trả xe: xe vào Hub (chiếm một chỗ đỗ), cập nhật pin, đóng đặt chỗ đã nhận,
+            // xe dưới 20% pin thành "Cần sạc"; nếu xe đã được cấp cổng sạc tại Hub này thì vào sạc luôn.
+            Ctx.Gateway.ReturnVehicle(v.Code, hubId, t.EndSlot, battery, battery < DemoConfig.NeedsChargeBelow);
             Store.ActiveTrip = null;
 
             if (total == 0)
-                DemoApp.Notifications.Send("Đã trừ vào gói tháng", $"Hóa đơn #{t.Invoice.Number} · Chuyến {minutes} phút được trừ vào phút miễn phí của gói tháng.", Tone.Success);
+                Ctx.Notifications.Send("Đã trừ vào gói tháng", $"Hóa đơn #{t.Invoice.Number} · Chuyến {minutes} phút được trừ vào phút miễn phí của gói tháng.", Tone.Success);
             else
-                DemoApp.Notifications.Send("Thanh toán thành công", $"Hóa đơn #{t.Invoice.Number} · {DemoConfig.Money(total)} · Chuyến {minutes} phút.", Tone.Success);
+                Ctx.Notifications.Send("Thanh toán thành công", $"Hóa đơn #{t.Invoice.Number} · {DemoConfig.Money(total)} · Chuyến {minutes} phút.", Tone.Success);
             return t;
         }
     }

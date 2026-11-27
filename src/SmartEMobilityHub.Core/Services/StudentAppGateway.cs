@@ -21,20 +21,27 @@ public sealed class StudentAppGateway
     private readonly SmartChargingScheduler _charging;
     private readonly IReservationPort _reservations;
     private readonly IClock _clock;
+    private readonly AutoCancelService? _autoCancel;
 
     public StudentAppGateway(
         NetworkStore store,
         IncidentManager incidents,
         SmartChargingScheduler charging,
         IReservationPort reservations,
-        IClock clock)
+        IClock clock,
+        AutoCancelService? autoCancel = null)
     {
         _store = store;
         _incidents = incidents;
         _charging = charging;
         _reservations = reservations;
         _clock = clock;
+        _autoCancel = autoCancel;
     }
+
+    public NetworkStore Store => _store;
+
+    public SmartChargingScheduler Charging => _charging;
 
     /// <summary>Đưa một xe của app Sinh viên vào mạng lưới nếu Core chưa có (không đổi bộ đếm chỗ đỗ của Hub).</summary>
     public Vehicle EnsureVehicle(string code, VehicleType type, string? hubId, string slot, int battery, DeviceStatus status)
@@ -243,6 +250,114 @@ public sealed class StudentAppGateway
         var hub = _store.GetHub(hubId);
         hub.OccupiedParkingSlots = Math.Clamp(hub.OccupiedParkingSlots + delta, 0, hub.ParkingCapacity);
         hub.LastUpdatedAt = _clock.Now;
+    }
+
+    // ---------- Bổ sung khi app Sinh viên dùng thẳng mạng lưới (DC-54) ----------
+
+    /// <summary>Sinh viên bắt đầu / thôi quét QR nhận xe (đơn đang quét được gia hạn có giới hạn — A10).</summary>
+    public void SetPickingUp(string reservationId, bool pickingUp)
+    {
+        var reservation = FindReservation(reservationId)
+                          ?? throw new IllegalArgumentException($"Không tìm thấy đặt chỗ {reservationId}.");
+        if (reservation.Status != ReservationStatus.PendingPickup) return;
+        reservation.IsPickingUp = pickingUp;
+    }
+
+    /// <summary>Huỷ các đơn quá hạn của một người dùng theo đúng quy tắc UC-SYS-04 (cùng code với chu kỳ quét).</summary>
+    public int AutoCancelExpiredFor(string userId) =>
+        _autoCancel?.AutoCancelExpiredReservations(userId)
+        ?? throw new IllegalStateException("Gateway chưa được nối với AutoCancelService.");
+
+    /// <summary>Không nhận được xác nhận mở khoá: huỷ lệnh, giữ xe RESERVED, tạo sự cố (TCOP03-05).</summary>
+    public IncidentRecord ReportUnlockTimeout(string vehicleCode, string reservationId) =>
+        _incidents.ReceiveUnlockTimeout(vehicleCode, reservationId);
+
+    /// <summary>Demo: dữ liệu cảm biến của xe đã cũ <paramref name="minutes"/> phút (UC-02 2a).</summary>
+    public void MarkVehicleStale(string vehicleCode, int minutes)
+    {
+        var vehicle = _store.FindVehicle(vehicleCode)
+                      ?? throw new IllegalArgumentException($"Không tìm thấy xe {vehicleCode} trong mạng lưới.");
+        vehicle.LastUpdatedAt = _clock.Now.AddMinutes(-minutes);
+    }
+
+    /// <summary>
+    /// Demo UC-08 2a "Tất cả cổng sạc đang bận": các cổng còn trống của Hub được xe khác chiếm.
+    /// Trả về số cổng vừa bị chiếm.
+    /// </summary>
+    public int OccupyFreeChargingPoints(string hubId)
+    {
+        var hub = _store.GetHub(hubId);
+        var free = hub.ChargingPoints.Where(p => p.Status == DeviceStatus.Available).ToList();
+        foreach (var point in free)
+        {
+            point.Status = DeviceStatus.Charging;
+            point.AssignedVehicleCode = OtherVehicleCode;
+            point.LastUpdatedAt = _clock.Now;
+        }
+        if (free.Count > 0) hub.LastUpdatedAt = _clock.Now;
+        return free.Count;
+    }
+
+    /// <summary>Mã giả cho xe khác đang chiếm cổng sạc trong kịch bản demo.</summary>
+    public const string OtherVehicleCode = "XE-KHAC";
+
+    /// <summary>
+    /// Demo "Cấp cổng sạc cho yêu cầu đầu hàng chờ": nếu Hub không còn cổng trống thì một xe đang sạc
+    /// (không phải xe đang chờ) sạc xong và trả cổng; sau đó lập lịch lại. Trả yêu cầu vừa được cấp cổng, hoặc null.
+    /// </summary>
+    public ChargingRequest? AssignNextChargingPoint(IEnumerable<string> requestIds)
+    {
+        foreach (var id in requestIds)
+        {
+            var request = FindChargingRequest(id);
+            if (request is null || request.AssignedPortId is not null) continue;
+
+            var hub = _store.GetHub(request.HubId);
+            if (!hub.ChargingPoints.Any(p => p.Status == DeviceStatus.Available))
+            {
+                var waiting = _store.ChargingRequests.Select(r => r.VehicleId).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var finishing = hub.ChargingPoints.FirstOrDefault(p =>
+                    p.Status == DeviceStatus.Charging && !waiting.Contains(p.AssignedVehicleCode ?? ""));
+                if (finishing is null) continue;
+                FinishCharging(finishing);
+            }
+
+            _charging.RunSchedule(hub);
+            if (request.AssignedPortId is not null) return request;
+        }
+        return null;
+    }
+
+    /// <summary>Cổng sạc ngưng hoạt động (UC-09 5a): đánh dấu FAULTY và chuyển xe đang sạc sang cổng khác (UC-SYS-01 5a).</summary>
+    public void MarkChargingPointFaulty(string pointId)
+    {
+        var point = _store.FindChargingPoint(pointId)
+                    ?? throw new IllegalArgumentException($"Không tìm thấy cổng sạc {pointId}.");
+        _charging.HandleFaultyChargingPoint(point);
+    }
+
+    /// <summary>Vị trí (1, 2, …) của yêu cầu trong hàng chờ của Hub; 0 nếu đã có cổng hoặc không còn.</summary>
+    public int QueuePositionOf(string requestId)
+    {
+        var request = FindChargingRequest(requestId);
+        if (request is null || request.AssignedPortId is not null) return 0;
+        var waiting = _charging.GetQueue(request.HubId).Where(r => r.AssignedPortId is null).ToList();
+        return waiting.IndexOf(request) + 1;
+    }
+
+    private void FinishCharging(ChargingPoint point)
+    {
+        var vehicle = point.AssignedVehicleCode is null ? null : _store.FindVehicle(point.AssignedVehicleCode);
+        if (vehicle is not null && vehicle.AssignedPortId == point.Id)
+        {
+            vehicle.AssignedPortId = null;
+            vehicle.BatteryLevel = 100;
+            if (vehicle.Status == DeviceStatus.Charging) vehicle.Status = DeviceStatus.Available;
+            vehicle.LastUpdatedAt = _clock.Now;
+        }
+        point.Status = DeviceStatus.Available;
+        point.AssignedVehicleCode = null;
+        point.LastUpdatedAt = _clock.Now;
     }
 
     public Reservation? FindReservation(string reservationId) =>

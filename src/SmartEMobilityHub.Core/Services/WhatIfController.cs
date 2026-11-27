@@ -35,7 +35,8 @@ public sealed class WhatIfController
     public SimulationParameters GetDefaultConfig(string presetId, string targetHubId)
     {
         var preset = FindPreset(presetId);
-        return preset.GetDefaultConfig(targetHubId);
+        // Khung mặc định 14:00–19:00 lấy theo NGÀY MÔ PHỎNG (mốc snapshot), không theo DateTime.Today.
+        return preset.GetDefaultConfig(targetHubId, _currentSnapshot().TakenAt);
     }
 
     public ValidationResult ValidateParameters(string presetId, SimulationParameters parameters)

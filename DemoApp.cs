@@ -1,5 +1,6 @@
 using System.Windows.Controls;
 using System.Windows.Threading;
+using SmartEMobilityHub.Core.Clock;
 using SmartEMobilityHub.Core.Seed;
 using SmartEMobilityHub.Core.Services;
 using SmartEMobilityHub.Data;
@@ -12,27 +13,33 @@ namespace SmartEMobilityHub
 {
     public static class DemoApp
     {
-        public static DemoClock Clock { get; } = new();
-        public static DemoToggles Toggles { get; } = new();
-        public static MockDataStore Store { get; } = new();
-        public static NotificationService Notifications { get; } = new();
-        public static JourneyPlanner Journey { get; } = new();
-        public static VehicleManager Vehicles { get; } = new();
-        public static ReservationService Reservations { get; } = new();
-        public static ParkingService Parking { get; } = new();
-        public static PickUpService PickUp { get; } = new();
-        public static TripBillingService Billing { get; } = new();
-        public static ChargingService Charging { get; } = new();
-        public static BookingService Booking { get; } = new();
-        public static IncidentService Incidents { get; } = new();
-        public static HistoryService History { get; } = new();
+        /// <summary>Liên thông với Trung tâm điều hành: dùng chung mạng lưới Core (Hub, xe, đặt chỗ, sự cố, hàng chờ sạc).</summary>
+        public static NetworkLink Link { get; } = new();
+
+        /// <summary>
+        /// Dữ liệu và service của app Sinh viên (DC-51) trên mạng lưới dùng chung với Trung tâm điều hành (DC-54).
+        /// Các thuộc tính dưới đây chỉ là lối tắt cho màn hình.
+        /// </summary>
+        public static StudentContext Context { get; } = new();
+
+        public static SimulationClock Clock => Context.Clock;
+        public static DemoToggles Toggles => Context.Toggles;
+        public static MockDataStore Store => Context.Store;
+        public static NotificationService Notifications => Context.Notifications;
+        public static JourneyPlanner Journey => Context.Journey;
+        public static VehicleManager Vehicles => Context.Vehicles;
+        public static ReservationService Reservations => Context.Reservations;
+        public static ParkingService Parking => Context.Parking;
+        public static PickUpService PickUp => Context.PickUp;
+        public static TripBillingService Billing => Context.Billing;
+        public static ChargingService Charging => Context.Charging;
+        public static BookingService Booking => Context.Booking;
+        public static IncidentService Incidents => Context.Incidents;
+        public static HistoryService History => Context.History;
         public static AppShell Shell { get; private set; } = null!;
 
         /// <summary>Đăng nhập dùng chung với Core; tài khoản demo nạp từ <see cref="AccountSeed"/>.</summary>
         public static AuthService Auth { get; } = CreateAuth();
-
-        /// <summary>Liên thông với Trung tâm điều hành: dùng chung mạng lưới Core (Hub, xe, đặt chỗ, sự cố, hàng chờ sạc).</summary>
-        public static NetworkLink Link { get; } = new();
 
         private static DemoPanel? _panel;
         private static DispatcherTimer? _timer;
@@ -42,7 +49,7 @@ namespace SmartEMobilityHub
         /// </param>
         public static void Start(Border phoneHost, Border panelHost, bool requireLogin = true)
         {
-            Store.Seed(Clock.Now);
+            Context.Reset();
             Link.Reset();
             Shell = new AppShell(phoneHost);
             _panel = new DemoPanel(panelHost);
@@ -105,7 +112,7 @@ namespace SmartEMobilityHub
             var expired = Reservations.AutoCancelExpired();
             Booking.ProcessSessions();
             var parkingDone = Parking.CompleteFinished();
-            var networkChanged = Link.SyncFromNetwork();
+            var networkChanged = Context.Watcher.Poll();
             var current = Shell.Current;
             if (expired.Count > 0 && current is ReservationScreen or ScanQrScreen or ManualCodeScreen)
             {
@@ -132,7 +139,7 @@ namespace SmartEMobilityHub
             Clock.Reset();
             Toggles.Reset();
             Theme.IsDark = false;
-            Store.Seed(Clock.Now);
+            Context.Reset();
             Link.Reset();
             Shell.ResetTo(Auth.IsLoggedIn ? new HomeScreen() : new LoginScreen());
             _panel?.Build();

@@ -27,13 +27,32 @@ public sealed class AutoCancelService
         _logger = logger;
     }
 
+    /// <summary>Lý do huỷ khi hết 15 phút giữ chỗ.</summary>
+    public const string HoldExpiredReason = "Quá 15 phút giữ chỗ";
+
+    /// <summary>Lý do huỷ khi đang quét QR nhưng đã hết số lần gia hạn.</summary>
+    public static string PickupExtensionsExhaustedReason =>
+        $"Quét QR quá {ServiceConstants.MaxPickupExtensions} lần gia hạn mà chưa nhận được xe";
+
+    /// <summary>Đơn bị huỷ vì hết thời gian giữ (app Sinh viên hiển thị "Hết hạn" thay vì "Đã huỷ").</summary>
+    public static bool IsTimeoutReason(string? reason) =>
+        reason == HoldExpiredReason || reason == PickupExtensionsExhaustedReason;
+
     /// <summary>Trả về số đơn đã huỷ (Bảng 29 trả int).</summary>
-    public int AutoCancelExpiredReservations()
+    public int AutoCancelExpiredReservations() => AutoCancelExpiredReservations(null);
+
+    /// <summary>
+    /// Như trên nhưng chỉ xét đơn của một người dùng (null = mọi người). App Sinh viên gọi mỗi giây cho
+    /// đơn của chính sinh viên — cùng một quy tắc với chu kỳ quét của Trung tâm điều hành (DC-54).
+    /// </summary>
+    public int AutoCancelExpiredReservations(string? userId)
     {
         var now = _clock.Now;
         var cancelled = 0;
 
-        var expired = _reservations.FindExpiredReservations(now, ServiceConstants.ReservationHoldMinutes);
+        var expired = _reservations.FindExpiredReservations(now, ServiceConstants.ReservationHoldMinutes)
+            .Where(r => userId is null || r.UserId == userId)
+            .ToList();
 
         foreach (var reservation in expired)
         {
@@ -47,9 +66,7 @@ public sealed class AutoCancelService
                     continue;
                 }
 
-                var reason = reservation.IsPickingUp
-                    ? $"Quét QR quá {ServiceConstants.MaxPickupExtensions} lần gia hạn mà chưa nhận được xe"
-                    : "Quá 15 phút giữ chỗ";
+                var reason = reservation.IsPickingUp ? PickupExtensionsExhaustedReason : HoldExpiredReason;
                 _reservations.CancelReservation(reservation.Id, reason);
             }
             catch (Exception ex)

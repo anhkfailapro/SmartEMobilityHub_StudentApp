@@ -140,7 +140,9 @@ namespace SmartEMobilityHub.Screens
             var request = result.Value!;
             var hubId = _hubId;
             var hub = DemoApp.Store.GetHub(hubId);
-            var note = $"Đã gửi yêu cầu sạc cho {_vehicleCode}: vị trí #{request.QueuePosition} tại {hub.ShortName}, chờ ~{request.WaitMinutes} phút. Bạn có thể đặt xe mới tại Hub này.";
+            var note = request.State == ChargingRequestState.Assigned
+                ? $"Đã giữ cổng sạc #{request.AssignedPoint} tại {hub.ShortName} cho {_vehicleCode}: trả xe ở đây là xe vào sạc ngay. Bạn có thể đặt xe mới tại Hub này."
+                : $"Đã gửi yêu cầu sạc cho {_vehicleCode}: vị trí #{request.QueuePosition} tại {hub.ShortName}, chờ ~{request.WaitMinutes} phút. Bạn có thể đặt xe mới tại Hub này.";
             Shell.Replace(new ReturnVehicleScreen(trip => Shell.ResetTo(new TripSummaryScreen(trip, hubId, note)), hubId));
         }
     }

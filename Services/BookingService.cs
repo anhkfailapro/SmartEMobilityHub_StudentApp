@@ -5,8 +5,12 @@ namespace SmartEMobilityHub.Services
 {
     public class BookingService
     {
-        private static MockDataStore Store => DemoApp.Store;
-        private static DateTime Now => DemoApp.Clock.Now;
+        private readonly StudentContext Ctx;
+
+        public BookingService(StudentContext ctx) => Ctx = ctx;
+
+        private MockDataStore Store => Ctx.Store;
+        private DateTime Now => Ctx.Clock.Now;
 
         public PrivateEVChargingSession? ActiveSession =>
             Store.ChargingSessions.FirstOrDefault(s => s.State is SessionState.Pending or SessionState.Charging);
@@ -32,7 +36,7 @@ namespace SmartEMobilityHub.Services
             if (hub.IsSuspended)
                 return OpResult<PrivateEVChargingSession>.Fail("NoPoint", $"{hub.Name} đang tạm dừng hoạt động theo quyết định của người vận hành.");
             var usable = hub.Points.Where(p => p.Status != PointStatus.OutOfService).ToList();
-            if ((!alternative && DemoApp.Toggles.NoChargingPointInWindow) || usable.Count == 0 || hub.FreeSlots <= 0)
+            if ((!alternative && Ctx.Toggles.NoChargingPointInWindow) || usable.Count == 0 || hub.FreeSlots <= 0)
                 return OpResult<PrivateEVChargingSession>.Fail("NoPoint", $"Không còn cổng sạc hoặc chỗ đỗ trống tại {hub.Name} trong khung {DemoConfig.Time(start)}–{DemoConfig.Time(start.AddMinutes(durationMinutes))}.");
 
             var s = new PrivateEVChargingSession
@@ -48,7 +52,7 @@ namespace SmartEMobilityHub.Services
                 State = SessionState.Pending
             };
             Store.ChargingSessions.Add(s);
-            DemoApp.Notifications.Send("Đặt lịch sạc thành công", $"Cổng #{s.PointNumber} · Chỗ đỗ {s.SlotNumber} tại {hub.ShortName}, {DemoConfig.Time(s.Start)}–{DemoConfig.Time(s.End)} ngày {s.Start:dd/MM}. Nhắc trước {DemoConfig.ReminderMinutesBefore} phút.", Tone.Charging);
+            Ctx.Notifications.Send("Đặt lịch sạc thành công", $"Cổng #{s.PointNumber} · Chỗ đỗ {s.SlotNumber} tại {hub.ShortName}, {DemoConfig.Time(s.Start)}–{DemoConfig.Time(s.End)} ngày {s.Start:dd/MM}. Nhắc trước {DemoConfig.ReminderMinutesBefore} phút.", Tone.Charging);
             return OpResult<PrivateEVChargingSession>.Success(s);
         }
 
@@ -76,7 +80,7 @@ namespace SmartEMobilityHub.Services
                 if (s.State == SessionState.Pending && !s.Reminded && Now >= s.Start.AddMinutes(-DemoConfig.ReminderMinutesBefore))
                 {
                     s.Reminded = true;
-                    DemoApp.Notifications.Send("Nhắc lịch sạc", $"Lịch sạc của {Store.GetPrivateVehicle(s.PrivateVehicleId).Plate} bắt đầu lúc {DemoConfig.Time(s.Start)} tại {Store.GetHub(s.HubId).ShortName}, cổng #{s.PointNumber}.", Tone.Charging);
+                    Ctx.Notifications.Send("Nhắc lịch sạc", $"Lịch sạc của {Store.GetPrivateVehicle(s.PrivateVehicleId).Plate} bắt đầu lúc {DemoConfig.Time(s.Start)} tại {Store.GetHub(s.HubId).ShortName}, cổng #{s.PointNumber}.", Tone.Charging);
                 }
                 if (s.State == SessionState.Pending && Now >= s.Start) s.State = SessionState.Charging;
                 if (s.State == SessionState.Charging && Now >= s.End)
@@ -94,20 +98,21 @@ namespace SmartEMobilityHub.Services
             var hub = Store.GetHub(s.HubId);
             var old = s.PointNumber;
             var oldPoint = hub.Points.FirstOrDefault(p => p.Number == old);
-            if (oldPoint != null) oldPoint.Status = PointStatus.OutOfService;
+            // Cổng hỏng thật trên mạng lưới: Operator nhận cảnh báo, xe đang sạc ở cổng đó được chuyển cổng (UC-SYS-01 5a).
+            if (oldPoint != null && oldPoint.Status != PointStatus.OutOfService) Ctx.Gateway.MarkChargingPointFaulty(oldPoint.Id);
             if (otherPointAvailable)
             {
                 var other = hub.Points.FirstOrDefault(p => p.Number != old && p.Status != PointStatus.OutOfService);
                 if (other != null)
                 {
                     s.PointNumber = other.Number;
-                    DemoApp.Notifications.Send("Lịch sạc đã được chuyển", $"Cổng #{old} tại {hub.ShortName} ngưng hoạt động. Lịch của bạn đã chuyển sang cổng #{other.Number}, giữ nguyên thời gian.", Tone.Warning);
+                    Ctx.Notifications.Send("Lịch sạc đã được chuyển", $"Cổng #{old} tại {hub.ShortName} ngưng hoạt động. Lịch của bạn đã chuyển sang cổng #{other.Number}, giữ nguyên thời gian.", Tone.Warning);
                     return "Moved";
                 }
             }
             s.State = SessionState.Cancelled;
             s.ClosedAt = Now;
-            DemoApp.Notifications.Send("Lịch sạc đã bị hủy", $"Cổng #{old} tại {hub.ShortName} ngưng hoạt động và không còn cổng trống. Lịch sạc {DemoConfig.Time(s.Start)} đã bị hủy, không mất phí.", Tone.Danger);
+            Ctx.Notifications.Send("Lịch sạc đã bị hủy", $"Cổng #{old} tại {hub.ShortName} ngưng hoạt động và không còn cổng trống. Lịch sạc {DemoConfig.Time(s.Start)} đã bị hủy, không mất phí.", Tone.Danger);
             return "Cancelled";
         }
     }

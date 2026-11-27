@@ -134,10 +134,10 @@ namespace SmartEMobilityHub.Capture
             // ===== UC-02 =====
             _kit.Section = "UC-02 Xem trạng thái phương tiện (View vehicle status)";
             await Tab(NavTab.Home);
-            await C("Hub Ga Metro Suối Tiên");
+            await C("Hub Ga Metro ĐHQG");
             await C("Pin > 50%");
             await Shot("Lọc xe có pin > 50%",
-                "Tại Hub Ga Metro Suối Tiên, sinh viên chọn bộ lọc “Pin > 50%”: danh sách chỉ còn các xe đủ pin cho chuyến đi.");
+                "Tại Hub Ga Metro ĐHQG, sinh viên chọn bộ lọc “Pin > 50%”: danh sách chỉ còn các xe đủ pin cho chuyến đi.");
             await C("Tất cả");
             await C("EB-1024");
             await Shot("Chi tiết xe EB-1024",
@@ -160,7 +160,7 @@ namespace SmartEMobilityHub.Capture
             await Shot("Đặt xe thành công – mã nhận xe",
                 "Đặt xe thành công: đồng hồ đếm ngược thời gian giữ xe còn lại, mã nhận xe (pick-up code) và mã QR. Thông báo xác nhận được gửi tới sinh viên.");
             await Tab(NavTab.Home);
-            await C("Hub Ga Metro Suối Tiên");
+            await C("Hub Ga Metro ĐHQG");
             await C("EB-1040");
             await C("Đặt trước");
             await Dialog("Ngoại lệ 2b – Đã có một đặt xe đang hoạt động",
@@ -229,9 +229,11 @@ namespace SmartEMobilityHub.Capture
             await Shot("Chọn Hub trả xe",
                 "Bấm “Trả xe”: sinh viên chọn Hub đang trả xe, xem số chỗ trống, thời gian đã đi và phí tạm tính trước khi xác nhận.");
             await C("KTX Khu A");
+            toggles.ReturnHubFull = true;
             await C("Xác nhận trả xe");
             await Shot("Ngoại lệ 2b – Hub trả xe hết chỗ",
-                "Trả xe tại KTX Khu A (hết chỗ): hệ thống từ chối, gợi ý Hub gần nhất còn chỗ và cộng thêm 10 phút miễn phí để sinh viên di chuyển tới đó.");
+                "Trả xe tại KTX Khu A khi Hub hết chỗ (công tắc demo “Hub trả xe hết chỗ”): hệ thống từ chối, gợi ý Hub gần nhất còn chỗ và cộng thêm 10 phút miễn phí để sinh viên di chuyển tới đó.");
+            toggles.ReturnHubFull = false;
             await C("Đã đến", prefix: true);
             await Shot("Trả xe thành công – hóa đơn",
                 "Trả xe tại Hub được gợi ý: xe được khóa, hệ thống tính phí (đã trừ phút miễn phí), thanh toán qua cổng thanh toán và gửi biên lai vào mục Thông báo.");
@@ -250,7 +252,7 @@ namespace SmartEMobilityHub.Capture
             await CloseDialog();
             await C("Gửi báo cáo");
             await Shot("Ngoại lệ 4a – Báo cáo được gộp vào sự cố đã có",
-                "Xe EB-1031 đã có sự cố BC-1187 đang xử lý, nên báo cáo mới được liên kết vào sự cố hiện có thay vì tạo trùng; sinh viên nhận mã báo cáo để theo dõi.");
+                "Xe EB-1031 đã có sự cố đang xử lý trong hàng đợi của Trung tâm điều hành, nên báo cáo mới được liên kết vào sự cố hiện có thay vì tạo trùng; sinh viên nhận mã báo cáo để theo dõi.");
 
             // ===== UC-04 =====
             _kit.Section = "UC-04 Đặt chỗ đỗ xe cá nhân (Reserve parking)";
@@ -286,7 +288,7 @@ namespace SmartEMobilityHub.Capture
             await Dialog("Ngoại lệ 4b – Thời lượng vượt giới hạn của Hub",
                 "Hub Thư viện Trung tâm chỉ cho sạc tối đa 120 phút, nên lịch 150 phút bị từ chối.");
             await CloseDialog();
-            await C("Ga Metro Suối Tiên");
+            await C("Metro ĐHQG");
             await C("90 phút");
             toggles.NoChargingPointInWindow = true;
             await C("Xác nhận lịch sạc");
@@ -343,7 +345,7 @@ namespace SmartEMobilityHub.Capture
             // ===== UC-03 & UC-06: các ngoại lệ còn lại =====
             _kit.Section = "UC-03 Đặt trước phương tiện (Reserve vehicle)";
             await Tab(NavTab.Home);
-            await C("Hub Ga Metro Suối Tiên");
+            await C("Hub Ga Metro ĐHQG");
             toggles.AnotherStudentReservesFirst = true;
             await C("EB-1040");
             await C("Đặt trước");
@@ -367,11 +369,14 @@ namespace SmartEMobilityHub.Capture
             await Task.Delay(1500);
             await ShotKit.Settle();
             await Shot("Không mở khóa được – tạo sự cố",
-                "Hết 30 giây không có xác nhận: lệnh mở khóa bị hủy, xe vẫn được giữ cho sinh viên, hệ thống tự tạo sự cố gửi người điều hành và hiển thị thông tin liên hệ hỗ trợ.");
+                "Hết 30 giây không có xác nhận: lệnh mở khóa và đặt xe bị hủy (không mất phí), xe được giữ lại chờ kiểm tra, hệ thống tự tạo sự cố trong hàng đợi của Trung tâm điều hành và hiển thị thông tin liên hệ hỗ trợ.");
             toggles.UnlockTimeout = false;
 
             _kit.Section = "UC-03 Đặt trước phương tiện (Reserve vehicle)";
-            await C("Về đặt chỗ");
+            await C("Chọn xe khác");
+            await C("EB-1055");
+            await C("Đặt trước");
+            await C("Xác nhận đặt");
             DemoApp.Clock.FastForward(16);
             DemoApp.Tick();
             await ShotKit.Settle();

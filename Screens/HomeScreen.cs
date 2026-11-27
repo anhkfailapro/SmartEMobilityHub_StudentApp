@@ -63,7 +63,7 @@ namespace SmartEMobilityHub.Screens
                 Shell.Refresh();
             }), 16);
 
-            var hubs = store.Hubs.OrderBy(h => h.DistanceKmTo(0, 0)).Take(_showAllHubs ? 10 : 3);
+            var hubs = store.Hubs.OrderBy(h => h.DistanceKmTo(0, 0)).Take(_showAllHubs ? store.Hubs.Count : 3);
             foreach (var h in hubs)
             {
                 var hub = h;

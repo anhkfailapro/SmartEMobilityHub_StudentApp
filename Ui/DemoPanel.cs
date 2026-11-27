@@ -9,6 +9,7 @@ namespace SmartEMobilityHub.Ui
         private readonly Border _host;
         private TextBlock? _clock;
         private TextBlock? _status;
+        private TextBlock? _linkHealth;
 
         public DemoPanel(Border host)
         {
@@ -22,7 +23,7 @@ namespace SmartEMobilityHub.Ui
             sp.Children.Add(Note("Không thuộc ứng dụng. Dùng để giả lập GPS, IoT, thời gian và các luồng thay thế."));
 
             sp.Children.Add(Heading("Liên thông Trung tâm điều hành"));
-            sp.Children.Add(Note("Mở bảng điều khiển của người vận hành dùng chung dữ liệu với app này: đặt / nhận / trả xe, báo lỗi, yêu cầu sạc hiện ngay bên Operator; Operator tạm dừng Hub, khoá xe, điều phối xe thì app Sinh viên cập nhật theo. Tài khoản Operator demo: op01 / op123456."));
+            sp.Children.Add(Note("App Sinh viên và Trung tâm điều hành dùng chung một mạng lưới: đặt / nhận / trả xe, báo lỗi, yêu cầu sạc hiện ngay bên Operator; Operator tạm dừng Hub, khoá xe, điều phối xe thì app Sinh viên thấy ngay. Tài khoản Operator demo: op01 / op123456."));
             var open = Btn("Mở Trung tâm điều hành (dùng chung dữ liệu)", () =>
             {
                 DemoApp.Link.OpenOperatorDashboard();
@@ -31,6 +32,8 @@ namespace SmartEMobilityHub.Ui
             if (Application.Current.TryFindResource("DemoPrimaryButton") is Style primary) open.Style = primary;
             open.Padding = new Thickness(12, 9, 12, 9);
             sp.Children.Add(open);
+            _linkHealth = Note("");
+            sp.Children.Add(_linkHealth);
 
             sp.Children.Add(Heading("Thời gian demo"));
             _clock = Note("");
@@ -95,6 +98,17 @@ namespace SmartEMobilityHub.Ui
         public void UpdateClock()
         {
             if (_clock != null) _clock.Text = $"Giờ demo: {DemoApp.Clock.Now:dd/MM/yyyy HH:mm:ss}";
+            UpdateLinkHealth();
+        }
+
+        /// <summary>App Sinh viên và Trung tâm điều hành dùng chung một mạng lưới (DC-54): hiện quy mô và trạng thái cửa sổ Operator.</summary>
+        private void UpdateLinkHealth()
+        {
+            if (_linkHealth == null) return;
+            var network = DemoApp.Context.Network.Store;
+            var window = DemoApp.Link.IsOperatorWindowOpen ? "đang mở" : "chưa mở";
+            _linkHealth.Text = $"Mạng lưới chung: {network.Hubs.Count} Hub · {network.Vehicles.Count} xe · {network.Incidents.Count(i => i.IsOpen())} sự cố đang mở. Cửa sổ Operator: {window}.";
+            _linkHealth.Foreground = Brushes.DimGray;
         }
 
         private void SetStatus(string text)

@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using SmartEMobilityHub.Core.Domain;
+using SmartEMobilityHub.Operator.Infrastructure;
 using SmartEMobilityHub.Operator.Themes;
 using SmartEMobilityHub.Operator.ViewModels;
 
@@ -83,12 +84,6 @@ public partial class MainWindow : Window
         _viewModel?.Refresh();
     }
 
-    /// <summary>Bấm thẻ Hub (trang Tổng quan): mở trang Phương tiện &amp; cổng sạc lọc theo Hub.</summary>
-    private void HubCard_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { Tag: string hubId }) _viewModel.OpenHubAssets(hubId);
-    }
-
     private void UpdateThemeButton() =>
         ThemeButton.Content = OperatorTheme.IsDark ? "☀ Chế độ sáng" : "☾ Chế độ tối";
 
@@ -115,19 +110,17 @@ public partial class MainWindow : Window
     public void AttachDemo(OperatorDemo demo)
     {
         _demo = demo;
-        _viewModel = new MainViewModel(_demo);
+        _viewModel = new MainViewModel(_demo)
+        {
+            Dialogs = new WindowDialogService(this),
+            IsLinked = _linked,
+            ResetRequested = ResetDemo
+        };
         DataContext = _viewModel;
     }
 
-    private void Run(Func<string?> action)
-    {
-        var error = action();
-        if (error is not null)
-            MessageBox.Show(this, error, "Không thực hiện được", MessageBoxButton.OK, MessageBoxImage.Warning);
-    }
+    // ---------- Việc của cửa sổ (các nút trong trang dùng lệnh của MainViewModel — DC-52) ----------
 
-    // ---------- Header ----------
-    private void Scan_Click(object sender, RoutedEventArgs e) => _viewModel.ScanNow();
     private void WhatIf_Click(object sender, RoutedEventArgs e)
     {
         var window = new WhatIfWindow(_demo.WhatIf, _demo.Store, () => _demo.Clock.Now)
@@ -135,96 +128,5 @@ public partial class MainWindow : Window
             Owner = this
         };
         window.ShowDialog();
-    }
-
-    // ---------- UC-OP-03 ----------
-    private void Lock_Click(object sender, RoutedEventArgs e) => Run(_viewModel.LockSelected);
-    private void Task_Click(object sender, RoutedEventArgs e) => Run(_viewModel.CreateTaskSelected);
-    private void Assign_Click(object sender, RoutedEventArgs e) => Run(_viewModel.AssignSelected);
-    private void Resolve_Click(object sender, RoutedEventArgs e) => Run(_viewModel.ResolveSelected);
-    private void Close_Click(object sender, RoutedEventArgs e) => Run(_viewModel.CloseSelected);
-    private void Resume_Click(object sender, RoutedEventArgs e) => Run(_viewModel.ResumeSelectedHub);
-
-    private void Suspend_Click(object sender, RoutedEventArgs e)
-    {
-        if (_viewModel.SelectedIncident is null) return;
-
-        var hubId = _viewModel.SelectedIncident.HubId;
-        var confirm = MessageBox.Show(
-            this,
-            $"Tạm dừng {hubId}?\nToàn bộ đặt chỗ sắp tới tại Hub này sẽ bị huỷ và người dùng được thông báo.",
-            "Xác nhận tạm dừng Hub",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-
-        if (confirm == MessageBoxResult.Yes) Run(_viewModel.SuspendSelectedHub);
-    }
-
-    // ---------- Demo panel ----------
-    private void BreakPort_Click(object sender, RoutedEventArgs e) => _viewModel.BreakPort();
-    private void DisconnectHub_Click(object sender, RoutedEventArgs e) => _viewModel.DisconnectHub();
-    private void Stale_Click(object sender, RoutedEventArgs e) => _viewModel.MakeStale();
-    private void BreakChannel_Click(object sender, RoutedEventArgs e) => _viewModel.BreakChannel();
-    private void RestoreChannel_Click(object sender, RoutedEventArgs e) => _viewModel.RestoreChannel();
-    private void Unlock_Click(object sender, RoutedEventArgs e) => _viewModel.RaiseUnlockIncident();
-    private void ChargeDemo_Click(object sender, RoutedEventArgs e) => _viewModel.AddChargingRequests();
-
-    // ---------- UC-OP-04: Lịch sạc thông minh ----------
-    private void QueueUp_Click(object sender, RoutedEventArgs e) => Run(() => _viewModel.MoveSelectedQueueRow(-1));
-    private void QueueDown_Click(object sender, RoutedEventArgs e) => Run(() => _viewModel.MoveSelectedQueueRow(1));
-    private void Reschedule_Click(object sender, RoutedEventArgs e) => _viewModel.RescheduleCharging();
-    private void ApplyWeights_Click(object sender, RoutedEventArgs e) => Run(_viewModel.ApplyPriorityWeights);
-    private void ResetWeights_Click(object sender, RoutedEventArgs e) => _viewModel.ResetPriorityWeights();
-
-    private void Plus1_Click(object sender, RoutedEventArgs e) => _viewModel.Advance(1);
-    private void Plus5_Click(object sender, RoutedEventArgs e) => _viewModel.Advance(5);
-    private void Plus15_Click(object sender, RoutedEventArgs e) => _viewModel.Advance(15);
-
-    private void Reset_Click(object sender, RoutedEventArgs e)
-    {
-        if (_linked)
-        {
-            MessageBox.Show(this,
-                "Trung tâm điều hành đang dùng chung dữ liệu với app Sinh viên.\nHãy dùng \"Đặt lại toàn bộ demo\" ở Demo panel của app Sinh viên để đặt lại cả hai bên.",
-                "Đặt lại demo", MessageBoxButton.OK, MessageBoxImage.Information);
-            return;
-        }
-
-        var confirm = MessageBox.Show(
-            this,
-            "Đặt lại toàn bộ dữ liệu demo? Mọi thay đổi sẽ mất.",
-            "Đặt lại demo",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-
-        if (confirm == MessageBoxResult.Yes) ResetDemo();
-    }
-
-    private void SuggestDispatch_Click(object sender, RoutedEventArgs e)
-    {
-        var err = _viewModel.SuggestAndCreateDispatch();
-        if (err is not null)
-            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
-    }
-
-    private void CreateDispatch_Click(object sender, RoutedEventArgs e)
-    {
-        var err = _viewModel.CreateDispatchOrder();
-        if (err is not null)
-            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
-    }
-
-    private void ExecuteDispatch_Click(object sender, RoutedEventArgs e)
-    {
-        var err = _viewModel.ExecuteSelectedDispatch();
-        if (err is not null)
-            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
-    }
-
-    private void CompleteDispatch_Click(object sender, RoutedEventArgs e)
-    {
-        var err = _viewModel.CompleteSelectedDispatch();
-        if (err is not null)
-            MessageBox.Show(err, "Điều phối", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 }

@@ -2,7 +2,7 @@ namespace SmartEMobilityHub.Models
 {
     public class ChargingEstimate
     {
-        public Hub Hub { get; init; } = new();
+        public required Hub Hub { get; init; }
         public int FreePoints { get; init; }
         public bool AllBusy { get; init; }
         public int WaitMinutes { get; init; }

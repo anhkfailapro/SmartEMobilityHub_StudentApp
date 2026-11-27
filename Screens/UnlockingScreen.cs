@@ -9,7 +9,8 @@ namespace SmartEMobilityHub.Screens
     public class UnlockingScreen : Screen
     {
         private readonly VehicleReservation _reservation;
-        private readonly DateTime _started = DateTime.Now;
+        // Dùng đồng hồ demo (giờ thật + phần tua) để nút "+1 phút" ở Demo panel cũng tác động tới thời gian chờ mở khoá.
+        private readonly DateTime _started = DemoApp.Clock.Now;
         private bool _skip;
         private bool _done;
 
@@ -22,7 +23,7 @@ namespace SmartEMobilityHub.Screens
         public override bool ShowBack => false;
         public override bool WantsTick => true;
 
-        private double Elapsed => (DateTime.Now - _started).TotalSeconds;
+        private double Elapsed => Math.Max(0, (DemoApp.Clock.Now - _started).TotalSeconds);
 
         public override UIElement BuildContent()
         {
@@ -50,8 +51,16 @@ namespace SmartEMobilityHub.Screens
             if (!DemoApp.Toggles.UnlockTimeout && Elapsed >= DemoConfig.UnlockNormalSeconds)
             {
                 _done = true;
-                DemoApp.PickUp.ConfirmStart(_reservation);
-                Shell.ResetTo(new TripScreen(true));
+                if (DemoApp.PickUp.ConfirmStart(_reservation) != null)
+                {
+                    Shell.ResetTo(new TripScreen(true));
+                    return;
+                }
+                // Mạng lưới không cho nhận xe nữa (ví dụ Operator vừa tạm dừng Hub và huỷ đặt chỗ).
+                Shell.ResetTo(new ReservationScreen());
+                Shell.ShowDialog(Tone.Danger, "Không nhận được xe",
+                    _reservation.CancelReason is { } reason ? $"Đặt xe {_reservation.VehicleCode} đã bị hủy: {reason}." : "Đặt xe không còn hiệu lực.",
+                    new DialogAction("Đóng", ButtonVariant.Outline, () => { }));
             }
             else if (DemoApp.Toggles.UnlockTimeout && (_skip || Elapsed >= DemoConfig.UnlockTimeoutSeconds))
             {

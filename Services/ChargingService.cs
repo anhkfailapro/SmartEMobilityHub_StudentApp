@@ -1,22 +1,40 @@
 using SmartEMobilityHub.Data;
 using SmartEMobilityHub.Models;
+using CoreDomain = SmartEMobilityHub.Core.Domain;
 
 namespace SmartEMobilityHub.Services
 {
+    /// <summary>
+    /// Yêu cầu sạc xe dùng chung (UC-08). Hàng chờ, điểm ưu tiên và việc cấp cổng là của SmartChargingScheduler
+    /// trong Core (DC-54): yêu cầu của sinh viên nằm ngay trong hàng chờ mà Operator đang điều phối.
+    /// </summary>
     public class ChargingService
     {
-        private static MockDataStore Store => DemoApp.Store;
+        private readonly StudentContext Ctx;
+
+        public ChargingService(StudentContext ctx) => Ctx = ctx;
+
+        private MockDataStore Store => Ctx.Store;
+
+        /// <summary>Thời điểm cần xe: đang đi thì 30 phút nữa, không thì 2 giờ nữa.</summary>
+        private DateTime NeededAt => Store.ActiveTrip != null ? Ctx.Clock.Now.AddMinutes(30) : Ctx.Clock.Now.AddHours(2);
 
         public ChargingEstimate GetChargingEstimate(string vehicleCode, string hubId, bool applyBusyToggle = true)
         {
             var hub = Store.GetHub(hubId);
-            var v = Store.GetVehicle(vehicleCode);
-            var allBusy = (applyBusyToggle && DemoApp.Toggles.AllChargingPointsBusy) || hub.FreePoints == 0;
+            var allBusy = (applyBusyToggle && Ctx.Toggles.AllChargingPointsBusy) || hub.FreePoints == 0;
             var position = hub.QueueLength + 1;
             var wait = allBusy ? 15 + position * 5 : position * 4;
-            var battery = v?.Battery ?? 50;
-            var urgency = Store.ActiveTrip != null ? 1.0 : 0.5;
-            var score = Math.Round(100 * (0.5 * (1 - battery / 100.0) + 0.35 * urgency + 0.15 * Math.Min(1, wait / 30.0)));
+            // Điểm ưu tiên tính bằng đúng công thức của Core (pin, thời điểm cần, cao điểm — UC-SYS-01).
+            var probe = new CoreDomain.ChargingRequest
+            {
+                RequestId = "ESTIMATE",
+                VehicleId = vehicleCode,
+                HubId = hubId,
+                BatteryLevel = Math.Clamp(CurrentBattery(vehicleCode), 0, 100),
+                NeededAt = NeededAt
+            };
+            var score = Math.Round(Ctx.Network.Charging.CalculatePriorityScore(probe));
             return new ChargingEstimate
             {
                 Hub = hub,
@@ -29,89 +47,74 @@ namespace SmartEMobilityHub.Services
             };
         }
 
+        /// <summary>Pin hiện tại: xe đang trong chuyến thì tính theo quãng đã đi, không thì theo cảm biến trên Core.</summary>
+        private int CurrentBattery(string vehicleCode)
+        {
+            var trip = Store.ActiveTrip;
+            if (trip != null && string.Equals(trip.VehicleCode, vehicleCode, StringComparison.OrdinalIgnoreCase))
+                return Ctx.Billing.CurrentBattery(trip);
+            return Store.GetVehicle(vehicleCode)?.Battery ?? 50;
+        }
+
         public List<ChargingEstimate> OtherHubs(string vehicleCode, string hubId) =>
-            Store.Hubs.Where(h => h.Id != hubId).Select(h => GetChargingEstimate(vehicleCode, h.Id, false)).OrderBy(e => e.WaitMinutes).ToList();
+            Store.Hubs.Where(h => h.Id != hubId && !h.IsSuspended && h.Points.Count > 0)
+                .Select(h => GetChargingEstimate(vehicleCode, h.Id, false))
+                .OrderBy(e => e.WaitMinutes).ThenBy(e => e.Hub.Id, StringComparer.Ordinal).ToList();
 
         public ChargingRequest? OpenRequestFor(string vehicleCode) =>
-            Store.ChargingRequests.FirstOrDefault(r => r.VehicleCode == vehicleCode && r.State != ChargingRequestState.Cancelled);
+            Store.ChargingRequests.FirstOrDefault(r => string.Equals(r.VehicleCode, vehicleCode, StringComparison.OrdinalIgnoreCase)
+                                                       && r.State != ChargingRequestState.Cancelled);
 
         public OpResult<ChargingRequest> SubmitChargingRequest(string vehicleCode, string hubId, bool applyBusyToggle = true)
         {
             var open = OpenRequestFor(vehicleCode);
             if (open != null)
-                return OpResult<ChargingRequest>.Fail("Duplicate", $"{vehicleCode} đã có yêu cầu sạc đang mở tại {Store.GetHub(open.HubId).ShortName} (#{open.QueuePosition} trong hàng chờ). Không tạo yêu cầu mới.", open);
+            {
+                var where = open.State == ChargingRequestState.Assigned ? $"cổng #{open.AssignedPoint}" : $"#{open.QueuePosition} trong hàng chờ";
+                return OpResult<ChargingRequest>.Fail("Duplicate", $"{vehicleCode} đã có yêu cầu sạc đang mở tại {Store.GetHub(open.HubId).ShortName} ({where}). Không tạo yêu cầu mới.", open);
+            }
             var hub = Store.GetHub(hubId);
             if (hub.IsSuspended)
                 return OpResult<ChargingRequest>.Fail("HubSuspended", $"{hub.Name} đang tạm dừng hoạt động. Vui lòng chọn Hub khác.");
-            var e = GetChargingEstimate(vehicleCode, hubId, applyBusyToggle);
-            var r = new ChargingRequest
+
+            // UC-08 2a (Demo panel): các cổng còn trống bị xe khác chiếm thật trên mạng lưới, Operator cũng thấy.
+            if (applyBusyToggle && Ctx.Toggles.AllChargingPointsBusy) Ctx.Gateway.OccupyFreeChargingPoints(hubId);
+
+            var battery = CurrentBattery(vehicleCode);
+            CoreDomain.ChargingRequest core;
+            try
             {
-                Id = Store.NextId("CR"),
-                VehicleCode = vehicleCode,
-                HubId = hubId,
-                Score = e.Score,
-                QueuePosition = e.QueuePosition,
-                WaitMinutes = e.WaitMinutes,
-                State = ChargingRequestState.InQueue,
-                CreatedAt = DemoApp.Clock.Now
-            };
-            e.Hub.QueueLength++;
-            Store.ChargingRequests.Add(r);
-            DemoApp.Link.OnChargingRequested(r);
-            DemoApp.Notifications.Send("Đã gửi yêu cầu sạc", $"{vehicleCode} ở vị trí #{r.QueuePosition} tại {e.Hub.ShortName}, chờ khoảng {r.WaitMinutes} phút.", Tone.Charging);
+                core = Ctx.Gateway.RequestCharging(Store.NextId("CR"), vehicleCode, hubId, battery, NeededAt);
+            }
+            catch (Exception ex) when (ex is CoreDomain.IllegalArgumentException or CoreDomain.HubNotFoundException)
+            {
+                return OpResult<ChargingRequest>.Fail("Rejected", ex.Message);
+            }
+            var r = Store.Track(core, Ctx.Clock.Now);
+            if (r.State == ChargingRequestState.Assigned)
+                Ctx.Notifications.Send("Đã có cổng sạc", $"Cổng sạc #{r.AssignedPoint} tại {hub.ShortName} đã sẵn sàng cho {vehicleCode}.", Tone.Charging);
+            else
+                Ctx.Notifications.Send("Đã gửi yêu cầu sạc", $"{vehicleCode} ở vị trí #{r.QueuePosition} tại {hub.ShortName}, chờ khoảng {r.WaitMinutes} phút.", Tone.Charging);
             return OpResult<ChargingRequest>.Success(r);
         }
 
         /// <summary>
-        /// Demo panel "Cấp cổng sạc": cấp cổng trống cho yêu cầu đầu hàng chờ có cổng trống.
-        /// Trước đây khi Hub hết cổng trống, hàm lấy luôn cổng đầu tiên (kể cả cổng đang sạc xe khác
-        /// hoặc cổng hỏng) nên một cổng bị cấp cho hai xe.
+        /// Demo panel "Cấp cổng sạc": một xe đang sạc tại Hub sạc xong và trả cổng (nếu Hub hết cổng trống),
+        /// rồi bộ lập lịch của Core cấp cổng cho yêu cầu đầu hàng chờ. Thông báo do NetworkWatcher gửi.
         /// </summary>
         public ChargingRequest? AssignNextChargingPoint()
         {
-            foreach (var r in Store.ChargingRequests.Where(x => x.State == ChargingRequestState.InQueue).ToList())
-            {
-                var point = Store.GetHub(r.HubId).Points.FirstOrDefault(p => p.Status == PointStatus.Free);
-                if (point != null) return AssignChargingPoint(r, point.Number);
-            }
-            return null;
+            var waiting = Store.ChargingRequests.Where(r => r.State == ChargingRequestState.InQueue).ToList();
+            var assigned = Ctx.Gateway.AssignNextChargingPoint(waiting.Select(r => r.Id));
+            return assigned is null ? null : waiting.FirstOrDefault(r => r.Id == assigned.RequestId);
         }
 
-        /// <summary>Cấp cổng số <paramref name="pointNumber"/> cho yêu cầu (gọi từ Demo panel hoặc khi lập lịch của Core cấp cổng).</summary>
-        public ChargingRequest? AssignChargingPoint(ChargingRequest r, int pointNumber)
+        /// <summary>Huỷ yêu cầu sạc: rời hàng chờ, hoặc trả cổng nếu đã được cấp (Core xoá yêu cầu).</summary>
+        public void Cancel(ChargingRequest r)
         {
-            if (r.State != ChargingRequestState.InQueue) return null;
-            var hub = Store.GetHub(r.HubId);
-            var point = hub.Points.FirstOrDefault(p => p.Number == pointNumber);
-            if (point == null || point.Status == PointStatus.OutOfService) return null;
-            point.Status = PointStatus.Charging;
-            r.State = ChargingRequestState.Assigned;
-            r.AssignedPoint = point.Number;
-            hub.QueueLength = Math.Max(0, hub.QueueLength - 1);
-            var v = Store.GetVehicle(r.VehicleCode);
-            if (v != null && v.Status != VehicleStatus.InUse) v.Status = VehicleStatus.Charging;
-            DemoApp.Notifications.Send("Đã có cổng sạc", $"Cổng sạc #{point.Number} tại {hub.ShortName} đã sẵn sàng cho {r.VehicleCode}.", Tone.Charging);
-            return r;
-        }
-
-        /// <summary>
-        /// Trả tài nguyên của một yêu cầu sạc sắp bị huỷ: đang chờ thì rời hàng chờ, đã có cổng thì trả cổng.
-        /// Trước đây huỷ yêu cầu đã có cổng vẫn trừ độ dài hàng chờ và cổng bị giữ ở trạng thái đang sạc mãi.
-        /// </summary>
-        public void Release(ChargingRequest r)
-        {
-            var hub = Store.GetHub(r.HubId);
-            if (r.State == ChargingRequestState.InQueue)
-            {
-                hub.QueueLength = Math.Max(0, hub.QueueLength - 1);
-                return;
-            }
-            if (r.State != ChargingRequestState.Assigned) return;
-
-            var point = hub.Points.FirstOrDefault(p => p.Number == r.AssignedPoint);
-            if (point != null && point.Status == PointStatus.Charging) point.Status = PointStatus.Free;
-            var v = Store.GetVehicle(r.VehicleCode);
-            if (v != null && v.Status == VehicleStatus.Charging) v.Status = v.HubId == null ? VehicleStatus.InUse : VehicleStatus.Available;
+            if (r.State == ChargingRequestState.Cancelled) return;
+            Ctx.Gateway.CancelChargingRequest(r.Id);
+            r.CancelledByStudent = true;
         }
     }
 }

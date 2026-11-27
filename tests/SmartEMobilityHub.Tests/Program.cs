@@ -1,4 +1,5 @@
 using SmartEMobilityHub.Tests;
+using SmartEMobilityHub.Tests.StudentApp;
 using SmartEMobilityHub.Tests.Unit;
 using SmartEMobilityHub.Tests.UseCase;
 
@@ -14,8 +15,9 @@ RegressionTests.Register(runner);
 DispatchTests.Register(runner);
 AuthTests.Register(runner);
 StudentLinkTests.Register(runner);
+StudentAppTests.Register(runner);
 
-Console.WriteLine("Smart E-Mobility Hub — Core test runner");
+Console.WriteLine("Smart E-Mobility Hub — test runner (Core + logic app Sinh viên)");
 Console.WriteLine(new string('-', 60));
 
 var results = runner.RunAll();

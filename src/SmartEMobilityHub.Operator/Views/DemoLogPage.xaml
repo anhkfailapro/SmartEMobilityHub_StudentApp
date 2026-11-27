@@ -1,0 +1,102 @@
+<UserControl x:Class="SmartEMobilityHub.Operator.Views.DemoLogPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Trang "Kịch bản demo &amp; nhật ký" của Trung tâm điều hành (tách từ MainWindow.xaml, DC-52).
+         DataContext kế thừa từ cửa sổ (MainViewModel); nút bind vào lệnh, không có handler Click. -->
+    <Grid Margin="22,18,22,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,14">
+            <TextBlock Text="Kịch bản demo &amp; nhật ký" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="Giả lập sự kiện IoT và vận hành (không thuộc sản phẩm thật) để trình diễn các luồng ngoại lệ." Style="{StaticResource PageSubtitle}" />
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}" Margin="0,0,14,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Sự kiện thiết bị &amp; mạng" Style="{StaticResource H2}" Margin="0,0,0,8" />
+                        <UniformGrid Columns="2">
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding BreakPortCommand}" Margin="0,0,6,6" HorizontalContentAlignment="Left">
+                                <StackPanel><TextBlock Text="Cổng CS-08-08 lỗi" FontWeight="SemiBold" /><TextBlock Text="Cảm biến báo lỗi → sự cố + cảnh báo" Style="{StaticResource Caption}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding DisconnectHubCommand}" Margin="0,0,0,6" HorizontalContentAlignment="Left">
+                                <StackPanel><TextBlock Text="Mất kết nối HUB-03" FontWeight="SemiBold" /><TextBlock Text="Hub và 4 cổng chuyển Offline" Style="{StaticResource Caption}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding MakeStaleCommand}" Margin="0,0,6,6" HorizontalContentAlignment="Left">
+                                <StackPanel><TextBlock Text="Dữ liệu cũ HUB-08" FontWeight="SemiBold" /><TextBlock Text="Dữ liệu 14 phút → cảnh báo STALE" Style="{StaticResource Caption}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding UnlockIncidentCommand}" Margin="0,0,0,6" HorizontalContentAlignment="Left">
+                                <StackPanel><TextBlock Text="Sự cố mở khoá" FontWeight="SemiBold" /><TextBlock Text="XE-121 không xác nhận mở khoá" Style="{StaticResource Caption}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding BreakChannelCommand}" Margin="0,0,6,6" HorizontalContentAlignment="Left">
+                                <StackPanel><TextBlock Text="Mạng cảnh báo lỗi" FontWeight="SemiBold" /><TextBlock Text="Cảnh báo vào hàng đợi gửi lại" Style="{StaticResource Caption}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource GhostButton}" Command="{Binding RestoreChannelCommand}" Margin="0,0,0,6" HorizontalContentAlignment="Left">
+                                <StackPanel><TextBlock Text="Khôi phục &amp; gửi lại" FontWeight="SemiBold" /><TextBlock Text="Sau 30 giây gửi lại cảnh báo" Style="{StaticResource Caption}" /></StackPanel>
+                            </Button>
+                        </UniformGrid>
+
+                        <TextBlock Text="Thời gian mô phỏng" Style="{StaticResource H2}" Margin="0,14,0,8" />
+                        <WrapPanel>
+                            <Button Content="+1 phút" Style="{StaticResource GhostButton}" Command="{Binding AdvanceCommand}" CommandParameter="1" Margin="0,0,6,6" />
+                            <Button Content="+5 phút" Style="{StaticResource GhostButton}" Command="{Binding AdvanceCommand}" CommandParameter="5" Margin="0,0,6,6" />
+                            <Button Content="+15 phút" Style="{StaticResource GhostButton}" Command="{Binding AdvanceCommand}" CommandParameter="15" Margin="0,0,6,6" />
+                            <Button Content="Đặt lại demo" Style="{StaticResource GhostButton}" Foreground="{DynamicResource Danger}" Command="{Binding ResetDemoCommand}" Margin="0,0,6,6" />
+                        </WrapPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tự động quét" IsChecked="{Binding AutoScan}" FontSize="12" Margin="0,0,16,0" />
+                            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="Tăng tốc ×10" IsChecked="{Binding SpeedUp}" FontSize="12" />
+                        </StackPanel>
+
+                        <TextBlock Text="Cảnh báo gần đây" Style="{StaticResource H2}" Margin="0,16,0,8" />
+            <ItemsControl ItemsSource="{Binding Alerts}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{DynamicResource SurfaceAlt}" BorderBrush="{DynamicResource Border}"
+                                BorderThickness="1" CornerRadius="8" Padding="8" Margin="0,0,0,5">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding TimeText}" Style="{StaticResource Caption}"
+                                               HorizontalAlignment="Right" />
+                                </Grid>
+                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="11"
+                                           Margin="0,3,0,0" Foreground="{DynamicResource Text2}" />
+                                <TextBlock Text="{Binding DeliveryText}" FontSize="10.5"
+                                           Foreground="{Binding DeliveryBrush}" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource Card}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Nhật ký hệ thống" Style="{StaticResource H2}" Margin="0,0,0,8" />
+                    <Border Background="{DynamicResource LogBg}" CornerRadius="10" Padding="12">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Logs}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontFamily="Cascadia Mono, Consolas" FontSize="11"
+                                                   Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,0,0,3" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

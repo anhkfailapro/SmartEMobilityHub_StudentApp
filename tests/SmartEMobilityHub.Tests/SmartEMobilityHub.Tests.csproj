@@ -8,6 +8,16 @@
     <RootNamespace>SmartEMobilityHub.Tests</RootNamespace>
   </PropertyGroup>
 
+  <!--
+    Logic của app Sinh viên (Models, Data, Services) không phụ thuộc WPF nên được biên dịch thẳng vào project test (DC-51).
+    NetworkLink cần WPF (chỉ mở cửa sổ Operator) nên bị loại; test chạy service trên NetworkSession thật (DC-54).
+  -->
+  <ItemGroup>
+    <Compile Include="../../Models/**/*.cs" Link="StudentApp/Models/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Data/**/*.cs" Link="StudentApp/Data/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Services/**/*.cs" Exclude="../../Services/NetworkLink.cs" Link="StudentApp/Services/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="../../src/SmartEMobilityHub.Core/SmartEMobilityHub.Core.csproj" />
   </ItemGroup>

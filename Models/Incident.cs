@@ -1,16 +1,29 @@
+using CoreDomain = SmartEMobilityHub.Core.Domain;
+
 namespace SmartEMobilityHub.Models
 {
-    public class Incident
+    /// <summary>
+    /// Báo lỗi của sinh viên = sự cố trong hàng đợi của Trung tâm điều hành (<see cref="CoreDomain.IncidentRecord"/>).
+    /// Mã báo cáo chính là mã sự cố (SC-…), trạng thái cập nhật ngay khi Operator xử lý (DC-54).
+    /// </summary>
+    public sealed class Incident
     {
-        public string Code { get; init; } = "";
-        public ReportObjectKind ObjectKind { get; init; }
-        public string ObjectCode { get; init; } = "";
-        public string HubId { get; init; } = "";
-        public string ProblemType { get; init; } = "";
-        public string Description { get; init; } = "";
-        public IncidentStatus Status { get; set; }
-        public IncidentSource Source { get; init; }
-        public DateTime CreatedAt { get; init; }
-        public int ReportCount { get; set; } = 1;
+        public Incident(CoreDomain.IncidentRecord core) => Core = core;
+
+        public CoreDomain.IncidentRecord Core { get; }
+
+        public string Code => Core.IncidentId;
+        public ReportObjectKind ObjectKind =>
+            Core.ObjectType == CoreDomain.IncidentObjectType.Vehicle ? ReportObjectKind.Vehicle : ReportObjectKind.ChargingPoint;
+        public string ObjectCode => Core.ObjectCode;
+        public string HubId => Core.HubId;
+        public string ProblemType => Core.ProblemType;
+        public string Description => Core.Description;
+        public IncidentStatus Status => Core.Status;
+        public IncidentSource Source => Core.Source;
+        public DateTime CreatedAt => Core.CreatedAt;
+
+        /// <summary>Số người đã báo (báo cáo trùng được gộp vào cùng sự cố).</summary>
+        public int ReportCount => Math.Max(1, Core.ReporterIds.Count);
     }
 }

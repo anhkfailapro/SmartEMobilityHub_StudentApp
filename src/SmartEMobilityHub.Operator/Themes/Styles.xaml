@@ -418,4 +418,21 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Ô cổng sạc dùng ở trang Phương tiện & cổng sạc và trang Lịch sạc. -->
+    <DataTemplate x:Key="PortTileTemplate">
+        <Border Width="92" Height="58" CornerRadius="10" Margin="0,0,8,8" Padding="9,6"
+                Background="{Binding Background}" ToolTip="{Binding ToolTipText}">
+            <StackPanel>
+                <Grid>
+                    <TextBlock Text="{Binding NumberText}" FontSize="12" FontWeight="Bold" Foreground="{Binding Foreground}" />
+                    <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="11"
+                               Foreground="{Binding Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                </Grid>
+                <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding Foreground}" Margin="0,2,0,0" />
+                <TextBlock Text="{Binding DetailText}" FontSize="10" Foreground="{Binding Foreground}" Opacity="0.85"
+                           TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
 </ResourceDictionary>

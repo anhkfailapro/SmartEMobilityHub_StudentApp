@@ -14,7 +14,7 @@ namespace SmartEMobilityHub.Screens
         public ReturnVehicleScreen(Action<Trip>? afterReturn = null, string? hubId = null)
         {
             _afterReturn = afterReturn;
-            _hubId = hubId ?? DemoApp.Billing.ActiveTrip?.StartHubId ?? "H1";
+            _hubId = hubId ?? DemoApp.Billing.ActiveTrip?.StartHubId ?? CampusMap.DefaultHubId;
         }
 
         public override string? Title => "Trả xe";

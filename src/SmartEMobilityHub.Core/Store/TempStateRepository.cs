@@ -1,3 +1,4 @@
+using SmartEMobilityHub.Core.Clock;
 using SmartEMobilityHub.Core.Domain;
 
 namespace SmartEMobilityHub.Core.Store;
@@ -8,8 +9,14 @@ public sealed class TempStateRepository
     private readonly NetworkStore _network;
     private readonly Dictionary<string, SimulationSession> _sessions = new(StringComparer.Ordinal);
     private readonly object _gate = new();
+    private readonly IClock _clock;
 
-    public TempStateRepository(NetworkStore network) => _network = network;
+    /// <param name="clock">Đồng hồ mô phỏng; mặc định là giờ thật (PLAN §3: không gọi DateTime.Now trực tiếp).</param>
+    public TempStateRepository(NetworkStore network, IClock? clock = null)
+    {
+        _network = network;
+        _clock = clock ?? new SystemClock();
+    }
 
     public SimulationSession CreateSession(ScenarioPreset preset, SimulationParameters parameters)
     {
@@ -18,7 +25,7 @@ public sealed class TempStateRepository
             SessionId = $"SIM-{Guid.NewGuid():N}"[..16].ToUpperInvariant(),
             Preset = preset,
             Parameters = parameters,
-            CreatedAt = DateTime.Now
+            CreatedAt = _clock.Now
         };
         lock (_gate) _sessions.Add(session.SessionId, session);
         return session;
@@ -98,7 +105,7 @@ public sealed class TempStateRepository
                 SessionId = $"SIM-{Guid.NewGuid():N}"[..16].ToUpperInvariant(),
                 Preset = source.Preset,
                 Parameters = source.Parameters,
-                CreatedAt = DateTime.Now,
+                CreatedAt = _clock.Now,
                 OriginalSnapshot = Clone(snapshot)
             };
             _sessions.Add(rerun.SessionId, rerun);

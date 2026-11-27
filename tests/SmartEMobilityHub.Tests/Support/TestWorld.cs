@@ -25,6 +25,7 @@ public sealed class TestWorld
     public SmartChargingScheduler Charging { get; }
     public IncidentManager Incidents { get; }
     public StatusUpdaterTimer Timer { get; }
+    public ManualScheduler Scheduler { get; }
 
     private TestWorld()
     {
@@ -43,8 +44,9 @@ public sealed class TestWorld
         Charging = new SmartChargingScheduler(Store, Gateway, Clock, Queue, Logger);
         Incidents = new IncidentManager(Store, Notification, Reservations, Clock, Logger);
 
-        // Không truyền scheduler: test chỉ gọi TickNow(), không chạy timer nền.
-        Timer = new StatusUpdaterTimer(Store, Clock, Sync, Threshold, Queue, AutoCancel, Charging, Logger);
+        // Scheduler thủ công: test gọi TickNow() hoặc Scheduler.Fire(), không có timer nền.
+        Scheduler = new ManualScheduler();
+        Timer = new StatusUpdaterTimer(Store, Clock, Sync, Threshold, Queue, AutoCancel, Charging, Logger, Scheduler);
     }
 
     public static TestWorld Create() => new();

@@ -1,24 +1,30 @@
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
-using SmartEMobilityHub.Core.Ports;
+using SmartEMobilityHub.Core.Adapters;
 
 namespace SmartEMobilityHub.Operator.Infrastructure;
 
-/// <summary>Ghi log vào bộ nhớ để hiển thị ở cột phải dashboard.</summary>
-public sealed class UiLogger : ISystemLogger
+/// <summary>
+/// Hiển thị nhật ký của phiên mạng lưới (<see cref="SystemLog"/> của Core) ở trang "Kịch bản demo &amp; nhật ký".
+/// Giờ ghi log theo đồng hồ mô phỏng (DC-53); cửa sổ mở sau vẫn thấy các dòng đã ghi trước đó.
+/// </summary>
+public sealed class UiLogger
 {
     private readonly Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
 
+    public UiLogger(SystemLog log)
+    {
+        Source = log;
+        foreach (var line in log.Lines) Lines.Add(line);
+        log.LineAdded += OnLineAdded;
+    }
+
+    public SystemLog Source { get; }
+
     public ObservableCollection<string> Lines { get; } = new();
 
-    public void Info(string message, string? context = null) => Add("INFO", message);
-    public void Warn(string message, string? context = null) => Add("WARN", message);
-    public void Error(string message, string? context = null) => Add("ERROR", message);
-
-    private void Add(string level, string message)
+    private void OnLineAdded(string line)
     {
-        var line = $"{DateTime.Now:HH:mm:ss}  {level,-5}  {message}";
-
         if (_dispatcher.CheckAccess()) Push(line);
         else _dispatcher.Invoke(() => Push(line));
     }
@@ -26,6 +32,6 @@ public sealed class UiLogger : ISystemLogger
     private void Push(string line)
     {
         Lines.Insert(0, line);
-        while (Lines.Count > 50) Lines.RemoveAt(Lines.Count - 1);
+        while (Lines.Count > SystemLog.MaxLines) Lines.RemoveAt(Lines.Count - 1);
     }
 }

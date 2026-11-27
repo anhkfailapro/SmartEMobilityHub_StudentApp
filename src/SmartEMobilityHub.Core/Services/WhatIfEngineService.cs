@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using SmartEMobilityHub.Core.Clock;
 using SmartEMobilityHub.Core.Domain;
 
 namespace SmartEMobilityHub.Core.Services;
@@ -8,6 +9,11 @@ public sealed class WhatIfEngineService
 {
     public const int MaximumDurationSeconds = 3;
     private const double OverloadThreshold = ServiceConstants.OverloadThreshold;
+
+    private readonly IClock _clock;
+
+    /// <param name="clock">Đồng hồ mô phỏng dùng cho mốc chạy (StartedAt); mặc định là giờ thật (DC-53).</param>
+    public WhatIfEngineService(IClock? clock = null) => _clock = clock ?? new SystemClock();
 
     public ValidationResult ValidateParameters(
         ScenarioPreset preset,
@@ -84,7 +90,7 @@ public sealed class WhatIfEngineService
         if (stopwatch.Elapsed > TimeSpan.FromSeconds(MaximumDurationSeconds))
             throw new TimeoutException("Mô phỏng vượt quá giới hạn 3 giây và đã bị hủy.");
 
-        return new SimulationResult(sessionId, runId, preset.Name, parameters, DateTime.Now,
+        return new SimulationResult(sessionId, runId, preset.Name, parameters, _clock.Now,
             stopwatch.Elapsed, before, after, impact, recommendations, isPostActionResult,
             appliedRecommendationId) { Forecast = forecast };
     }

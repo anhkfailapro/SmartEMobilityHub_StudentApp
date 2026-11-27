@@ -1,4 +1,5 @@
 using System.Globalization;
+using SmartEMobilityHub.Core.Domain;
 using SmartEMobilityHub.Models;
 
 namespace SmartEMobilityHub.Data
@@ -12,12 +13,11 @@ namespace SmartEMobilityHub.Data
         public const int PrivateChargingTariffPerKWh = 3500;
         public const int IdleFeePerMinute = 1000;
 
-        public const int HoldMinutes = 15;
+        // Quy tắc chung với mạng lưới: lấy thẳng từ Core để hai app không lệch nhau (DC-54).
+        public const int HoldMinutes = ServiceConstants.ReservationHoldMinutes;
         public const int LateCancelWindowMinutes = 5;
-        public const int StaleMinutes = 10;
-        public const int UnlockTimeoutSeconds = 30;
-        /// <summary>Cùng giới hạn với Core (ServiceConstants.MaxPickupExtensions): không gia hạn giữ xe vô hạn.</summary>
-        public const int MaxPickUpExtensions = 5;
+        public const int StaleMinutes = ServiceConstants.StaleThresholdMinutes;
+        public const int UnlockTimeoutSeconds = ServiceConstants.UnlockTimeoutSeconds;
         public const int UnlockNormalSeconds = 3;
         public const int MaxExtraPickUpAttempts = 2;
         public const double MaxPhotoMb = 5;
@@ -30,7 +30,7 @@ namespace SmartEMobilityHub.Data
         public const int MaxActiveCharging = 1;
         public const double AlternativeHubRadiusKm = 1.0;
         public const int NearestHubCount = 3;
-        public const string SupportHotline = "Hotline 1900-xxxx (demo)";
+        public const string SupportHotline = ServiceConstants.SupportHotline;
         public const string SupportHours = "7:00–22:00";
         public const string PaymentMethod = "Ví điện tử (demo)";
 

@@ -1,12 +1,19 @@
+using SmartEMobilityHub.Core.Seed;
+using SmartEMobilityHub.Core.Services;
 using SmartEMobilityHub.Data;
 using SmartEMobilityHub.Models;
+using CoreDomain = SmartEMobilityHub.Core.Domain;
 
 namespace SmartEMobilityHub.Services
 {
     public class ReservationService
     {
-        private static MockDataStore Store => DemoApp.Store;
-        private static DateTime Now => DemoApp.Clock.Now;
+        private readonly StudentContext Ctx;
+
+        public ReservationService(StudentContext ctx) => Ctx = ctx;
+
+        private MockDataStore Store => Ctx.Store;
+        private DateTime Now => Ctx.Clock.Now;
 
         public VehicleReservation? ActiveVehicleReservation => Store.VehicleReservations.FirstOrDefault(r => r.State == ReservationState.Active);
 
@@ -17,13 +24,19 @@ namespace SmartEMobilityHub.Services
             var v = Store.GetVehicle(vehicleCode);
             if (v == null || !v.IsAvailable) return "TakenByOther";
             if (v.HubId != null && Store.GetHub(v.HubId).IsSuspended) return "HubSuspended";
-            var network = DemoApp.Link.CheckReserve(v);
-            if (network != "") return network;
-            if (DemoApp.Toggles.AnotherStudentReservesFirst)
+            if (Ctx.Toggles.AnotherStudentReservesFirst)
             {
-                v.Status = VehicleStatus.Reserved;
-                DemoApp.Toggles.AnotherStudentReservesFirst = false;
-                DemoApp.Link.OnReservedByOtherStudent(v);
+                // UC-03 2a: một sinh viên khác đặt trước — ghi đặt chỗ thật của người đó vào mạng lưới.
+                Ctx.Toggles.AnotherStudentReservesFirst = false;
+                try
+                {
+                    Ctx.Gateway.ReserveVehicle(Store.NextId("VR-KHAC"), CampusFleetSeed.OtherStudentId, v.Code, v.HubId ?? "",
+                        Now.AddMinutes(DemoConfig.HoldMinutes));
+                }
+                catch (Exception ex) when (ex is CoreDomain.IllegalStateException or CoreDomain.IllegalArgumentException)
+                {
+                    // Xe đã không còn đặt được thì kết quả vẫn là "đã có người đặt".
+                }
                 return "TakenByOther";
             }
             return "";
@@ -34,21 +47,19 @@ namespace SmartEMobilityHub.Services
             var error = CheckReserve(vehicleCode);
             if (error != "") return OpResult<VehicleReservation>.Fail(error);
             var v = Store.GetVehicle(vehicleCode)!;
-            v.Status = VehicleStatus.Reserved;
-            var r = new VehicleReservation
+            CoreDomain.Reservation core;
+            try
             {
-                Id = Store.NextId("VR"),
-                VehicleCode = v.Code,
-                HubId = v.HubId ?? "",
-                Slot = v.Slot,
-                CreatedAt = Now,
-                HoldUntil = Now.AddMinutes(DemoConfig.HoldMinutes),
-                PickUpCode = GeneratePickUpCode(),
-                State = ReservationState.Active
-            };
-            Store.VehicleReservations.Add(r);
-            DemoApp.Link.OnVehicleReserved(r);
-            DemoApp.Notifications.Send("Đặt xe thành công", $"Xe {v.Code} được giữ đến {DemoConfig.Time(r.HoldUntil)} tại {Store.GetHub(r.HubId).ShortName}. Mã nhận xe {r.PickUpCode}.", Tone.Success);
+                core = Ctx.Gateway.ReserveVehicle(Store.NextId("VR"), Store.StudentId, v.Code, v.HubId ?? "",
+                    Now.AddMinutes(DemoConfig.HoldMinutes));
+            }
+            catch (CoreDomain.IllegalStateException ex)
+            {
+                // Mạng lưới từ chối (Hub vừa bị tạm dừng, xe vừa đổi trạng thái): không giữ xe trên app.
+                return OpResult<VehicleReservation>.Fail(Store.GetHub(v.HubId ?? "").IsSuspended ? "HubSuspended" : "TakenByOther", ex.Message);
+            }
+            var r = Store.Track(core, v.Slot, GeneratePickUpCode());
+            Ctx.Notifications.Send("Đặt xe thành công", $"Xe {v.Code} được giữ đến {DemoConfig.Time(r.HoldUntil)} tại {Store.GetHub(r.HubId).ShortName}. Mã nhận xe {r.PickUpCode}.", Tone.Success);
             return OpResult<VehicleReservation>.Success(r);
         }
 
@@ -59,29 +70,16 @@ namespace SmartEMobilityHub.Services
             return $"{a}-{Random.Shared.Next(10, 100)}";
         }
 
+        /// <summary>
+        /// Huỷ đặt xe quá 15 phút của sinh viên, dùng đúng quy tắc của Core (UC-SYS-04, gia hạn có giới hạn khi
+        /// đang quét QR). Trả về các đặt xe vừa hết hạn; thông báo do NetworkWatcher gửi.
+        /// </summary>
         public List<VehicleReservation> AutoCancelExpired()
         {
-            var expired = new List<VehicleReservation>();
-            foreach (var r in Store.VehicleReservations.Where(r => r.State == ReservationState.Active && r.HoldUntil <= Now).ToList())
-            {
-                // Đang quét QR / mở khoá thì gia hạn, nhưng có giới hạn: trước đây IsPickingUp còn bật
-                // (ví dụ sinh viên rời màn hình mở khoá) thì đặt chỗ được gia hạn mãi và xe bị giữ vô thời hạn.
-                if (r.IsPickingUp && r.PickUpExtensions < DemoConfig.MaxPickUpExtensions)
-                {
-                    r.PickUpExtensions++;
-                    r.HoldUntil = Now.AddSeconds(DemoConfig.UnlockTimeoutSeconds);
-                    continue;
-                }
-                r.IsPickingUp = false;
-                r.State = ReservationState.Expired;
-                r.ClosedAt = Now;
-                var v = Store.GetVehicle(r.VehicleCode);
-                if (v != null && v.Status == VehicleStatus.Reserved) v.Status = VehicleStatus.Available;
-                DemoApp.Link.OnReservationExpired(r);
-                DemoApp.Notifications.Send("Đặt chỗ đã bị hủy", $"Hết thời gian giữ xe {r.VehicleCode}. Xe đã trở về trạng thái sẵn sàng.", Tone.Danger);
-                expired.Add(r);
-            }
-            return expired;
+            var active = Store.VehicleReservations.Where(r => r.State == ReservationState.Active).ToList();
+            if (active.Count == 0) return new List<VehicleReservation>();
+            Ctx.Gateway.AutoCancelExpiredFor(Store.StudentId);
+            return active.Where(r => r.State == ReservationState.Expired).ToList();
         }
 
         public List<BookingItem> ListActive()
@@ -221,11 +219,7 @@ namespace SmartEMobilityHub.Services
                 case BookingKind.Vehicle:
                     {
                         var r = Store.VehicleReservations.First(x => x.Id == id);
-                        r.State = ReservationState.Cancelled;
-                        r.ClosedAt = Now;
-                        var v = Store.GetVehicle(r.VehicleCode);
-                        if (v != null && v.Status == VehicleStatus.Reserved) v.Status = VehicleStatus.Available;
-                        DemoApp.Link.OnReservationCancelled(r);
+                        Ctx.Gateway.CloseReservation(r.Id, StudentAppGateway.CancelledByStudent);
                         what = $"đặt xe {r.VehicleCode}";
                         break;
                     }
@@ -235,9 +229,7 @@ namespace SmartEMobilityHub.Services
                         p.State = ReservationState.Cancelled;
                         p.CancellationFee = fee;
                         p.ClosedAt = Now;
-                        var hub = Store.GetHub(p.HubId);
-                        hub.FreeSlots = Math.Min(hub.ParkingCapacity, hub.FreeSlots + 1);
-                        DemoApp.Link.OnParkingChanged(p.HubId, -1);
+                        Ctx.Gateway.ChangeParkingOccupancy(p.HubId, -1);
                         what = $"đặt chỗ đỗ {p.SlotNumber}";
                         break;
                     }
@@ -253,15 +245,13 @@ namespace SmartEMobilityHub.Services
                 default:
                     {
                         var q = Store.ChargingRequests.First(x => x.Id == id);
-                        DemoApp.Charging.Release(q);
-                        q.State = ChargingRequestState.Cancelled;
-                        DemoApp.Link.OnChargingRequestCancelled(q);
+                        Ctx.Charging.Cancel(q);
                         what = $"yêu cầu sạc {q.VehicleCode}";
                         break;
                     }
             }
             var feeText = fee > 0 ? $" Phí hủy muộn: {DemoConfig.Money(fee)}." : " Không mất phí.";
-            DemoApp.Notifications.Send("Đã hủy đặt chỗ", $"Bạn đã hủy {what}.{feeText}", Tone.Info);
+            Ctx.Notifications.Send("Đã hủy đặt chỗ", $"Bạn đã hủy {what}.{feeText}", Tone.Info);
             return fee;
         }
 
@@ -272,11 +262,11 @@ namespace SmartEMobilityHub.Services
             {
                 var p = Store.ParkingReservations.First(x => x.Id == id);
                 var old = $"{DemoConfig.Time(p.Start)}–{DemoConfig.Time(p.End)}";
-                if (DemoApp.Toggles.ChangeTimeUnavailable)
+                if (Ctx.Toggles.ChangeTimeUnavailable)
                     return OpResult<bool>.Fail("Unavailable", $"Khung giờ mới không còn chỗ trống. Lịch cũ {old} được giữ nguyên.");
                 p.Start = newStart;
                 p.DurationMinutes = durationMinutes;
-                DemoApp.Notifications.Send("Đã đổi giờ đặt chỗ", $"Chỗ đỗ {p.SlotNumber}: {DemoConfig.Time(p.Start)}–{DemoConfig.Time(p.End)} ngày {p.Start:dd/MM}.", Tone.Info);
+                Ctx.Notifications.Send("Đã đổi giờ đặt chỗ", $"Chỗ đỗ {p.SlotNumber}: {DemoConfig.Time(p.Start)}–{DemoConfig.Time(p.End)} ngày {p.Start:dd/MM}.", Tone.Info);
                 return OpResult<bool>.Success(true);
             }
             if (kind == BookingKind.ChargingSession)
@@ -286,12 +276,12 @@ namespace SmartEMobilityHub.Services
                 var old = $"{DemoConfig.Time(s.Start)}–{DemoConfig.Time(s.End)}";
                 if (durationMinutes > hub.MaxChargingMinutes)
                     return OpResult<bool>.Fail("DurationTooLong", $"{hub.Name} cho phép sạc tối đa {hub.MaxChargingMinutes} phút. Lịch cũ {old} được giữ nguyên.");
-                if (DemoApp.Toggles.ChangeTimeUnavailable)
+                if (Ctx.Toggles.ChangeTimeUnavailable)
                     return OpResult<bool>.Fail("Unavailable", $"Không còn cổng sạc trống trong khung giờ mới. Lịch cũ {old} được giữ nguyên.");
                 s.Start = newStart;
                 s.DurationMinutes = durationMinutes;
                 s.Reminded = false;
-                DemoApp.Notifications.Send("Đã đổi giờ lịch sạc", $"Cổng #{s.PointNumber} tại {hub.ShortName}: {DemoConfig.Time(s.Start)}–{DemoConfig.Time(s.End)} ngày {s.Start:dd/MM}.", Tone.Charging);
+                Ctx.Notifications.Send("Đã đổi giờ lịch sạc", $"Cổng #{s.PointNumber} tại {hub.ShortName}: {DemoConfig.Time(s.Start)}–{DemoConfig.Time(s.End)} ngày {s.Start:dd/MM}.", Tone.Charging);
                 return OpResult<bool>.Success(true);
             }
             return OpResult<bool>.Fail("NotSupported", "Đặt xe chia sẻ là giữ cố định 15 phút, không thể đổi giờ.");

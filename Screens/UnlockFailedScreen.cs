@@ -19,11 +19,14 @@ namespace SmartEMobilityHub.Screens
 
         public override string? Title => "Không mở khóa được";
 
+        // Theo TCOP03-05 (Core): lệnh mở khoá bị huỷ, đặt xe bị huỷ (không mất phí) và xe được giữ ở trạng thái
+        // "Đã đặt" cho tới khi người vận hành kiểm tra xong sự cố. Trước DC-54 app Sinh viên vẫn giữ đặt xe và
+        // cho "Thử lại", trong khi Trung tâm điều hành đã huỷ — hai bên lệch nhau.
         public override UIElement BuildContent() => Stack(16,
             Banner(Tone.Danger, $"Xe {_reservation.VehicleCode} không xác nhận mở khóa sau {DemoConfig.UnlockTimeoutSeconds} giây. Lệnh mở khóa đã được hủy."),
             Card(
-                Row("Trạng thái xe", "Vẫn giữ cho bạn (Đã đặt)", Theme.Warning),
-                Row("Giữ đến", DemoConfig.Time(_reservation.HoldUntil)),
+                Row("Đặt xe", _reservation.State == ReservationState.Active ? "Vẫn đang giữ" : "Đã hủy · không mất phí", Theme.Warning),
+                Row("Trạng thái xe", "Được giữ lại chờ kiểm tra", Theme.Warning),
                 Row("Mã sự cố", _incident.Code),
                 Row("Trạng thái sự cố", "Đã gửi người điều hành")),
             Card(
@@ -32,7 +35,7 @@ namespace SmartEMobilityHub.Screens
                 Row("Giờ hỗ trợ", DemoConfig.SupportHours)));
 
         public override UIElement? BuildActions() => Columns(12,
-            Button("Về đặt chỗ", ButtonVariant.Outline, () => Shell.BackTo<ReservationScreen>()),
-            Button("Thử lại", ButtonVariant.Primary, () => Shell.Replace(new ScanQrScreen())));
+            Button("Về Trang chủ", ButtonVariant.Outline, () => DemoApp.GoTab(NavTab.Home)),
+            Button("Chọn xe khác", ButtonVariant.Primary, () => Shell.ResetTo(new VehicleListScreen(_reservation.HubId))));
     }
 }

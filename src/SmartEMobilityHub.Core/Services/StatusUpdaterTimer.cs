@@ -40,7 +40,7 @@ public sealed class StatusUpdaterTimer
         AutoCancelService autoCancel,
         ISmartSchedulingService smartScheduling,
         ISystemLogger logger,
-        IScheduler? ticker = null)
+        IScheduler ticker)
     {
         _store = store;
         _clock = clock;
@@ -50,7 +50,9 @@ public sealed class StatusUpdaterTimer
         _autoCancel = autoCancel;
         _smartScheduling = smartScheduling;
         _logger = logger;
-        _ticker = ticker ?? new ThreadPoolScheduler();
+        // Bắt buộc truyền scheduler (DC-47): mặc định cũ là ThreadPoolScheduler chạy ở luồng nền,
+        // trong khi NetworkStore và các ObservableCollection của UI không an toàn đa luồng.
+        _ticker = ticker ?? throw new ArgumentNullException(nameof(ticker));
     }
 
     public bool IsRunning { get; private set; }

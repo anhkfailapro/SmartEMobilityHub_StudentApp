@@ -5,13 +5,17 @@ namespace SmartEMobilityHub.Services
 {
     public class HistoryService
     {
-        private static MockDataStore Store => DemoApp.Store;
+        private readonly StudentContext Ctx;
+
+        public HistoryService(StudentContext ctx) => Ctx = ctx;
+
+        private MockDataStore Store => Ctx.Store;
 
         public List<HistoryEntry> Entries()
         {
             var list = new List<HistoryEntry>();
-            if (DemoApp.Toggles.HistoryEmpty) return list;
-            var from = DemoApp.Clock.Now.AddMonths(-DemoConfig.HistoryMonths);
+            if (Ctx.Toggles.HistoryEmpty) return list;
+            var from = Ctx.Clock.Now.AddMonths(-DemoConfig.HistoryMonths);
 
             foreach (var t in Store.Trips.Where(t => t.EndTime.HasValue && t.EndTime.Value >= from))
             {
@@ -61,7 +65,7 @@ namespace SmartEMobilityHub.Services
                     HubName = Store.GetHub(s.HubId).ShortName,
                     Duration = $"{s.DurationMinutes} phút",
                     // Phiên sạc hoàn tất phải hiện chi phí sạc; trước đây luôn hiện phí huỷ (0đ).
-                    Fee = DemoConfig.Money(s.State == SessionState.Completed ? DemoApp.Booking.EstimateCost(s.DurationMinutes) : s.CancellationFee),
+                    Fee = DemoConfig.Money(s.State == SessionState.Completed ? Ctx.Booking.EstimateCost(s.DurationMinutes) : s.CancellationFee),
                     Status = DemoConfig.SessionStateLabel(s.State).Label
                 });
             }

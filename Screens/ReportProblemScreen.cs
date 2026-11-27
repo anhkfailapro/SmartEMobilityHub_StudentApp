@@ -12,7 +12,7 @@ namespace SmartEMobilityHub.Screens
         private static readonly string[] PointProblems = { "Không sạc được", "Đầu cắm hỏng", "Màn hình lỗi", "Khác" };
         private ReportObjectKind _kind;
         private string _code;
-        private string _hubId = "H1";
+        private string _hubId = CampusMap.DefaultHubId;
         private int _point = 1;
         private string _problem = "Pin / Sạc";
         private string _description = "";
