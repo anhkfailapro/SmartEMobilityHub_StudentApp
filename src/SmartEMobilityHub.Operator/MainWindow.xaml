@@ -25,8 +25,19 @@
                     <GradientStop Color="#172554" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
+            <!-- Header 2 cột: bên trái co lại (tiêu đề phụ cắt "…") để không đè lên đồng hồ / nút bên phải
+                 khi cửa sổ hẹp hơn 1520 (laptop, màn hình scale 125–150%). -->
             <Grid>
-                <StackPanel Orientation="Horizontal">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid Margin="0,0,16,0" ClipToBounds="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <Border Width="40" Height="40" CornerRadius="12">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -37,26 +48,29 @@
                         <TextBlock Text="&#xE945;" FontFamily="{StaticResource IconFont}" FontSize="18" Foreground="White"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Trung tâm điều hành" FontSize="18" FontWeight="SemiBold" Foreground="White" />
+                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Trung tâm điều hành" FontSize="18" FontWeight="SemiBold" Foreground="White"
+                                   TextTrimming="CharacterEllipsis" />
                         <TextBlock Text="Smart E-Mobility Hub · Khu đô thị ĐHQG-HCM · Nhóm 21"
-                                   FontSize="11.5" Foreground="#94A3B8" />
+                                   FontSize="11.5" Foreground="#94A3B8" TextTrimming="CharacterEllipsis"
+                                   ToolTip="Smart E-Mobility Hub · Khu đô thị ĐHQG-HCM · Nhóm 21" />
                     </StackPanel>
-                    <Border Background="#1A10B981" BorderBrush="#5510B981" BorderThickness="1" CornerRadius="11"
+                    <Border Grid.Column="2" Background="#1A10B981" BorderBrush="#5510B981" BorderThickness="1" CornerRadius="11"
                             Padding="9,3" Margin="18,0,0,0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center" Margin="0,0,6,0" />
                             <TextBlock Text="Đang giám sát" FontSize="11" Foreground="#6EE7B7" />
                         </StackPanel>
                     </Border>
-                </StackPanel>
+                </Grid>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <StackPanel Margin="0,0,14,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding ClockText}" Foreground="White" FontSize="18"
                                    FontWeight="SemiBold" HorizontalAlignment="Right" FontFamily="Segoe UI Variable Display, Segoe UI" />
                         <TextBlock Text="{Binding ScanText}" Foreground="#94A3B8" FontSize="11"
-                                   HorizontalAlignment="Right" />
+                                   HorizontalAlignment="Right" MaxWidth="190" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding ScanText}" />
                     </StackPanel>
                     <Button Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" Margin="0,0,8,0" ToolTip="Chạy ngay một chu kỳ quét 6 bước">
                         <StackPanel Orientation="Horizontal">
@@ -109,6 +123,7 @@
                     <StackPanel>
                         <TextBlock Text="ĐIỀU HÀNH" Style="{StaticResource Overline}" Margin="12,0,0,8" />
                         <ListBox ItemsSource="{Binding NavItems}" SelectedIndex="{Binding PageIndex, Mode=TwoWay}"
+                                 PreviewMouseLeftButtonUp="NavList_PreviewMouseLeftButtonUp"
                                  ItemContainerStyle="{StaticResource NavItem}" BorderThickness="0" Background="Transparent"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemTemplate>
@@ -135,7 +150,8 @@
                         </ListBox>
 
                         <TextBlock Text="PHÂN TÍCH" Style="{StaticResource Overline}" Margin="12,14,0,8" />
-                        <Button Click="WhatIf_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch">
+                        <Button x:Name="WhatIfNavButton" Click="WhatIf_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                                ToolTip="Mở mô phỏng What-if ngay trong cửa sổ này">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Bd" Background="Transparent" CornerRadius="10" Padding="12,10">
@@ -143,6 +159,10 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceAlt}" />
+                                        </Trigger>
+                                        <!-- Đang mở trang What-if trong cửa sổ: tô nền như mục đang chọn. -->
+                                        <Trigger Property="Tag" Value="Active">
                                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceAlt}" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
@@ -165,7 +185,7 @@
             </Border>
 
             <!-- PAGES -->
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" x:Name="PagesHost">
 
                 <!-- ===== Trang 0: Tổng quan mạng lưới ===== -->
                 <views:OverviewPage DataContext="{Binding Overview}" Visibility="{Binding DataContext.OverviewVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
@@ -185,6 +205,9 @@
                 <!-- ===== Trang 5: Kịch bản demo & nhật ký ===== -->
                 <views:DemoLogPage DataContext="{Binding Demo}" Visibility="{Binding DataContext.DemoVisibility, RelativeSource={RelativeSource AncestorType=Window}}" />
             </Grid>
+
+            <!-- ===== Mô phỏng What-if (UC-OP-05): mở ngay trong cửa sổ, che vùng trang khi đang xem ===== -->
+            <ContentControl Grid.Column="1" x:Name="WhatIfHost" Visibility="Collapsed" Focusable="False" />
         </Grid>
 
         <!-- STATUS BAR -->

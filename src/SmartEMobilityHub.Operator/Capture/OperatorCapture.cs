@@ -151,13 +151,11 @@ namespace SmartEMobilityHub.Capture
                 kit.Log("Không lấy được OperatorDemo để mở What-if.");
                 return;
             }
-            var session = main.Demo.Session;
-
-            var w = new WhatIfWindow(session.WhatIf, session.Store, () => session.Clock.Now) { Owner = owner, Width = 1400, Height = 900 };
-            w.Show();
+            // What-if mở ngay trong cửa sổ chính (không còn cửa sổ riêng): chụp cả cửa sổ để thấy thanh bên.
+            var page = main.ShowWhatIf();
             await ShotKit.Settle(700);
-            var vm = (WhatIfViewModel)w.DataContext;
-            var root = (FrameworkElement)w.Content;
+            var vm = page.ViewModel;
+            var root = (FrameworkElement)main.Content;
             try
             {
                 vm.SelectedPreset = vm.Presets.First();
@@ -189,7 +187,7 @@ namespace SmartEMobilityHub.Capture
             }
             finally
             {
-                w.Close();
+                main.HideWhatIf();
             }
         }
     }

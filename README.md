@@ -127,7 +127,7 @@ A control-centre window (1520 × 940, minimum 1240 × 760) with a **left sidebar
 | **Điều phối phương tiện** (dispatch) | Load balance of every hub (surplus / balanced / short of vehicles) and the dispatch form with the list of orders. |
 | **Kịch bản demo & nhật ký** (demo & log) | Demo scenario buttons, simulated clock, auto-scan / ×10 speed, recent alerts and the system log. |
 
-The **Mô phỏng What-if** button (header and sidebar) opens the What-if window.
+The **Mô phỏng What-if** button (header and sidebar) opens the What-if page inside the same window, in place of the current page; the header and sidebar stay visible. **← Quay lại** or any sidebar item returns to the page you were on, and reopening What-if keeps the last results.
 
 A **login window** opens first. Only operator accounts can sign in — demo account **op01 / op123456** (OP-01 Hoàng Vỹ). The same rules apply as in the student app (5 wrong attempts → 5-minute lock; a student account is refused).
 
@@ -135,7 +135,7 @@ The header shows the simulated clock, "updated N seconds ago · 30-second cycle"
 
 ### Light / dark mode
 
-**☾ Chế độ tối / ☀ Chế độ sáng** in the header switches the whole dashboard (also the login and What-if windows). Colours live in `Themes/Light.xaml` and `Themes/Dark.xaml`; every window uses `DynamicResource`, so the switch is immediate.
+**☾ Chế độ tối / ☀ Chế độ sáng** in the header switches the whole dashboard (also the login window and the What-if page). Colours live in `Themes/Light.xaml` and `Themes/Dark.xaml`; every window uses `DynamicResource`, so the switch is immediate.
 
 ### Smart charging schedule (UC-OP-04)
 
@@ -245,7 +245,7 @@ dotnet run --project src\SmartEMobilityHub.Operator\SmartEMobilityHub.Operator.c
 | `src/SmartEMobilityHub.Core/Services/WhatIfEngineService.cs` | Validates parameters, calculates forecasts, evaluates impacts, and generates/simulates recommendations on snapshots. |
 | `src/SmartEMobilityHub.Core/Domain/SimulationModels.cs` | Defines simulation parameters, sessions, forecast points, hub impacts, and recommendations. |
 | `src/SmartEMobilityHub.Core/Store/TempStateRepository.cs` | Stores temporary simulation snapshots and session history. |
-| `src/SmartEMobilityHub.Operator/WhatIfWindow.xaml` | What-if configuration, chart, warnings, recommendations, and history UI. |
+| `src/SmartEMobilityHub.Operator/Views/WhatIfPage.xaml` | What-if configuration, chart, warnings, recommendations, and history UI, embedded in the main window. |
 | `src/SmartEMobilityHub.Operator/ViewModels/WhatIfViewModel.cs` | Connects UI state to the controller and exposes simulation results and PDF export. |
 ## 5. Core services
 
@@ -318,7 +318,7 @@ docs/                               project documents
 
 ### Architecture notes
 - **Student app:** Screen → Service → in-memory store. Screens are C# classes built with the shared `UiKit`, so all screens share one style. Services get everything they need from a `StudentContext` passed to their constructor (no static access to the WPF `DemoApp`), so they can run in the test project.
-- **Operator dashboard:** MVVM on top of the Core services. Each sidebar page is a `UserControl` in `Views/`; its buttons bind to `RelayCommand`s in `MainViewModel.Commands.cs`. The window code-behind only does window work (log out, light/dark, open What-if). Warnings and confirmations go through `IDialogService`.
+- **Operator dashboard:** MVVM on top of the Core services. Each sidebar page is a `UserControl` in `Views/`; its buttons bind to `RelayCommand`s in `MainViewModel.Commands.cs`. The window code-behind only does window work (log out, light/dark, show/hide the What-if page). Warnings and confirmations go through `IDialogService`.
 - **One network:** student models (`Hub`, `Vehicle`, `ChargingPoint`, `VehicleReservation`, `ChargingRequest`, `Incident`) are read-only views over the Core entities. Every change goes through Core services (`StudentAppGateway`, `IncidentManager`, `SmartChargingScheduler`, `AutoCancelService`), so the rules (15-minute hold, extensions while scanning, duplicate incident merge, power limits) exist once.
 - `ShotKit` (screen capture for the Working demonstration) exists once, in the operator project; the student app compiles the same file.
 

@@ -1,9 +1,11 @@
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
 using SmartEMobilityHub.Core.Domain;
 using SmartEMobilityHub.Operator.Infrastructure;
 using SmartEMobilityHub.Operator.Themes;
 using SmartEMobilityHub.Operator.ViewModels;
+using SmartEMobilityHub.Operator.Views;
 
 namespace SmartEMobilityHub.Operator;
 
@@ -110,6 +112,13 @@ public partial class MainWindow : Window
     public void AttachDemo(OperatorDemo demo)
     {
         _demo = demo;
+        // Mạng lưới mới (đặt lại demo): trang What-if cũ gắn với session cũ nên bỏ đi.
+        if (_whatIfPage is not null)
+        {
+            HideWhatIf();
+            WhatIfHost.Content = null;
+            _whatIfPage = null;
+        }
         _viewModel = new MainViewModel(_demo, new WindowDialogService(this));
         _viewModel.Shell.IsLinked = _linked;
         _viewModel.Shell.ResetRequested = ResetDemo;
@@ -118,13 +127,43 @@ public partial class MainWindow : Window
 
     // ---------- Việc của cửa sổ (các nút trong trang dùng lệnh của ViewModel trang) ----------
 
-    private void WhatIf_Click(object sender, RoutedEventArgs e)
+    // ---------- Mô phỏng What-if: hiển thị ngay trong cửa sổ, không mở cửa sổ mới ----------
+
+    /// <summary>Trang What-if của mạng lưới hiện tại; giữ lại để mở lại vẫn thấy kết quả lần chạy trước.</summary>
+    private WhatIfPage? _whatIfPage;
+
+    /// <summary>true khi vùng nội dung đang hiện trang What-if thay cho trang của thanh bên.</summary>
+    internal bool IsWhatIfOpen => WhatIfHost.Visibility == Visibility.Visible;
+
+    private void WhatIf_Click(object sender, RoutedEventArgs e) => ShowWhatIf();
+
+    /// <summary>Hiện trang What-if trong vùng nội dung (ẩn trang đang xem, thanh bên và header giữ nguyên).</summary>
+    internal WhatIfPage ShowWhatIf()
     {
-        var session = _demo.Session;
-        var window = new WhatIfWindow(session.WhatIf, session.Store, () => session.Clock.Now)
+        if (_whatIfPage is null)
         {
-            Owner = this
-        };
-        window.ShowDialog();
+            var session = _demo.Session;
+            _whatIfPage = new WhatIfPage(session.WhatIf, session.Store, () => session.Clock.Now);
+            _whatIfPage.CloseRequested += (_, _) => HideWhatIf();
+            WhatIfHost.Content = _whatIfPage;
+        }
+        PagesHost.Visibility = Visibility.Collapsed;
+        WhatIfHost.Visibility = Visibility.Visible;
+        WhatIfNavButton.Tag = "Active";
+        return _whatIfPage;
+    }
+
+    /// <summary>Đóng trang What-if, trở về trang đang chọn ở thanh bên.</summary>
+    internal void HideWhatIf()
+    {
+        WhatIfHost.Visibility = Visibility.Collapsed;
+        PagesHost.Visibility = Visibility.Visible;
+        WhatIfNavButton.Tag = null;
+    }
+
+    /// <summary>Bấm một mục ở thanh bên (kể cả mục đang chọn) khi đang ở What-if thì quay lại trang đó.</summary>
+    private void NavList_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (IsWhatIfOpen) HideWhatIf();
     }
 }
